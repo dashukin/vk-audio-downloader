@@ -1,0 +1,37 @@
+html,
+body {
+	background: #fff;
+	height: 100%;
+	position: relative;
+	box-sizing: border-box;
+	margin: 0;
+}
+.app-wrapper,
+.app {
+	height: 100%;
+	min-height: 100%;
+}
+.app.loading,
+.app.login {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+}
+.app > div {
+
+}
+.transition {
+	transition: color 0.3s linear;
+}
+.fb {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+/* Audio item */
+.audio-item-title {
+	margin: 0 0 10px;
+}
