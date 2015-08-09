@@ -14,19 +14,22 @@ import assign from 'object-assign';
 import {EventEmitter} from 'events';
 
 let AppStore = assign(EventEmitter.prototype, {
-	emitChage () {
+	emitChange () {
 		this.emit(AppConstants.CHANGE_EVENT);
 	},
 	addChangeListener (changeEvent, callback) {
 		this.on(AppConstants.CHANGE_EVENT, callback);
 	},
-	removeChageListener (callback) {
+	removeChangeListener (callback) {
 		this.removeListener(AppConstants.CHANGE_EVENT, callback);
 	},
 	userInfo: {
-		uid: null
+		uid: null,
+		firstName: '',
+		lastName: '',
+		myAudiosCount: 0
 	},
-	personalList: null,
+	personalList: [],
 	searchQuery: '',
 	searchResults: [],
 	initVK () {
@@ -83,7 +86,8 @@ let AppStore = assign(EventEmitter.prototype, {
 				let uData = r.response[0];
 				self.userInfo.firstName = uData['first_name'];
 				self.userInfo.lastName  = uData['last_name'];
-				AppActions.processUserInfo(self.userInfo);
+				self.emitChange();
+				//AppActions.processUserInfo(self.userInfo);
 			}
 		});
 	},
@@ -91,17 +95,18 @@ let AppStore = assign(EventEmitter.prototype, {
 		console.log('Getting personal list...');
 		var self = this;
 
-		if (self.personalList !== null) {
-			AppActions.processPersonalList(self.personalList);
-		} else {
+		if (!self.personalList.length) {
 			VK.Api.call('audio.get', {
-				owner_id: self.getUserId()
+				owner_id: self.userInfo.uid
 			}, (r) => {
 				console.log('Audios were successfully loaded.')
 				let userAudios = r.response.slice(1);
-				AppActions.processPersonalList(userAudios);
 				self.personalList = userAudios;
+				self.userInfo.myAudiosCount = userAudios.length;
+				self.emitChange();
 			});
+		} else {
+			self.emitChange();
 		}
 	},
 	searchAudio: (() => {
@@ -152,9 +157,6 @@ let AppStore = assign(EventEmitter.prototype, {
 	})(),
 	setUserId (uid) {
 		this.userInfo.uid = uid;
-	},
-	getUserId () {
-		return this.userInfo.uid;
 	},
 	getSearchQuery () {
 		return this.searchQuery || '';

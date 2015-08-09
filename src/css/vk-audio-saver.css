@@ -31,7 +31,91 @@ body {
 	align-items: center;
 }
 
+/* search */
+.search-results {
+	padding-top: 20px;
+}
+
 /* Audio item */
-.audio-item-title {
-	margin: 0 0 10px;
+.audio-item {
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+	/*border-bottom: 1px solid #ccc;*/
+}
+.audio-item-audioplayer {
+	padding-right: 90px;
+	display: inline-block;
+	width: 100%;
+	margin-right: -70px;
+}
+.audio-item-actions {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	vertical-align: bottom;
+}
+.audio-item-actions li {
+	float: left;
+	list-style-type: none;
+}
+.audio-item-actions li:first-child {
+	margin-right: 10px;
+}
+
+/* audio player */
+.audio-item-player {
+	margin-right: 50px;
+}
+.audio-player {
+
+}
+.audio-controls {
+	float: left;
+}
+
+.audio-info {
+	padding-left: 55px;
+}
+.audio-info-track-name {
+	display: inline-block;
+	width: 100%;
+	margin-right: -70px;
+	padding-right: 80px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.audio-info-duration {
+	display: inline-block;
+	float: right;
+	position: relative;
+	z-index: 2;
+	cursor: pointer;
+}
+
+.audio-timeline-holder {
+	width: 100%;
+	height: 2px;
+	background: #ccc;
+}
+.audio-timeline {
+	width: 0%;
+	height: 100%;
+	background: #000;
+	-webkit-transition: width 0.1s linear;
+	-moz-transition: width 0.1s linear;
+	-ms-transition: width 0.1s linear;
+	-o-transition: width 0.1s linear;
+	transition: width 0.1s linear;
+}
+.audio-timeline-holder {
+
+}
+
+
+/* common styles */
+.clearfix:after {
+	display: table;
+	clear: both;
+	float: none;
 }

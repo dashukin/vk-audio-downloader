@@ -16,12 +16,6 @@ let Actions = {
 			personalList: personalList
 		});
 	},
-	processUserInfo (userInfo) {
-		AppDispatcher.dispatch({
-			actionType: AppConstants.USER_INFO,
-			userInfo: userInfo
-		});
-	},
 	searchAudio (query) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.SEARCH_AUDIO,
@@ -33,6 +27,12 @@ let Actions = {
 			actionType: AppConstants.PROCESS_SEARCH_RESULTS,
 			searchResults: searchResults
 		})
+	},
+	processRoutesHandler (Handler) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.PROCESS_ROUTES_HANDLER,
+			routesHandler: Handler
+		});
 	}
 };
 

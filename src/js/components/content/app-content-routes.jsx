@@ -1,5 +1,9 @@
+'use strict';
+
 import React from 'react';
 import AppStore from '../../stores/app-store.js';
+import AppConstants from '../../constants/app-constants.js';
+import AppDispatcher from '../../dispatchers/app-dispatcher.js';
 import ReactRouter from 'react-router';
 import {DefaultRoute, Link, Route, RouteHandler, NotFoundRoute, Redirect} from 'react-router';
 import NotFoundView from '../notFound/app-notfound.jsx';
@@ -24,24 +28,30 @@ let AppContentRouter = React.createClass({
 	componentDidMount () {
 		let self = this,
 			routes = (
-			<Route name='content' path='/' handler={NavigationView}>
-				<DefaultRoute handler={MyAudiosView}/>
-				<Route name="search" path="/search" handler={AppContentSearchView} />
-				<Route name="my-audio" path="/my-audio" handler={MyAudiosView} />
-				<NotFoundRoute handler={NotFoundView} />
-			</Route>
-		);
+				<Route name='content' path='/' handler={Header}>
+					<Route name="player" handler={AudioPlayer} />
+					<DefaultRoute handler={MyAudiosView} />
+					<Route name="search" path="/search" handler={AppContentSearchView} />
+					<Route name="my-audio" path="/my-audio" handler={MyAudiosView} />
+					<NotFoundRoute handler={NotFoundView} />
+
+				</Route>
+			);
 		ReactRouter.run(routes, ReactRouter.HashLocation, (Handler, State) => {
+			//AppActions.processRoutesHandler(Handler);
 			self.setState({
 				Handler: Handler
-			});
+			})
 		});
+	},
+	onRoutesReady (Handler) {
+		this.setState({
+			Handler: Handler
+		})
 	},
 	render () {
 		return (
 			<div>
-				<Header navigationIsReady={this.state.navigationIsReady}/>
-				<AudioPlayer/>
 				{this.state.Handler ? <this.state.Handler/> : ''}
 			</div>
 		);

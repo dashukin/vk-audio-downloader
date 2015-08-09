@@ -52,7 +52,7 @@ let AppContentSearch = React.createClass({
 		});
 
 		return (
-			<div>
+			<div className="container">
 				<div>
 					<p>Search block:</p>
 					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={searchQuery} onKeyUp={this.searchHandler}/>

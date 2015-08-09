@@ -8,7 +8,7 @@ class Navigation extends React.Component {
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 						<Link to="search">Search</Link>
-						<Link to="my-audio">My audio</Link>
+						<Link to="my-audio">My audio <span class="badge">42</span></Link>
 						<RouteHandler />
 					</div>
 				</div>

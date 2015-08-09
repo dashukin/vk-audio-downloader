@@ -1,36 +1,76 @@
 /**
  * @namespace audioData.artist
  */
+'use strict';
 
 import React from 'react';
+import Download from '../../lib/download.js';
+import AudioPlayer from './app-content-audio-player.js';
+
+let download = new Download();
 
 class AudioItem extends React.Component {
+
+	constructor(props) {
+		super(props);
+		this.state = {audioPlayeInited: false};
+	}
+
 	render () {
-		let audioData = this.props.data;
+		var audioData,
+			duration;
+
+		audioData = this.props.data;
+		duration = audioData.duration;
+
 		return (
-			<div>
-				<div className="list-group-item audio-item">
-					<div className="row-action-primary">
-						<a className="audio-item-play" href="#">
-							<span className="mdi-av-play-circle-outline"></span>
-						</a>
-					</div>
-					<div className="row-content">
-						<div className="least-content">{audioData.duration}</div>
-						<h4 className="list-group-item-heading audio-item-title">{audioData.title}</h4>
-						<div className="list-group-item-text">{audioData.artist}</div>
-						<audio controls preload="none">
-							<source src={audioData.url} type="audio/mpeg" />
-						</audio>
-						<a className="audio-download" target="_blank" download="download" href={audioData.url}>
+			<div className="audio-item clearfix">
+
+				<div className="audio-item-audioplayer">
+					<AudioPlayer src={audioData.url} artist={audioData.artist} title={audioData.title} duration={duration}/>
+				</div>
+
+				<ul className="audio-item-actions clearfix">
+					<li>
+						<a className="audio-download" target="_blank" download href={audioData.url}>
 							<i className="mdi-file-file-download"></i>
 						</a>
-					</div>
-				</div>
-				<div className="list-group-separator"></div>
+					</li>
+					<li>
+						<a className="" href="#" title="Add to my audios">
+							<i className="mdi-av-my-library-add"></i>
+						</a>
+					</li>
+				</ul>
 			</div>
 		);
 	}
+
+	prepareTrackName (e) {
+
+		e.preventDefault();
+
+		var audioData,
+			title,
+			artist,
+			resultName;
+
+		audioData = this.props.data;
+		artist = audioData.artist || '';
+		title = audioData.title || '';
+		resultName = (artist + '_' + title).replace(/[\s]+/g, '_');
+
+		prompt(resultName);
+
+	}
+
+	initAudioPlayer (e) {
+		e.preventDefault();
+		this.setState({
+			audioPlayeInited: true
+		});
+	}
+
 };
 
 export default AudioItem;

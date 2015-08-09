@@ -17,21 +17,17 @@ let MyAudios = React.createClass({
 		}
 	},
 	componentWillMount () {
-		this.dispatcherToken = AppDispatcher.register(this.processAudio);
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, this.processAudio);
 	},
 	componentWillUnmount() {
-		this.dispatcherToken && AppDispatcher.unregister(this.dispatcherToken);
+		AppStore.removeChangeListener(this.processAudio);
 	},
 	componentDidMount () {
-		let audios = this.state.personalList;
-		if (!audios.length) {
-			AppStore.getMyAudios();
-		}
+		AppStore.getMyAudios();
 	},
-	processAudio (payload) {
-		if (payload.actionType !== AppConstants.PROCESS_PERSONAL_LIST) return;
+	processAudio () {
 		this.setState({
-			personalList: payload.personalList
+			personalList: AppStore.personalList
 		});
 	},
 	render () {
@@ -44,11 +40,13 @@ let MyAudios = React.createClass({
 		});
 
 		return (
-			<div className="list-group">
-				<p>My audios!</p>
+			<div className="container">
+				<div className="list-group">
+					<p>My audios!</p>
 
 				{personalListOutput}
 
+				</div>
 			</div>
 		);
 	}
