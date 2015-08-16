@@ -7,8 +7,6 @@ import React from 'react';
 import Download from '../../lib/download.js';
 import AudioPlayer from './app-content-audio-player.js';
 
-let download = new Download();
-
 class AudioItem extends React.Component {
 
 	constructor(props) {
@@ -60,15 +58,6 @@ class AudioItem extends React.Component {
 		title = audioData.title || '';
 		resultName = (artist + '_' + title).replace(/[\s]+/g, '_');
 
-		prompt(resultName);
-
-	}
-
-	initAudioPlayer (e) {
-		e.preventDefault();
-		this.setState({
-			audioPlayeInited: true
-		});
 	}
 
 };

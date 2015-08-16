@@ -16,40 +16,55 @@ let AppContentSearch = React.createClass({
 			searchResults: []
 		}
 	},
-	componentWillMount () {
-		this.dispatcherToken = AppDispatcher.register(this.processSearchResults);
-		this.setState({
-			searchQuery: AppStore.getSearchQuery(),
-			searchResults: AppStore.getSearchResults()
-		});
+	componentDidMount () {
+
+		var self = this;
+
+		self.processSearchResults();
+
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
+
 	},
 	componentWillUnmount () {
-		AppDispatcher.unregister(this.dispatcherToken);
+
+		var self = this;
+
+		AppStore.removeChangeListener(self.processSearchResults);
+
 	},
-	processSearchResults (payload) {
-		if (payload.actionType !== AppConstants.PROCESS_SEARCH_RESULTS) return;
-		this.setState({
-			searchResults: payload.searchResults
+	processSearchResults () {
+
+		var self = this,
+			storeData = AppStore.storeData;
+
+		self.setState({
+			searchQuery: storeData.searchQuery,
+			searchResults: storeData.searchResults
 		});
+
 	},
 	searchHandler (e) {
 
 		var query = e.target.value;
 
-		AppActions.searchAudio(query);
+		AppStore.searchAudios(query);
 	},
 	render () {
 
-		var searchQuery,
-			searchResults;
+		var self = this,
+			state = self.state,
+			searchQuery,
+			searchResults = state.searchResults;
 
-		searchQuery = this.state.searchQuery || '';
+		searchQuery = state.searchQuery || '';
 
-		searchResults = this.state.searchResults.map((audioData) => {
-
-			return <AudioItem data={audioData} key={audioData.aid} />
-
-		});
+		searchResults = searchResults.length
+			? 	searchResults.map((audioData) => {
+					return <AudioItem data={audioData} key={audioData.aid} />
+				})
+			: searchQuery.length
+				? 'Nothing found...'
+				: 'Type to search...';
 
 		return (
 			<div className="container">

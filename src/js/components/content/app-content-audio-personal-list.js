@@ -17,17 +17,23 @@ let MyAudios = React.createClass({
 		}
 	},
 	componentWillMount () {
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, this.processAudio);
+
+		var self = this;
+
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processAudio);
 	},
 	componentWillUnmount() {
-		AppStore.removeChangeListener(this.processAudio);
+
+		var self = this;
+
+		AppStore.removeChangeListener(self.processAudio);
 	},
 	componentDidMount () {
-		AppStore.getMyAudios();
+		AppStore.getAudios();
 	},
 	processAudio () {
 		this.setState({
-			personalList: AppStore.personalList
+			personalList: AppStore.storeData.personalAudios
 		});
 	},
 	render () {

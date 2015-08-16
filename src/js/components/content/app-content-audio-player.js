@@ -10,57 +10,74 @@ class AudioPlayer extends React.Component{
 			isPlaying: false,
 			timelineProgress: 0,
 			decreaseTime: true,
-			timeProgress: 0
+			timeProgress: 0,
+			bufferedPercents: 0
 		};
 	}
 
 	componentDidMount () {
-		this.player = null;
+
 		this.setState({
-			timeProgress: this.converSecondsToReadableTime(this.props.duration)
+			timeProgress: this.convertSecondsToReadableTime(this.props.duration)
 		});
+
 	}
 
 	componentWillUnmount () {
-		this.player = null;
+		var self = this,
+			player = self.player;
+
+		if (!player) return;
+
+		player.ontimeupdate = null;
+		player.onprogress = null;
+		self.player = null;
 	}
 
 	render () {
 
+		var self  = this,
+			props = self.props,
+			state = self.state,
+			isPlaying,
+			isPLayingClassName,
+			isPLayingHandler;
+
+		isPlaying = state.isPlaying;
+		isPLayingClassName 	= isPlaying ? 'mdi-av-pause' : 'mdi-av-play-arrow';
+		isPLayingHandler 	= isPlaying ? self.pause : self.play;
+
 		return (
 			<div className="audio-player clearfix">
 				<div className="audio-controls">
-					{!this.state.isPlaying
-						? 	<a className="" href="#" onClick={this.play.bind(this)}>
-								<i className="mdi-av-play-arrow"></i>
-							</a>
-						: 	<a className="" href="#" onClick={this.pause.bind(this)}>
-								<i className="mdi-av-pause"></i>
-							</a>
-					}
 
-					<a className="" href="#" onClick={this.stop.bind(this)}>
+					<a href="#" onClick={isPLayingHandler.bind(self)}>
+						<i className={isPLayingClassName}></i>
+					</a>
+
+					<a className="" href="#" onClick={self.stop.bind(self)}>
 						<i className="mdi-av-stop"></i>
 					</a>
+
 				</div>
 
 				<div className="audio-info">
+
 					<div className="clearfix">
 						<div className="audio-info-track-name">
-							<span className="audio-info-artist">{this.props.artist}</span>
-							<span className="audio-info-title">{this.props.title}</span>
+							<span className="audio-info-artist">{props.artist}</span> - <span className="audio-info-title">{props.title}</span>
+
 						</div>
-						<div className="audio-info-duration" onClick={this.handleDecrease.bind(this)}>
-							{this.state.isPlaying && this.state.decreaseTime ? '-' : ''}
-							{this.state.timeProgress}
+						<div className="audio-info-duration" onClick={self.handleDecrease.bind(self)}>
+							{state.isPlaying && state.decreaseTime ? '-' : ''} {state.timeProgress}
 						</div>
 					</div>
 
-					<div className="audio-timeline-holder">
-						<div className="audio-timeline" style={{width: this.state.timelineProgress + '%'}}>
-
-						</div>
+					<div className="audio-timeline-holder progress progress-striped active" onClick={self.seekAudioProgress.bind(self)}>
+						<div className="audio-buffered" style={{width: state.bufferedPercents + '%'}}></div>
+						<div className="audio-timeline progress-bar" style={{width: state.timelineProgress + '%'}}></div>
 					</div>
+
 				</div>
 
 			</div>
@@ -72,18 +89,24 @@ class AudioPlayer extends React.Component{
 	}
 
 	play (e) {
+
 		!!e && e.preventDefault();
 
-		if (!this.player) {
-			this.player = new Audio();
-			this.player.preload = 'none';
-			this.player.src = this.props.src;
-			this.player.ontimeupdate = this.updateTime.bind(this);
+		var self = this,
+			player = self.player;
+
+		// init on demand
+		if (!player) {
+			player = self.player = new Audio();
+			player.preload = 'none';
+			player.src = self.props.src;
+			player.ontimeupdate = self.updateTime.bind(self);
+			player.onprogress = self.updateBufferingProgress.bind(self);
 		}
 
-		this.setState({isPlaying: true});
-		this.player.preload = 'auto';
-		this.player.play();
+		self.setState({isPlaying: true});
+		player.preload = 'auto';
+		player.play();
 	}
 
 	pause (e) {
@@ -93,11 +116,72 @@ class AudioPlayer extends React.Component{
 	}
 
 	stop (e) {
+
 		!!e && e.preventDefault();
-		this.setState({isPlaying: false});
-		this.player.preload = 'none';
-		this.player.pause();
-		this.player.currentTime = 0;
+
+		var self = this,
+			player = self.player;
+
+		self.setState({isPlaying: false});
+		player.preload = 'none';
+		player.pause();
+		player.currentTime = 0;
+
+	}
+
+	seekAudioProgress (e) {
+
+		e.preventDefault();
+
+		var self = this,
+			player,
+			progressHolder,
+			progressHolderWidth,
+			progressHolderBoundings,
+			progressHolderLeftPosition,
+			clickPositionX,
+			clickPercent,
+			newCurrentTime;
+
+		player = self.player;
+
+		// player might not have been initialized
+		if (!player) return;
+
+		progressHolder = e.target;
+		progressHolderWidth = progressHolder.offsetWidth;
+		progressHolderBoundings = progressHolder.getBoundingClientRect();
+		progressHolderLeftPosition = progressHolderBoundings.left;
+		clickPositionX = e.clientX;
+		clickPercent = (Math.abs(clickPositionX - progressHolderLeftPosition) / progressHolderWidth);
+		newCurrentTime = Math.floor(player.duration * clickPercent);
+
+		player.currentTime = newCurrentTime;
+
+	}
+
+	updateBufferingProgress (e) {
+
+		var self = this,
+			player,
+			buffered,
+			bufferedLength,
+			bufferedEnd,
+			duration,
+			bufferedPercents;
+
+		player = self.player;
+		buffered = player.buffered;
+		bufferedLength = buffered.length;
+		bufferedEnd = buffered.end(bufferedLength - 1);
+		duration = player.duration;
+
+		bufferedPercents = (bufferedEnd / duration) * 100;
+
+		self.setState({
+			bufferedPercents: bufferedPercents
+		});
+
 	}
 
 	updateTime () {
@@ -111,26 +195,30 @@ class AudioPlayer extends React.Component{
 
 		this.setState({
 			timelineProgress: timelineProgress,
-			timeProgress: this.converSecondsToReadableTime(timeProgress)
+			timeProgress: this.convertSecondsToReadableTime(timeProgress)
 		});
 	}
 
-	converSecondsToReadableTime (time) {
+	convertSecondsToReadableTime (time) {
 		var days,
 			hours,
 			minutes,
-			seconds,
-			readableTime;
+			seconds;
 
 		time = parseInt(time, 10);
 		if (!time || Object.prototype.toString.call(time).slice(8, -1) !== 'Number') return '...';
 
-		days = Math.floor(time / (3600 * 24)) || 0;
-		hours = Math.floor((time % (3600 * 24)) / 3600) || 0;
+		days 	= Math.floor(time / (3600 * 24)) || 0;
+		hours 	= Math.floor((time % (3600 * 24)) / 3600) || 0;
 		minutes = Math.floor((time % (3600 * 24) % 3600) / 60) || 0;
 		seconds = Math.floor(time % (3600 * 24) % 3600 % 60) || 0;
 
-		return (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes ? minutes + 'm ' : '') + (seconds ? seconds + 's': '');
+		minutes = minutes + '';
+		minutes = minutes.length === 1 ? '0' + minutes : minutes;
+		seconds = seconds + '';
+		seconds = seconds.length === 1 ? '0' + seconds : seconds;
+
+		return (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
 	}
 
 	handleDecrease () {

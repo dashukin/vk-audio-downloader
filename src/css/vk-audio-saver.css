@@ -85,6 +85,10 @@ body {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+.audio-info-artist,
+.audio-info-title {
+	display: inline-block;
+}
 .audio-info-duration {
 	display: inline-block;
 	float: right;
@@ -95,21 +99,32 @@ body {
 
 .audio-timeline-holder {
 	width: 100%;
-	height: 2px;
+	height: 4px;
+	margin: 0;
 	background: #ccc;
+	position: relative;
+	cursor: pointer;
 }
-.audio-timeline {
-	width: 0%;
+.audio-timeline,
+.audio-buffered {
 	height: 100%;
-	background: #000;
+	position: absolute;
+	top: 0;
+	left: 0;
 	-webkit-transition: width 0.1s linear;
 	-moz-transition: width 0.1s linear;
 	-ms-transition: width 0.1s linear;
 	-o-transition: width 0.1s linear;
 	transition: width 0.1s linear;
+	pointer-events: none;
 }
-.audio-timeline-holder {
 
+.audio-timeline {
+	z-index: 2;
+}
+.audio-buffered {
+	background: #bbb;
+	z-index: 1;
 }
 
 

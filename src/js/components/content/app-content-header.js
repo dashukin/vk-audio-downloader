@@ -26,11 +26,11 @@ class Header extends React.Component {
 	componentWillMount () {
 		var self = this;
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, () => {
-			var userInfo = AppStore.userInfo;
+			var userInfo = AppStore.storeData;
 			self.setState({
 				firstName: userInfo.firstName,
 				lastName: userInfo.lastName,
-				myAudiosCount: userInfo.myAudiosCount
+				myAudiosCount: userInfo.personalAudiosCount
 			});
 		});
 	}
@@ -56,8 +56,8 @@ class Header extends React.Component {
 									</li>
 									<li>
 										<Link to="my-audio">My audio
-											{!!this.state.myAudiosCount
-												? <span className="my-audios-count"> ({this.state.myAudiosCount})</span>
+											{!!this.state.personalAudiosCount
+												? <span className="my-audios-count"> ({this.state.personalAudiosCount})</span>
 												: ''
 											}
 										</Link>
