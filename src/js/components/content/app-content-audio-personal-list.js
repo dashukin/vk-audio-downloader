@@ -29,7 +29,7 @@ let MyAudios = React.createClass({
 		AppStore.removeChangeListener(self.processAudio);
 	},
 	componentDidMount () {
-		AppStore.getAudios();
+		this.processAudio();
 	},
 	processAudio () {
 		this.setState({

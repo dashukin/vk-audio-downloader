@@ -1,8 +1,9 @@
 'use strict';
 
 import React from 'react';
+import AudioPlayer from '../../player/audio-player.js';
 
-class AudioPlayer extends React.Component{
+class AudioPlayerView extends React.Component{
 
 	constructor (props) {
 		super(props);
@@ -17,21 +18,43 @@ class AudioPlayer extends React.Component{
 
 	componentDidMount () {
 
-		this.setState({
+		var self = this;
+
+		self.setState({
 			timeProgress: this.convertSecondsToReadableTime(this.props.duration)
+		});
+
+		AudioPlayer.addPlayerHandlers({
+			audioId: self.props.audioId,
+			onTimeUpdate: self.updateTime.bind(self),
+			onProgress: self.updateBufferingProgress.bind(self)
 		});
 
 	}
 
 	componentWillUnmount () {
-		var self = this,
-			player = self.player;
 
-		if (!player) return;
+		var self = this;
 
-		player.ontimeupdate = null;
-		player.onprogress = null;
-		self.player = null;
+		//var self = this,
+		//	player = self.player;
+		//
+		//if (!player) {
+		//	return;
+		//}
+		//
+		//player.pause();
+		//player.currentTime = 0;
+		//player.src = '';
+		//player.preload = 'none';
+		//player.ontimeupdate = null;
+		//player.onprogress = null;
+		//self.player = null;
+
+		AudioPlayer.removePlayerHandlers({
+			audioId: self.props.audioId
+		});
+
 	}
 
 	render () {
@@ -95,37 +118,50 @@ class AudioPlayer extends React.Component{
 		var self = this,
 			player = self.player;
 
-		// init on demand
-		if (!player) {
-			player = self.player = new Audio();
-			player.preload = 'none';
-			player.src = self.props.src;
-			player.ontimeupdate = self.updateTime.bind(self);
-			player.onprogress = self.updateBufferingProgress.bind(self);
-		}
+		AudioPlayer.play({
+			audioId: self.props.audioId,
+			onTimeUpdate: self.updateTime.bind(self),
+			onProgress: self.updateBufferingProgress.bind(self)
+		});
+
+		//// init on demand
+		//if (!player) {
+		//	player = self.player = new Audio();
+		//	player.preload = 'none';
+		//	player.src = self.props.src;
+		//	player.ontimeupdate = self.updateTime.bind(self);
+		//	player.onprogress = self.updateBufferingProgress.bind(self);
+		//}
 
 		self.setState({isPlaying: true});
-		player.preload = 'auto';
-		player.play();
+		//player.preload = 'auto';
+		//player.play();
 	}
 
 	pause (e) {
+
 		!!e && e.preventDefault();
+
+		AudioPlayer.pause();
+
 		this.setState({isPlaying: false});
-		this.player.pause();
+		//this.player.pause();
 	}
 
 	stop (e) {
 
 		!!e && e.preventDefault();
 
-		var self = this,
-			player = self.player;
+		var self = this/*,
+			player = self.player*/;
 
 		self.setState({isPlaying: false});
-		player.preload = 'none';
-		player.pause();
-		player.currentTime = 0;
+		AudioPlayer.stop({
+			audioId: self.props.audioId
+		});
+		//player.preload = 'none';
+		//player.pause();
+		//player.currentTime = 0;
 
 	}
 
@@ -143,38 +179,33 @@ class AudioPlayer extends React.Component{
 			clickPercent,
 			newCurrentTime;
 
-		player = self.player;
-
-		// player might not have been initialized
-		if (!player) return;
-
 		progressHolder = e.target;
 		progressHolderWidth = progressHolder.offsetWidth;
 		progressHolderBoundings = progressHolder.getBoundingClientRect();
 		progressHolderLeftPosition = progressHolderBoundings.left;
 		clickPositionX = e.clientX;
 		clickPercent = (Math.abs(clickPositionX - progressHolderLeftPosition) / progressHolderWidth);
-		newCurrentTime = Math.floor(player.duration * clickPercent);
 
-		player.currentTime = newCurrentTime;
+		//player.currentTime = newCurrentTime;
+
+		AudioPlayer.updateCurrentTime({
+			audioId: self.props.audioId,
+			percents: clickPercent
+		})
 
 	}
 
-	updateBufferingProgress (e) {
+	updateBufferingProgress (duration, buffered) {
 
 		var self = this,
 			player,
-			buffered,
 			bufferedLength,
 			bufferedEnd,
-			duration,
 			bufferedPercents;
 
-		player = self.player;
-		buffered = player.buffered;
 		bufferedLength = buffered.length;
+		if (!bufferedLength) return;
 		bufferedEnd = buffered.end(bufferedLength - 1);
-		duration = player.duration;
 
 		bufferedPercents = (bufferedEnd / duration) * 100;
 
@@ -184,14 +215,14 @@ class AudioPlayer extends React.Component{
 
 	}
 
-	updateTime () {
+	updateTime (currentTime, duration) {
 		var timelineProgress,
 			timeProgress;
 
-		timelineProgress = ((this.player.currentTime / this.player.duration) * 100).toFixed(2);
+		timelineProgress = ((currentTime / duration) * 100).toFixed(2);
 		timeProgress = this.state.decreaseTime
-			? Math.floor(this.player.duration - this.player.currentTime)
-			: Math.floor(this.player.currentTime);
+			? Math.floor(duration - currentTime)
+			: Math.floor(currentTime);
 
 		this.setState({
 			timelineProgress: timelineProgress,
@@ -231,4 +262,4 @@ class AudioPlayer extends React.Component{
 
 };
 
-export default AudioPlayer;
+export default AudioPlayerView;

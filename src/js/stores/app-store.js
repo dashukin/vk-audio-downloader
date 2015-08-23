@@ -1,18 +1,12 @@
 'use strict';
 
-/**
- * @namespace VK.Auth.getLoginStatus
- * @namespace VK.Auth.login
- * @namespace VK.Api
- * @namespace r.session.mid
- */
-
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
 import AppActions from '../actions/app-actions.js';
 import AppConstants from '../constants/app-constants.js';
 import assign from 'object-assign';
 import {EventEmitter} from 'events';
 import VKProvider from '../providers/provider-vk.js';
+import AudioPlayer from '../player/audio-player.js';
 
 let AppStore = assign(EventEmitter.prototype, {
 	emitChange () {
@@ -54,6 +48,7 @@ let AppStore = assign(EventEmitter.prototype, {
 					storeData.lastName = data.lastName;
 					self.emitChange();
 				});
+				self.getAudios();
 			});
 		});
 
@@ -67,7 +62,9 @@ let AppStore = assign(EventEmitter.prototype, {
 
 		if (!self.storeData.personalAudios.length) {
 			VKProvider.getAudios(userId, function (data) {
+				console.log(data.audios);
 				self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
+				AudioPlayer.loadAudioList(data.audios);
 				self.emitChange();
 			});
 		} else {
@@ -80,6 +77,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		VKProvider.searchAudios(query, function (data) {
 			self.storeData.searchQuery = query;
 			self.storeData.searchResults = data.searchResults;
+			AudioPlayer.loadAudioList(data.searchResults);
 			self.emitChange();
 		});
 	},

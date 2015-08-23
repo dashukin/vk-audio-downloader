@@ -47,7 +47,8 @@ let AppContentSearch = React.createClass({
 
 		var query = e.target.value;
 
-		AppStore.searchAudios(query);
+		AppActions.searchAudio(query);
+
 	},
 	render () {
 

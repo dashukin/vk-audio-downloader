@@ -25,7 +25,7 @@ class AudioItem extends React.Component {
 			<div className="audio-item clearfix">
 
 				<div className="audio-item-audioplayer">
-					<AudioPlayer src={audioData.url} artist={audioData.artist} title={audioData.title} duration={duration}/>
+					<AudioPlayer audioId={audioData.aid} src={audioData.url} artist={audioData.artist} title={audioData.title} duration={duration}/>
 				</div>
 
 				<ul className="audio-item-actions clearfix">
