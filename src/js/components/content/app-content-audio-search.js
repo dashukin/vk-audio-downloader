@@ -1,8 +1,6 @@
 'use strict';
 
 import React from 'react';
-import ReactRouter from 'react-router';
-import {Link} from 'react-router';
 import AppDispatcher from '../../dispatchers/app-dispatcher.js';
 import AppActions from '../../actions/app-actions.js';
 import AppConstants from '../../constants/app-constants.js';
@@ -16,20 +14,26 @@ let AppContentSearch = React.createClass({
 			searchResults: []
 		}
 	},
-	componentDidMount () {
+	componentWillMount () {
 
 		var self = this;
 
-		self.processSearchResults();
-
+		AppStore.changeCurrentPlayList('search');
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
+
+	},
+	componentDidMount () {
+
+		this.processSearchResults();
 
 	},
 	componentWillUnmount () {
 
 		var self = this;
 
-		AppStore.removeChangeListener(self.processSearchResults);
+		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
+		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
 
 	},
 	processSearchResults () {
@@ -50,6 +54,35 @@ let AppContentSearch = React.createClass({
 		AppActions.searchAudio(query);
 
 	},
+
+	playAudioById () {
+
+		var self = this,
+			currentAudioId,
+			newAudioId;
+
+		currentAudioId = self.state.currentAudioId;
+
+		newAudioId = AppStore.getCurrentAudioId();
+
+		if (newAudioId === currentAudioId) {
+			console.info('called playAudioById on the same audio. returning...');
+			return;
+		}
+
+		if (self.refs.hasOwnProperty(currentAudioId)) {
+			self.refs[currentAudioId].resetState();
+		}
+
+		if (self.refs.hasOwnProperty(newAudioId)) {
+			self.refs[newAudioId].playAudio();
+			self.setState({
+				currentAudioId: newAudioId
+			});
+		}
+
+	},
+
 	render () {
 
 		var self = this,
@@ -57,11 +90,13 @@ let AppContentSearch = React.createClass({
 			searchQuery,
 			searchResults = state.searchResults;
 
+		console.warn(state.searchQuery);
+
 		searchQuery = state.searchQuery || '';
 
 		searchResults = searchResults.length
 			? 	searchResults.map((audioData) => {
-					return <AudioItem data={audioData} key={audioData.aid} />
+					return <AudioItem data={audioData} key={audioData.aid} ref={audioData.aid} />
 				})
 			: searchQuery.length
 				? 'Nothing found...'
@@ -71,7 +106,7 @@ let AppContentSearch = React.createClass({
 			<div className="container">
 				<div>
 					<p>Search block:</p>
-					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={searchQuery} onKeyUp={this.searchHandler}/>
+					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={searchQuery} value={searchQuery} onKeyUp={this.searchHandler}/>
 				</div>
 				<div className="list-group search-results">
 					{searchResults}

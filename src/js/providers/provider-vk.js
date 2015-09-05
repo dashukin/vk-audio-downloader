@@ -109,6 +109,32 @@ class VKProvider {
 
 	}
 
+	getAlbums (userId, callback) {
+
+		var self = this;
+
+		VK.Api.call('audio.getAlbums', {
+			owner_id: userId
+		}, function (r) {
+			console.log(r);
+		});
+	}
+
+	moveToAlbum (groupId, albumId, audioIds) {
+
+		var self = this,
+			requestData = {};
+
+		!!groupId && (requestData.group_id = groupId);
+		!!albumId && (requestData.album_id = albumId);
+		!!audioIds && (requestData.audio_ids = audioIds);
+
+		VK.Api.call('audio.moveToAlbum', requestData, function (r) {
+			console.log(r);
+		});
+
+	}
+
 	__searchAudiosHandler (query, callback) {
 
 		var self = this;

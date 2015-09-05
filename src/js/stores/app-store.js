@@ -9,14 +9,14 @@ import VKProvider from '../providers/provider-vk.js';
 import AudioPlayer from '../player/audio-player.js';
 
 let AppStore = assign(EventEmitter.prototype, {
-	emitChange () {
-		this.emit(AppConstants.CHANGE_EVENT);
+	emitChange (changeEvent) {
+		this.emit(changeEvent || AppConstants.CHANGE_EVENT);
 	},
 	addChangeListener (changeEvent, callback) {
-		this.on(AppConstants.CHANGE_EVENT, callback);
+		this.on(changeEvent || AppConstants.CHANGE_EVENT, callback);
 	},
-	removeChangeListener (callback) {
-		this.removeListener(AppConstants.CHANGE_EVENT, callback);
+	removeChangeListener (changeEvent, callback) {
+		this.removeListener(changeEvent || AppConstants.CHANGE_EVENT, callback);
 	},
 	storeData: {
 		userId: null,
@@ -25,7 +25,9 @@ let AppStore = assign(EventEmitter.prototype, {
 		personalAudiosCount: 0,
 		personalAudios: [],
 		searchQuery: '',
-		searchResults: []
+		searchResults: [],
+		currentAudioId: null,
+		currentPlayList: null
 	},
 	searchQuery: '',
 	searchResults: [],
@@ -49,9 +51,21 @@ let AppStore = assign(EventEmitter.prototype, {
 					self.emitChange();
 				});
 				self.getAudios();
+				self.getAlbums();
 			});
 		});
 
+	},
+
+	getAlbums () {
+
+		var self = this;
+
+		VKProvider.getAlbums(self.storeData.userId);
+	},
+
+	moveToAlbum (groupId, albumId, audioId) {
+		VKProvider.moveToAlbum(groupId, albumId, audioId);
 	},
 
 	getAudios (userId) {
@@ -62,9 +76,9 @@ let AppStore = assign(EventEmitter.prototype, {
 
 		if (!self.storeData.personalAudios.length) {
 			VKProvider.getAudios(userId, function (data) {
-				console.log(data.audios);
 				self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
-				AudioPlayer.loadAudioList(data.audios);
+				self.storeData.currentAudioList = data.audios;
+				AudioPlayer.loadAudioList(self.storeData.currentAudioList);
 				self.emitChange();
 			});
 		} else {
@@ -87,11 +101,49 @@ let AppStore = assign(EventEmitter.prototype, {
 	getSearchResults () {
 		return this.storeData.searchResults || [];
 	},
+	changeCurrentAudioId (audioId, emitChange) {
+		this.storeData.currentAudioId = audioId;
+		(emitChange !== false) &&this.emitChange(AppConstants.CHANGE_EVENT);
+	},
+	getCurrentAudioId () {
+		return this.storeData.currentAudioId;
+	},
+
+	changeCurrentPlayList: function (listType) {
+
+		var self = this,
+			storeData = self.storeData;
+
+		switch (listType) {
+			case 'personal':
+				storeData.currentPlayList = storeData.personalAudios;
+				break;
+			case 'search':
+				storeData.currentPlayList = storeData.searchResults;
+				break;
+		}
+
+		AudioPlayer.loadAudioList(self.storeData.currentPlayList);
+
+	},
+	getCurrentPlayList () {
+		return this.storeData.currentPlayList;
+	},
+	resetAudioState () {
+		this.emitChange(AppConstants.RESET_AUDIO_STATE);
+	},
 	dispatcherIndex: AppDispatcher.register((payload) => {
 
 		switch (payload.actionType) {
 			case AppConstants.SEARCH_AUDIO:
 				AppStore.searchAudios(payload.query);
+				break;
+			case AppConstants.MOVE_TO_ALBUM:
+				AppStore.moveToAlbum(null, null, payload.audioId);
+				break;
+			case AppConstants.RESET_AUDIO_STATE:
+				console.info('catched call resetAudioState on store');
+				//AppStore.emitChange(AppConstants.RESET_AUDIO_STATE);
 				break;
 		}
 		return true;

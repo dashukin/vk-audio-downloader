@@ -4,38 +4,71 @@
 
 'use strict';
 
+import AppActions from '../actions/app-actions.js';
+import AppConstants from '../constants/app-constants.js';
+import AppStore from '../stores/app-store.js';
+
 class AudioPlayer {
 
 	constructor (props) {
 
-		this.audioList = [];
+		var self = this;
 
-		this.audioListMap = {};
+		self.audioList = [];
 
-		this.currentAudioId = null;
+		self.audioListMap = {};
 
-		this.player = new Audio();
+		self.currentAudioId = null;
 
-		this.player.preload = 'auto';
+		// link to current playing component
+		self.currentAudioComponent = null;
 
-		this.player.src = '';
+		self.player = new Audio();
 
-		this.isPLaying = false;
+		self.player.preload = 'auto';
+
+		self.player.src = '';
+
+		self.isPLaying = false;
+
+		self.bindPlayerEvents();
+
+	}
+
+	bindPlayerEvents () {
+
+		var self = this,
+			player = self.player;
+
+		player.addEventListener('ended', self.playNext.bind(self));
 
 	}
 
 	loadAudioList (audioList) {
 
-		var self = this,
-			i,
-			iLen;
+		var self = this;
 
 		self.audioList = audioList;
 
-		// store audio id and it's index
-		audioList.map(function (audioData, index) {
-			self.audioListMap[audioData.aid] = index;
-		});
+		if (!audioList.length) {
+			self.audioListMap = {};
+		} else {
+			// store audio id and it's index
+			audioList.map(function (audioData, index) {
+				self.audioListMap[audioData.aid] = index;
+			});
+		}
+
+	}
+
+	updatePlaylist () {
+
+		var self = this,
+			currentPlaylist;
+
+		currentPlaylist = AppStore.getCurrentPlayList();
+
+		self.loadAudioList(currentPlaylist);
 
 	}
 
@@ -51,28 +84,38 @@ class AudioPlayer {
 
 		audioId = data.audioId;
 
-
 		if (self.currentAudioId === audioId) {
 			if (!self.isPlaying) {
 				self.player.play();
 				self.isPLaying = true;
 			}
 			return;
+		} else {
+			AppStore.resetAudioState(audioId);
+			AppStore.changeCurrentAudioId(audioId, false);
 		}
+
+
+
+		self.removePlayerHandlers(data);
+		// call reset method on currently playing component
+		//self.currentAudioComponent && self.currentAudioComponent.resetState();
+
+		console.info('gonna call resetAudioState');
+		AppActions.resetAudioState(self.currentAudioId);
+
+		self.currentAudioComponent = data.component;
 
 		audioList = self.audioList;
 		audioListMap = self.audioListMap;
 		player = self.player;
 
-		if (!audioId) {
-			audioIndex = 0;
-		} else {
-			audioIndex = audioListMap.hasOwnProperty(audioId) ? audioListMap[audioId] : 0;
-		}
+		audioIndex = self.getCurrentAudioIndex(audioId);
 
 		audioData = audioList[audioIndex];
 
 		self.currentAudioId = audioId;
+
 		player.src = audioData.url;
 
 		self.addPlayerHandlers(data);
@@ -142,11 +185,27 @@ class AudioPlayer {
 
 	}
 
-	prev () {
+	playPrevious () {
 
 	}
 
-	next () {
+	playNext () {
+
+		var self = this,
+			audioList,
+			currentIndex,
+			lastIndex,
+			nextIndex,
+			nextAudioId;
+
+		audioList = self.audioList;
+		currentIndex = self.getCurrentAudioIndex(self.currentAudioId);
+		lastIndex = audioList.length - 1;
+		nextIndex = currentIndex == null ? 0 : ((currentIndex + 1) <= lastIndex ? currentIndex + 1 : 0);
+		nextAudioId = audioList[nextIndex].aid;
+
+		AppStore.resetAudioState(self.currentAudioId);
+		AppStore.changeCurrentAudioId(nextAudioId);
 
 	}
 
@@ -166,6 +225,17 @@ class AudioPlayer {
 		}
 
 		self.player.currentTime = newTime;
+	}
+
+	getCurrentAudioIndex (audioId) {
+
+		var self = this,
+			audioListMap;
+
+		audioListMap = self.audioListMap;
+
+		return audioId && audioListMap.hasOwnProperty(audioId) ? audioListMap[audioId] : 0;
+
 	}
 
 }

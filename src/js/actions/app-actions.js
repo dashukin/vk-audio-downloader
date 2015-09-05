@@ -33,6 +33,24 @@ let Actions = {
 			actionType: AppConstants.PROCESS_ROUTES_HANDLER,
 			routesHandler: Handler
 		});
+	},
+	moveToAlbum (audioId) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.MOVE_TO_ALBUM,
+			audioId: audioId
+		});
+	},
+	changeCurrentPlaylist (listType) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.CHANGE_CURRENT_PLAYLIST,
+			listType: listType
+		})
+	},
+	resetAudioState (audioId) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.RESET_AUDIO_STATE,
+			audioId: audioId
+		});
 	}
 };
 
