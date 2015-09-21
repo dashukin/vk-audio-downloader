@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "vk-audio-saver",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "Search, listen, download music from vk",
+    "description": "The description of the application"
+  }
+}

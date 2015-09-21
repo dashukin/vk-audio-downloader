@@ -6,6 +6,15 @@ body {
 	box-sizing: border-box;
 	margin: 0;
 }
+
+/* popup styles */
+.popup-outer-wrapper {
+	padding: 20px;
+}
+.popup-app-link > span {
+	vertical-align: bottom;
+}
+
 .app-wrapper,
 .app {
 	height: 100%;
@@ -87,7 +96,7 @@ body {
 }
 .audio-info-artist,
 .audio-info-title {
-	display: inline-block;
+
 }
 .audio-info-duration {
 	display: inline-block;

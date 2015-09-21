@@ -10,6 +10,11 @@ let Actions = {
 			viewName: viewName
 		});
 	},
+	processUsersData () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.PROCESS_USERS_DATA
+		});
+	},
 	processPersonalList (personalList) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PROCESS_PERSONAL_LIST,

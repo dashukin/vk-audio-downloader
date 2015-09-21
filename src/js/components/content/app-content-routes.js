@@ -6,7 +6,7 @@ import AppConstants from '../../constants/app-constants.js';
 import AppDispatcher from '../../dispatchers/app-dispatcher.js';
 import ReactRouter from 'react-router';
 import {DefaultRoute, Link, Route, RouteHandler, NotFoundRoute, Redirect} from 'react-router';
-import NotFoundView from '../notFound/app-notfound.jsx';
+import NotFoundView from '../notFound/app-notfound.js';
 import Header from '../content/app-content-header.js';
 import AppContentSearchView from '../content/app-content-audio-search.js';
 import MyAudiosView from '../content/app-content-audio-personal-list.js';
@@ -14,16 +14,20 @@ import NavigationView from '../content/app-content-navigation.js';
 
 
 
-let AppContentRouter = React.createClass({
-	getInitialState () {
-		return {
+class AppContentRouter extends React.Component {
+
+	constructor (props) {
+		super(props);
+		this.state = {
 			Handler: null,
 			navigationIsReady: false
-		}
-	},
+		};
+	}
+
 	componentWillMount () {
 
-	},
+	}
+
 	componentDidMount () {
 		let self = this,
 			routes = (
@@ -35,17 +39,12 @@ let AppContentRouter = React.createClass({
 				</Route>
 			);
 		ReactRouter.run(routes, ReactRouter.HashLocation, (Handler, State) => {
-			//AppActions.processRoutesHandler(Handler);
 			self.setState({
 				Handler: Handler
 			})
 		});
-	},
-	onRoutesReady (Handler) {
-		this.setState({
-			Handler: Handler
-		})
-	},
+	}
+
 	render () {
 		return (
 			<div>
@@ -53,6 +52,6 @@ let AppContentRouter = React.createClass({
 			</div>
 		);
 	}
-});
+};
 
 export default AppContentRouter;

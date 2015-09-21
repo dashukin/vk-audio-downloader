@@ -19,7 +19,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		this.removeListener(changeEvent || AppConstants.CHANGE_EVENT, callback);
 	},
 	storeData: {
-		userId: null,
+		authorized: false,
 		firstName: '',
 		lastName: '',
 		personalAudiosCount: 0,
@@ -36,46 +36,45 @@ let AppStore = assign(EventEmitter.prototype, {
 		var self = this,
 			storeData = self.storeData;
 
-		VKProvider.init();
-
-		console.log('VK inited.');
-		console.log('Gonna run checkAuthorization on init...');
-
-		VKProvider.checkAuthorization(function (data) {
-			storeData.userId = data.userId;
-			self.emitChange();
-			VKProvider.checkAppPermissions(data.userId, function () {
-				VKProvider.getUserInfo(storeData.userId, function (data) {
-					storeData.firstName = data.firstName;
-					storeData.lastName = data.lastName;
-					self.emitChange();
-				});
-				self.getAudios();
-				self.getAlbums();
-			});
+		VKProvider.checkAppPermissions(function () {
+			self.processUsersData();
 		});
 
+	},
+
+	processUsersData () {
+
+		var self = this,
+			storeData = self.storeData;
+
+		VKProvider.getUserInfo(function (data) {
+			storeData.firstName = data.firstName;
+			storeData.lastName = data.lastName;
+			self.emitChange();
+		});
+		self.getAudios();
+		self.getAlbums();
 	},
 
 	getAlbums () {
 
 		var self = this;
 
-		VKProvider.getAlbums(self.storeData.userId);
+		VKProvider.getAlbums(function (r) {
+
+		});
 	},
 
 	moveToAlbum (groupId, albumId, audioId) {
 		VKProvider.moveToAlbum(groupId, albumId, audioId);
 	},
 
-	getAudios (userId) {
-		console.log('Getting personal list...');
+	getAudios () {
+
 		var self = this;
 
-		userId = userId || self.storeData.userId;
-
 		if (!self.storeData.personalAudios.length) {
-			VKProvider.getAudios(userId, function (data) {
+			VKProvider.getAudios(function (data) {
 				self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
 				self.storeData.currentAudioList = data.audios;
 				AudioPlayer.loadAudioList(self.storeData.currentAudioList);
@@ -135,15 +134,14 @@ let AppStore = assign(EventEmitter.prototype, {
 	dispatcherIndex: AppDispatcher.register((payload) => {
 
 		switch (payload.actionType) {
+			case AppConstants.PROCESS_USERS_DATA:
+				AppStore.processUsersData();
+				break;
 			case AppConstants.SEARCH_AUDIO:
 				AppStore.searchAudios(payload.query);
 				break;
 			case AppConstants.MOVE_TO_ALBUM:
 				AppStore.moveToAlbum(null, null, payload.audioId);
-				break;
-			case AppConstants.RESET_AUDIO_STATE:
-				console.info('catched call resetAudioState on store');
-				//AppStore.emitChange(AppConstants.RESET_AUDIO_STATE);
 				break;
 		}
 		return true;

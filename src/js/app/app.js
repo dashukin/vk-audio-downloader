@@ -2,8 +2,8 @@
 
 import React from 'react';
 import LoadingView from '../components/loading/app-loading.js';
-import LoginView from '../components/login/app-login.jsx';
-import AppContentRoutesView from '../components/content/app-content-routes.jsx';
+import LoginView from '../components/login/app-login.js';
+import AppContentRoutesView from '../components/content/app-content-routes.js';
 import AppStore from '../stores/app-store.js';
 import AppConstants from '../constants/app-constants.js';
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
@@ -13,37 +13,41 @@ AppStore.initVK();
 let App = React.createClass({
 	getInitialState () {
 		return {
-			viewAlias: 'loading'
+			authState: 'loading'
 		}
 	},
-	componentWillMount () {
+	componentDidMount () {
+
 		var self = this;
+
+		AppStore.addChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
+
 		AppDispatcher.register(function (payload) {
 			var actionType = payload.actionType;
 			switch (actionType) {
 				case AppConstants.CHANGE_VIEW:
-					self.setView(payload.viewName);
+					self.changeView(payload.viewName);
 					break;
 			}
 		});
 	},
 	componentWillUnmount () {
-
+		AppStore.removeChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
 	},
 	dispatcherIndex: null,
-	setView (viewAlias) {
+	changeView (viewAlias) {
 		this.setState({
-			viewAlias: viewAlias
+			authState: viewAlias
 		});
 	},
 	render() {
 
 		let view,
-			appClassName = 'app ' + (this.state.viewAlias);
+			appClassName = 'app ' + (this.state.authState);
 
-		switch (this.state.viewAlias) {
+		switch (this.state.authState) {
 			case 'loading':
-				view =  <LoadingView onClick={this.setView.bind(this, 'login')} />;
+				view =  <LoadingView onClick={this.changeView.bind(this, 'login')} />;
 				break;
 			break;
 			case 'content':

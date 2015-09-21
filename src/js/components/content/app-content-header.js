@@ -10,7 +10,7 @@ import {DefaultRoute, Link, Route, RouteHandler, NotFoundRoute, Redirect} from '
 import NavigationView from '../content/app-content-navigation.js';
 import MyAudiosView from '../content/app-content-audio-personal-list.js';
 import AppContentSearchView from '../content/app-content-audio-search.js';
-import NotFoundView from '../notFound/app-notfound.jsx';
+import NotFoundView from '../notFound/app-notfound.js';
 
 class Header extends React.Component {
 

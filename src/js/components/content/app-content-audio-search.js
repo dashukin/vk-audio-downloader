@@ -7,53 +7,64 @@ import AppConstants from '../../constants/app-constants.js';
 import AppStore from '../../stores/app-store.js';
 import AudioItem from './app-content-audio-item.js';
 
-let AppContentSearch = React.createClass({
-	getInitialState () {
-		return {
+class AppContentSearch extends React.Component {
+
+	constructor (props) {
+		super(props);
+		this.state = {
 			searchQuery: '',
 			searchResults: []
 		}
-	},
+	}
+
 	componentWillMount () {
 
 		var self = this;
 
 		AppStore.changeCurrentPlayList('search');
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults.bind(self));
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById.bind(self));
+		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState.bind(self));
 
-	},
+	}
+
 	componentDidMount () {
 
+		this.setState({
+			searchQuery: AppStore.storeData.searchQuery
+		})
 		this.processSearchResults();
 
-	},
+	}
+
 	componentWillUnmount () {
 
 		var self = this;
 
 		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
 		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
+		AppStore.removeChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState);
 
-	},
+	}
+
 	processSearchResults () {
 
 		var self = this,
 			storeData = AppStore.storeData;
 
 		self.setState({
-			searchQuery: storeData.searchQuery,
 			searchResults: storeData.searchResults
 		});
 
-	},
+	}
+
 	searchHandler (e) {
 
 		var query = e.target.value;
 
 		AppActions.searchAudio(query);
 
-	},
+	}
 
 	playAudioById () {
 
@@ -65,13 +76,8 @@ let AppContentSearch = React.createClass({
 
 		newAudioId = AppStore.getCurrentAudioId();
 
-		if (newAudioId === currentAudioId) {
-			console.info('called playAudioById on the same audio. returning...');
-			return;
-		}
-
 		if (self.refs.hasOwnProperty(currentAudioId)) {
-			self.refs[currentAudioId].resetState();
+			self.refs[currentAudioId].resetAudio();
 		}
 
 		if (self.refs.hasOwnProperty(newAudioId)) {
@@ -81,7 +87,20 @@ let AppContentSearch = React.createClass({
 			});
 		}
 
-	},
+	}
+
+	resetAudioState () {
+
+		var self = this,
+			currentAudioId;
+
+		currentAudioId = AppStore.storeData.currentAudioId;
+
+		if (currentAudioId && self.refs.hasOwnProperty(currentAudioId)) {
+			self.refs[currentAudioId].resetAudio();
+		}
+
+	}
 
 	render () {
 
@@ -90,9 +109,7 @@ let AppContentSearch = React.createClass({
 			searchQuery,
 			searchResults = state.searchResults;
 
-		console.warn(state.searchQuery);
-
-		searchQuery = state.searchQuery || '';
+		searchQuery = state.searchQuery;
 
 		searchResults = searchResults.length
 			? 	searchResults.map((audioData) => {
@@ -105,8 +122,7 @@ let AppContentSearch = React.createClass({
 		return (
 			<div className="container">
 				<div>
-					<p>Search block:</p>
-					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={searchQuery} value={searchQuery} onKeyUp={this.searchHandler}/>
+					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={searchQuery} onKeyUp={this.searchHandler}/>
 				</div>
 				<div className="list-group search-results">
 					{searchResults}
@@ -114,6 +130,6 @@ let AppContentSearch = React.createClass({
 			</div>
 		);
 	}
-});
+};
 
 export default AppContentSearch;

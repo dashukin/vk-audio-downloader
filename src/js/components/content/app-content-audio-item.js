@@ -95,7 +95,6 @@ class AudioItem extends React.Component {
 							<div className="clearfix">
 								<div className="audio-info-track-name">
 									<span className="audio-info-artist">{audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
-
 								</div>
 								<div className="audio-info-duration" onClick={self.handleDecrease.bind(self)}>
 									{state.isPlaying && state.decreaseTime ? '-' : ''} {state.timeProgress}
@@ -114,18 +113,34 @@ class AudioItem extends React.Component {
 
 				<ul className="audio-item-actions clearfix">
 					<li>
-						<a className="audio-download" target="_blank" download href={audioData.url}>
+						<a className="audio-download" target="_blank" onClick={self.download.bind(self)} href={audioData.url}>
 							<i className="mdi-file-file-download"></i>
 						</a>
 					</li>
 					<li>
-						<a className="" href="#" title="Add to my audios">
-							<i className="mdi-av-my-library-add" onClick={self.moveToAlbum.bind(self)}></i>
+						<a className="" title="Add to my audios" onClick={self.moveToAlbum.bind(self)}>
+							<i className="mdi-av-my-library-add"></i>
 						</a>
 					</li>
 				</ul>
 			</div>
 		);
+	}
+
+	download (e) {
+		!!e && e.preventDefault();
+
+		var self = this,
+			audioData = self.props.data,
+			trackName = self.prepareFileName(audioData.artist + ' ' + audioData.title),
+			url = audioData.url;
+
+
+		chrome.downloads.download({
+			url: url,
+			filename: trackName,
+			saveAs: true
+		});
 	}
 
 	play (e) {
@@ -285,6 +300,11 @@ class AudioItem extends React.Component {
 
 	resetAudio () {
 		this.resetState();
+	}
+
+	prepareFileName (input) {
+		console.log(input);
+		return input.replace(/[^\d\wа-я\-\.]+/gi, '_') + '.mp3';
 	}
 
 };

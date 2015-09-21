@@ -6,7 +6,7 @@ module.exports = {
 	],
 	output: {
 		path: __dirname + '/build/js/',
-		filename: 'bundle.js'
+		filename: 'vk-audio-downloader.bundle.js'
 	},
 	module: {
 		loaders: [
@@ -18,6 +18,7 @@ module.exports = {
 		]
 	},
 	plugins: [
-		new webpack.NoErrorsPlugin()
+		new webpack.NoErrorsPlugin(),
+		new webpack.optimize.UglifyJsPlugin({minimize: true})
 	]
 };
