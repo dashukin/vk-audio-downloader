@@ -1,6 +1,6 @@
 {
-  "name": "vk-audio-saver",
-  "version": "0.5.0",
+  "name": "vk-audio-downloader",
+  "version": "0.7.0",
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.1",

@@ -79,6 +79,6 @@ node_modules
 
 bower_components
 
-build
+#build
 
 .gitignore
