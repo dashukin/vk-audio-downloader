@@ -61,7 +61,6 @@ let AppStore = assign(EventEmitter.prototype, {
 		var self = this;
 
 		VKProvider.getAlbums(function (r) {
-
 		});
 	},
 

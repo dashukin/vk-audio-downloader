@@ -12,8 +12,6 @@ import AppContentSearchView from '../content/app-content-audio-search.js';
 import MyAudiosView from '../content/app-content-audio-personal-list.js';
 import NavigationView from '../content/app-content-navigation.js';
 
-
-
 class AppContentRouter extends React.Component {
 
 	constructor (props) {

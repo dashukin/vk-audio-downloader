@@ -23,17 +23,29 @@ class AudioItem extends React.Component {
 
 	componentDidMount () {
 
-		var self = this;
+		var self = this,
+			audioId = self.props.data.aid,
+			audioPlayerCurrentAudioId;
 
 		self.setState({
 			timeProgress: this.convertSecondsToReadableTime(this.props.data.duration)
 		});
 
-		AudioPlayer.addPlayerHandlers({
-			audioId: self.props.data.aid,
-			onTimeUpdate: self.updateTime.bind(self),
-			onProgress: self.updateBufferingProgress.bind(self)
-		});
+		audioPlayerCurrentAudioId = AudioPlayer.getCurrentaudioId();
+
+		if (audioPlayerCurrentAudioId === audioId) {
+			AudioPlayer.addPlayerHandlers({
+				audioId: audioId,
+				onTimeUpdate: self.updateTime.bind(self),
+				onProgress: self.updateBufferingProgress.bind(self)
+			});
+
+			if (AudioPlayer.getCurrentPlayStatus() === true) {
+				self.setState({
+					isPlaying: true
+				})
+			}
+		}
 
 	}
 

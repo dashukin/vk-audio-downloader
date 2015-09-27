@@ -7,6 +7,11 @@ body {
 	margin: 0;
 }
 
+/* header styles */
+.navbar .navbar-nav > li > a {
+	padding-left: 0;
+}
+
 /* popup styles */
 .popup-outer-wrapper {
 	padding: 20px;

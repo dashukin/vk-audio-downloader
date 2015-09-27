@@ -22,9 +22,9 @@ class AppContentSearch extends React.Component {
 		var self = this;
 
 		AppStore.changeCurrentPlayList('search');
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults.bind(self));
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById.bind(self));
-		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState.bind(self));
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processSearchResults);
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
+		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState);
 
 	}
 
@@ -47,7 +47,7 @@ class AppContentSearch extends React.Component {
 
 	}
 
-	processSearchResults () {
+	processSearchResults = () => {
 
 		var self = this,
 			storeData = AppStore.storeData;
@@ -66,7 +66,7 @@ class AppContentSearch extends React.Component {
 
 	}
 
-	playAudioById () {
+	playAudioById = () => {
 
 		var self = this,
 			currentAudioId,
@@ -89,7 +89,7 @@ class AppContentSearch extends React.Component {
 
 	}
 
-	resetAudioState () {
+	resetAudioState = () => {
 
 		var self = this,
 			currentAudioId;

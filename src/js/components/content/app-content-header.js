@@ -25,18 +25,27 @@ class Header extends React.Component {
 
 	componentWillMount () {
 		var self = this;
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, () => {
-			var userInfo = AppStore.storeData;
-			self.setState({
-				firstName: userInfo.firstName,
-				lastName: userInfo.lastName,
-				myAudiosCount: userInfo.personalAudiosCount
-			});
-		});
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
 	}
 
 	componentDidMount () {
 
+	}
+
+	componentWillUnmount () {
+		var self = this;
+		AppStore.removeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
+	}
+
+	showUserInfo = () => {
+		var self = this,
+		userInfo = AppStore.storeData;
+
+		self.setState({
+			firstName: userInfo.firstName,
+			lastName: userInfo.lastName,
+			myAudiosCount: userInfo.personalAudiosCount
+		});
 	}
 
 	render () {

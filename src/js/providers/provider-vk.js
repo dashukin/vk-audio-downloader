@@ -185,7 +185,8 @@ class VKProvider {
 
 		self.request('audio.search', {
 			q: query,
-			auto_complete: 1
+			auto_complete: 1,
+			count: 100
 		}, function (r) {
 			console.log(r);
 			var searchResults = !r.error && r.response.slice(1) || [];

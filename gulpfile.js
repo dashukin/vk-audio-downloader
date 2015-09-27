@@ -36,12 +36,15 @@ gulp.task('chromeExtensionApp', function () {
 
 	// copy js
 	gulp.src('build/js/*.js')
-		.pipe(uglifyJs())
+		//.pipe(uglifyJs())
 		.pipe(gulp.dest('chrome-extension/app/build/js/'));
 
 	// copy html
 	gulp.src('index.html')
 		.pipe(gulp.dest('chrome-extension/app/'));
+
+	gulp.src('src/images/*.*')
+		.pipe(gulp.dest('chrome-extension/app/images/'))
 
 });
 

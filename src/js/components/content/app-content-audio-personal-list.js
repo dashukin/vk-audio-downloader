@@ -26,9 +26,9 @@ class MyAudios extends React.Component {
 
 		AppStore.changeCurrentPlayList('personal');
 
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processAudio.bind(self));
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById.bind(self));
-		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState.bind(self));
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processAudio);
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
+		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState);
 
 	}
 
@@ -45,13 +45,13 @@ class MyAudios extends React.Component {
 		this.processAudio();
 	}
 
-	processAudio () {
+	processAudio = () => {
 		this.setState({
 			personalList: AppStore.storeData.personalAudios
 		});
 	}
 
-	playAudioById () {
+	playAudioById = () => {
 
 		var self = this,
 			currentAudioId,
@@ -74,7 +74,7 @@ class MyAudios extends React.Component {
 
 	}
 
-	resetAudioState () {
+	resetAudioState = () => {
 
 		var self = this,
 			currentAudioId;

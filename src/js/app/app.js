@@ -1,5 +1,3 @@
-'use strict';
-
 import React from 'react';
 import LoadingView from '../components/loading/app-loading.js';
 import LoginView from '../components/login/app-login.js';
@@ -8,14 +6,16 @@ import AppStore from '../stores/app-store.js';
 import AppConstants from '../constants/app-constants.js';
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
 
-AppStore.initVK();
+class App extends React.Component {
 
-let App = React.createClass({
-	getInitialState () {
-		return {
+	constructor (props) {
+		super(props);
+		this.state = {
 			authState: 'loading'
 		}
-	},
+		this.dispatcherIndex = null;
+	}
+
 	componentDidMount () {
 
 		var self = this;
@@ -30,26 +30,31 @@ let App = React.createClass({
 					break;
 			}
 		});
-	},
+	}
+
 	componentWillUnmount () {
+		var self = this;
 		AppStore.removeChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
-	},
-	dispatcherIndex: null,
+	}
+
+
+
 	changeView (viewAlias) {
 		this.setState({
 			authState: viewAlias
 		});
-	},
+	}
+
 	render() {
 
-		let view,
+		let self = this,
+			view,
 			appClassName = 'app ' + (this.state.authState);
 
-		switch (this.state.authState) {
+		switch (self.state.authState) {
 			case 'loading':
-				view =  <LoadingView onClick={this.changeView.bind(this, 'login')} />;
+				view =  <LoadingView />;
 				break;
-			break;
 			case 'content':
 				view = <AppContentRoutesView />;
 				break;
@@ -64,6 +69,6 @@ let App = React.createClass({
 			</div>
 		);
 	}
-});
+};
 
-React.render(<App/>, document.getElementById('app-wrapper'));
+export default App;

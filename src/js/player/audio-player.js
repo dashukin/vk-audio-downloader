@@ -238,6 +238,14 @@ class AudioPlayer {
 
 	}
 
+	getCurrentaudioId () {
+		return this.currentAudioId;
+	}
+
+	getCurrentPlayStatus () {
+		return !!this.isPLaying;
+	}
+
 }
 
 export default new AudioPlayer();

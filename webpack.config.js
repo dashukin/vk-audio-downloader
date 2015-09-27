@@ -2,7 +2,7 @@ var webpack = require('webpack');
 
 module.exports = {
 	entry: [
-		__dirname + '/src/js/app/app.js'
+		__dirname + '/src/js/app/app-base.js'
 	],
 	output: {
 		path: __dirname + '/build/js/',
@@ -12,13 +12,13 @@ module.exports = {
 		loaders: [
 			{
 				test: /\.jsx?$/,
-				loaders: ['jsx', 'babel'],
+				loaders: ['jsx', 'babel?optional[]=es7.classProperties'],
 				exclude: 'node_modules'
 			}
 		]
 	},
 	plugins: [
-		new webpack.NoErrorsPlugin(),
-		new webpack.optimize.UglifyJsPlugin({minimize: true})
+		new webpack.NoErrorsPlugin()
+		//,new webpack.optimize.UglifyJsPlugin({minimize: true})
 	]
 };
