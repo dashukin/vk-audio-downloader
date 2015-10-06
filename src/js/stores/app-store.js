@@ -19,6 +19,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		this.removeListener(changeEvent || AppConstants.CHANGE_EVENT, callback);
 	},
 	storeData: {
+		authState: 'loading',
 		authorized: false,
 		firstName: '',
 		lastName: '',

@@ -35,6 +35,8 @@ class AppContentSearch extends React.Component {
 		})
 		this.processSearchResults();
 
+		console.warn(this.props);
+
 	}
 
 	componentWillUnmount () {

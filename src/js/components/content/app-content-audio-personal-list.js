@@ -15,8 +15,7 @@ class MyAudios extends React.Component {
 	constructor (props) {
 		super(props);
 		this.state = {
-			personalList: [],
-			limit: 20
+			personalAudios: []
 		}
 	}
 
@@ -26,7 +25,6 @@ class MyAudios extends React.Component {
 
 		AppStore.changeCurrentPlayList('personal');
 
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.processAudio);
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
 		AppStore.addChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState);
 
@@ -36,19 +34,12 @@ class MyAudios extends React.Component {
 
 		var self = this;
 
-		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.processAudio);
 		AppStore.removeChangeListener(AppConstants.CHANGE_EVENT, self.playAudioById);
 		AppStore.removeChangeListener(AppConstants.RESET_AUDIO_STATE, self.resetAudioState);
 	}
 
 	componentDidMount () {
-		this.processAudio();
-	}
 
-	processAudio = () => {
-		this.setState({
-			personalList: AppStore.storeData.personalAudios
-		});
 	}
 
 	playAudioById = () => {
@@ -91,10 +82,14 @@ class MyAudios extends React.Component {
 
 		var self = this,
 			state = self.state,
-			personalList = state.personalList,
+			personalAudios = this.state.personalAudios, //self.props.route.personalAudios,
 			personalListOutput;
 
-		personalListOutput = !personalList.length ? 'Loading...' : state.personalList.map((audioData) => {
+		console.log(self.props);
+
+		console.warn('personalList:', personalAudios);
+
+		personalListOutput = !personalAudios.length ? 'Loading...' : personalAudios.map((audioData) => {
 			return <AudioItem data={audioData} key={audioData.aid} ref={audioData.aid} />
 		});
 

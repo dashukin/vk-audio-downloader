@@ -6,8 +6,7 @@ import AppDispatcher from '../../dispatchers/app-dispatcher.js';
 import AppActions from '../../actions/app-actions.js';
 import AppConstants from '../../constants/app-constants.js';
 import ReactRouter from 'react-router';
-import {DefaultRoute, Link, Route, RouteHandler, NotFoundRoute, Redirect} from 'react-router';
-import NavigationView from '../content/app-content-navigation.js';
+import {Link, Router} from 'react-router';
 import MyAudiosView from '../content/app-content-audio-personal-list.js';
 import AppContentSearchView from '../content/app-content-audio-search.js';
 import NotFoundView from '../notFound/app-notfound.js';
@@ -49,6 +48,9 @@ class Header extends React.Component {
 	}
 
 	render () {
+
+		console.error(this.props);
+
 		let userName = this.state.firstName ? ', ' + this.state.firstName + (this.state.lastName ? ' ' + this.state.lastName + '!' : '!') : '!';
 		return (
 			<div>
@@ -61,10 +63,10 @@ class Header extends React.Component {
 										<a>Welcome{userName}</a>
 									</li>
 									<li>
-										<Link to="search">Search</Link>
+										<Link to="/search">Search</Link>
 									</li>
 									<li>
-										<Link to="my-audio">My audio
+										<Link to="/my-audio">My audio
 											{!!this.state.personalAudiosCount
 												? <span className="my-audios-count"> ({this.state.personalAudiosCount})</span>
 												: ''
@@ -76,7 +78,7 @@ class Header extends React.Component {
 						</div>
 					</div>
 				</div>
-				<RouteHandler />
+				{React.cloneElement(this.props.children, {personal: 1 })}
 			</div>
 		);
 	}
