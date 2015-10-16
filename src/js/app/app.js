@@ -3,7 +3,7 @@
 import React from 'react';
 import LoadingView from '../components/loading/app-loading.js';
 import LoginView from '../components/login/app-login.js';
-import AppContentView from '../components/content/app-content.js';
+import AppContentView from '../components/content/app-content-router.js';
 import AppStore from '../stores/app-store.js';
 import AppConstants from '../constants/app-constants.js';
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
@@ -20,6 +20,7 @@ class App extends React.Component {
 	}
 
 	componentWillMount () {
+		AppStore.initVK();
 		AppStore.addListener(AppConstants.CHANGE_EVENT, this.processAudio);
 	}
 

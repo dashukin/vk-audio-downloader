@@ -7,6 +7,14 @@ class SearchForm extends React.Component {
 		super(props);
 	}
 
+	componentWillMount () {
+
+	}
+
+	componentWillUnmount () {
+
+	}
+
 	searchAudio () {
 		console.log('Searching audio');
 	}

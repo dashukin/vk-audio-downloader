@@ -49,7 +49,6 @@ class Header extends React.Component {
 
 	render () {
 
-		console.error(this.props);
 
 		let userName = this.state.firstName ? ', ' + this.state.firstName + (this.state.lastName ? ' ' + this.state.lastName + '!' : '!') : '!';
 		return (
@@ -78,7 +77,6 @@ class Header extends React.Component {
 						</div>
 					</div>
 				</div>
-				{React.cloneElement(this.props.children, {personal: 1 })}
 			</div>
 		);
 	}

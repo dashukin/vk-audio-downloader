@@ -53,7 +53,7 @@ let AppStore = assign(EventEmitter.prototype, {
 			storeData.lastName = data.lastName;
 			self.emitChange();
 		});
-		self.getAudios();
+		self.getPersonalAudios();
 		self.getAlbums();
 	},
 
@@ -62,6 +62,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		var self = this;
 
 		VKProvider.getAlbums(function (r) {
+
 		});
 	},
 
@@ -69,7 +70,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		VKProvider.moveToAlbum(groupId, albumId, audioId);
 	},
 
-	getAudios () {
+	getPersonalAudios () {
 
 		var self = this;
 
@@ -84,6 +85,25 @@ let AppStore = assign(EventEmitter.prototype, {
 			self.emitChange();
 		}
 	},
+
+	getAudioList (listType) {
+
+		var self = this,
+			audioList;
+
+		switch (listType) {
+			case 'search':
+				audioList = self.storeData.searchResults;
+				break;
+			case 'personal':
+				audioList = self.storeData.personalAudios;
+				break;
+		}
+
+		return audioList;
+
+	},
+
 	searchAudios (query) {
 		var self = this;
 

@@ -67,8 +67,6 @@
 
 	var _appJs2 = _interopRequireDefault(_appJs);
 
-	_storesAppStoreJs2['default'].initVK();
-
 	_react2['default'].render(_react2['default'].createElement(_appJs2['default'], null), document.getElementById('app-wrapper'));
 
 /***/ },
@@ -18291,7 +18289,7 @@
 				storeData.lastName = data.lastName;
 				self.emitChange();
 			});
-			self.getAudios();
+			self.getPersonalAudios();
 			self.getAlbums();
 		},
 
@@ -18306,7 +18304,7 @@
 			_providersProviderVkJs2['default'].moveToAlbum(groupId, albumId, audioId);
 		},
 
-		getAudios: function getAudios() {
+		getPersonalAudios: function getPersonalAudios() {
 
 			var self = this;
 
@@ -18321,6 +18319,24 @@
 				self.emitChange();
 			}
 		},
+
+		getAudioList: function getAudioList(listType) {
+
+			var self = this,
+			    audioList;
+
+			switch (listType) {
+				case 'search':
+					audioList = self.storeData.searchResults;
+					break;
+				case 'personal':
+					audioList = self.storeData.personalAudios;
+					break;
+			}
+
+			return audioList;
+		},
+
 		searchAudios: function searchAudios(query) {
 			var self = this;
 
@@ -19775,9 +19791,9 @@
 
 	var _componentsLoginAppLoginJs2 = _interopRequireDefault(_componentsLoginAppLoginJs);
 
-	var _componentsContentAppContentJs = __webpack_require__(222);
+	var _componentsContentAppContentRouterJs = __webpack_require__(214);
 
-	var _componentsContentAppContentJs2 = _interopRequireDefault(_componentsContentAppContentJs);
+	var _componentsContentAppContentRouterJs2 = _interopRequireDefault(_componentsContentAppContentRouterJs);
 
 	var _storesAppStoreJs = __webpack_require__(158);
 
@@ -19821,6 +19837,7 @@
 		_createClass(App, [{
 			key: 'componentWillMount',
 			value: function componentWillMount() {
+				_storesAppStoreJs2['default'].initVK();
 				_storesAppStoreJs2['default'].addListener(_constantsAppConstantsJs2['default'].CHANGE_EVENT, this.processAudio);
 			}
 		}, {
@@ -19869,7 +19886,7 @@
 						view = _react2['default'].createElement(_componentsLoadingAppLoadingJs2['default'], null);
 						break;
 					case 'content':
-						view = _react2['default'].createElement(_componentsContentAppContentJs2['default'], { personalAudios: this.state.personalAudios });
+						view = _react2['default'].createElement(_componentsContentAppContentRouterJs2['default'], { personalAudios: this.state.personalAudios });
 						break;
 					case 'login':
 					default:
@@ -23910,8 +23927,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 214 */,
-/* 215 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23934,32 +23950,264 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var NotFoundView = (function (_React$Component) {
-		_inherits(NotFoundView, _React$Component);
+	var _storesAppStoreJs = __webpack_require__(158);
 
-		function NotFoundView() {
-			_classCallCheck(this, NotFoundView);
+	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
 
-			_get(Object.getPrototypeOf(NotFoundView.prototype), 'constructor', this).apply(this, arguments);
+	var _constantsAppConstantsJs = __webpack_require__(165);
+
+	var _constantsAppConstantsJs2 = _interopRequireDefault(_constantsAppConstantsJs);
+
+	var _dispatchersAppDispatcherJs = __webpack_require__(159);
+
+	var _dispatchersAppDispatcherJs2 = _interopRequireDefault(_dispatchersAppDispatcherJs);
+
+	var _reactRouter = __webpack_require__(172);
+
+	var _reactRouter2 = _interopRequireDefault(_reactRouter);
+
+	var _reactRouterNode_modulesHistoryLibCreateBrowserHistory = __webpack_require__(215);
+
+	var _reactRouterNode_modulesHistoryLibCreateBrowserHistory2 = _interopRequireDefault(_reactRouterNode_modulesHistoryLibCreateBrowserHistory);
+
+	var _reactRouterNode_modulesHistoryLibCreateHashHistory = __webpack_require__(175);
+
+	var _reactRouterNode_modulesHistoryLibCreateHashHistory2 = _interopRequireDefault(_reactRouterNode_modulesHistoryLibCreateHashHistory);
+
+	var _contentAppContentHeaderJs = __webpack_require__(216);
+
+	var _contentAppContentHeaderJs2 = _interopRequireDefault(_contentAppContentHeaderJs);
+
+	var _contentAppContentAudioSearchJs = __webpack_require__(219);
+
+	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
+
+	var _contentAppContentAudioPersonalListJs = __webpack_require__(217);
+
+	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
+
+	var _notFoundAppNotfoundJs = __webpack_require__(220);
+
+	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
+
+	var _contentAppContentJs = __webpack_require__(221);
+
+	var _contentAppContentJs2 = _interopRequireDefault(_contentAppContentJs);
+
+	//let history = createBrowserHistory();
+	var history = (0, _reactRouterNode_modulesHistoryLibCreateHashHistory2['default'])();
+
+	var AppContentRouter = (function (_React$Component) {
+		_inherits(AppContentRouter, _React$Component);
+
+		function AppContentRouter(props) {
+			_classCallCheck(this, AppContentRouter);
+
+			_get(Object.getPrototypeOf(AppContentRouter.prototype), 'constructor', this).call(this, props);
+			this.state = {};
 		}
 
-		_createClass(NotFoundView, [{
+		_createClass(AppContentRouter, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {}
+		}, {
+			key: 'componentDidMount',
+			value: function componentDidMount() {
+
+				// TODO: replace with "self.refs.app" when React 0.14 is ready
+				// React.render(<Router history={history}>{routes}</Router>, self.refs['routes'].getDOMNode());
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+
+				var self = this,
+				    props = self.props,
+				    routes = undefined;
+
+				routes = _react2['default'].createElement(
+					_reactRouter.Route,
+					{ path: '/' },
+					_react2['default'].createElement(_reactRouter.IndexRoute, { component: _contentAppContentJs2['default'] }),
+					_react2['default'].createElement(_reactRouter.Route, { path: 'index', component: _contentAppContentJs2['default'] }),
+					_react2['default'].createElement(_reactRouter.Route, { path: 'search', type: 'search', hasSearch: true, component: _contentAppContentJs2['default'] }),
+					_react2['default'].createElement(_reactRouter.Route, { path: 'my-audio', type: 'personal', component: _contentAppContentJs2['default'] }),
+					_react2['default'].createElement(_reactRouter.Route, { path: '*', component: _notFoundAppNotfoundJs2['default'] })
+				);
+
 				return _react2['default'].createElement(
 					'div',
-					null,
-					'Page not found.'
+					{ ref: 'routes' },
+					_react2['default'].createElement(
+						_reactRouter2['default'],
+						{ history: history },
+						routes
+					)
 				);
 			}
 		}]);
 
-		return NotFoundView;
+		return AppContentRouter;
 	})(_react2['default'].Component);
 
 	;
 
-	exports['default'] = NotFoundView;
+	exports['default'] = AppContentRouter;
+	module.exports = exports['default'];
+
+/***/ },
+/* 215 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	exports.__esModule = true;
+
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }return target;
+	};
+
+	function _interopRequireDefault(obj) {
+	  return obj && obj.__esModule ? obj : { 'default': obj };
+	}
+
+	var _invariant = __webpack_require__(176);
+
+	var _invariant2 = _interopRequireDefault(_invariant);
+
+	var _Actions = __webpack_require__(177);
+
+	var _ExecutionEnvironment = __webpack_require__(178);
+
+	var _DOMUtils = __webpack_require__(179);
+
+	var _DOMStateStorage = __webpack_require__(180);
+
+	var _createDOMHistory = __webpack_require__(181);
+
+	var _createDOMHistory2 = _interopRequireDefault(_createDOMHistory);
+
+	var _createLocation = __webpack_require__(187);
+
+	var _createLocation2 = _interopRequireDefault(_createLocation);
+
+	/**
+	 * Creates and returns a history object that uses HTML5's history API
+	 * (pushState, replaceState, and the popstate event) to manage history.
+	 * This is the recommended method of managing history in browsers because
+	 * it provides the cleanest URLs.
+	 *
+	 * Note: In browsers that do not support the HTML5 history API full
+	 * page reloads will be used to preserve URLs.
+	 */
+	function createBrowserHistory(options) {
+	  _invariant2['default'](_ExecutionEnvironment.canUseDOM, 'Browser history needs a DOM');
+
+	  var isSupported = _DOMUtils.supportsHistory();
+
+	  function getCurrentLocation(historyState) {
+	    historyState = historyState || window.history.state || {};
+
+	    var path = _DOMUtils.getWindowPath();
+	    var _historyState = historyState;
+	    var key = _historyState.key;
+
+	    var state = undefined;
+	    if (key) {
+	      state = _DOMStateStorage.readState(key);
+	    } else {
+	      state = null;
+	      key = history.createKey();
+	      window.history.replaceState(_extends({}, historyState, { key: key }), null, path);
+	    }
+
+	    return _createLocation2['default'](path, state, undefined, key);
+	  }
+
+	  function startPopStateListener(_ref) {
+	    var transitionTo = _ref.transitionTo;
+
+	    function popStateListener(event) {
+	      if (event.state === undefined) return; // Ignore extraneous popstate events in WebKit.
+
+	      transitionTo(getCurrentLocation(event.state));
+	    }
+
+	    _DOMUtils.addEventListener(window, 'popstate', popStateListener);
+
+	    return function () {
+	      _DOMUtils.removeEventListener(window, 'popstate', popStateListener);
+	    };
+	  }
+
+	  function finishTransition(location) {
+	    var pathname = location.pathname;
+	    var search = location.search;
+	    var state = location.state;
+	    var action = location.action;
+	    var key = location.key;
+
+	    if (action === _Actions.POP) return; // Nothing to do.
+
+	    _DOMStateStorage.saveState(key, state);
+
+	    var path = pathname + search;
+	    var historyState = {
+	      key: key
+	    };
+
+	    if (action === _Actions.PUSH) {
+	      if (isSupported) {
+	        window.history.pushState(historyState, null, path);
+	      } else {
+	        window.location.href = path; // Use page reload to preserve the URL.
+	      }
+	    } else {
+	        // REPLACE
+	        if (isSupported) {
+	          window.history.replaceState(historyState, null, path);
+	        } else {
+	          window.location.replace(path); // Use page reload to preserve the URL.
+	        }
+	      }
+	  }
+
+	  var history = _createDOMHistory2['default'](_extends({}, options, {
+	    getCurrentLocation: getCurrentLocation,
+	    finishTransition: finishTransition,
+	    saveState: _DOMStateStorage.saveState
+	  }));
+
+	  var listenerCount = 0,
+	      stopPopStateListener = undefined;
+
+	  function listen(listener) {
+	    if (++listenerCount === 1) stopPopStateListener = startPopStateListener(history);
+
+	    var unlisten = history.listen(listener);
+
+	    return function () {
+	      unlisten();
+
+	      if (--listenerCount === 0) stopPopStateListener();
+	    };
+	  }
+
+	  return _extends({}, history, {
+	    listen: listen
+	  });
+	}
+
+	exports['default'] = createBrowserHistory;
 	module.exports = exports['default'];
 
 /***/ },
@@ -24006,15 +24254,15 @@
 
 	var _reactRouter2 = _interopRequireDefault(_reactRouter);
 
-	var _contentAppContentAudioPersonalListJs = __webpack_require__(218);
+	var _contentAppContentAudioPersonalListJs = __webpack_require__(217);
 
 	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(220);
+	var _contentAppContentAudioSearchJs = __webpack_require__(219);
 
 	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(215);
+	var _notFoundAppNotfoundJs = __webpack_require__(220);
 
 	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
 
@@ -24064,8 +24312,6 @@
 		}, {
 			key: 'render',
 			value: function render() {
-
-				console.error(this.props);
 
 				var userName = this.state.firstName ? ', ' + this.state.firstName + (this.state.lastName ? ' ' + this.state.lastName + '!' : '!') : '!';
 				return _react2['default'].createElement(
@@ -24125,8 +24371,7 @@
 								)
 							)
 						)
-					),
-					_react2['default'].cloneElement(this.props.children, { personal: 1 })
+					)
 				);
 			}
 		}]);
@@ -24138,8 +24383,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 217 */,
-/* 218 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24181,7 +24425,7 @@
 
 	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
 
-	var _appContentAudioItemJs = __webpack_require__(219);
+	var _appContentAudioItemJs = __webpack_require__(218);
 
 	var _appContentAudioItemJs2 = _interopRequireDefault(_appContentAudioItemJs);
 
@@ -24296,7 +24540,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 219 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -24696,7 +24940,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 220 */
+/* 219 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24735,7 +24979,7 @@
 
 	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
 
-	var _appContentAudioItemJs = __webpack_require__(219);
+	var _appContentAudioItemJs = __webpack_require__(218);
 
 	var _appContentAudioItemJs2 = _interopRequireDefault(_appContentAudioItemJs);
 
@@ -24880,163 +25124,63 @@
 	module.exports = exports['default'];
 
 /***/ },
+/* 220 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var NotFoundView = (function (_React$Component) {
+		_inherits(NotFoundView, _React$Component);
+
+		function NotFoundView() {
+			_classCallCheck(this, NotFoundView);
+
+			_get(Object.getPrototypeOf(NotFoundView.prototype), 'constructor', this).apply(this, arguments);
+		}
+
+		_createClass(NotFoundView, [{
+			key: 'render',
+			value: function render() {
+				return _react2['default'].createElement(
+					'div',
+					null,
+					'Page not found.'
+				);
+			}
+		}]);
+
+		return NotFoundView;
+	})(_react2['default'].Component);
+
+	;
+
+	exports['default'] = NotFoundView;
+	module.exports = exports['default'];
+
+/***/ },
 /* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	exports.__esModule = true;
-
-	var _extends = Object.assign || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }return target;
-	};
-
-	function _interopRequireDefault(obj) {
-	  return obj && obj.__esModule ? obj : { 'default': obj };
-	}
-
-	var _invariant = __webpack_require__(176);
-
-	var _invariant2 = _interopRequireDefault(_invariant);
-
-	var _Actions = __webpack_require__(177);
-
-	var _ExecutionEnvironment = __webpack_require__(178);
-
-	var _DOMUtils = __webpack_require__(179);
-
-	var _DOMStateStorage = __webpack_require__(180);
-
-	var _createDOMHistory = __webpack_require__(181);
-
-	var _createDOMHistory2 = _interopRequireDefault(_createDOMHistory);
-
-	var _createLocation = __webpack_require__(187);
-
-	var _createLocation2 = _interopRequireDefault(_createLocation);
-
-	/**
-	 * Creates and returns a history object that uses HTML5's history API
-	 * (pushState, replaceState, and the popstate event) to manage history.
-	 * This is the recommended method of managing history in browsers because
-	 * it provides the cleanest URLs.
-	 *
-	 * Note: In browsers that do not support the HTML5 history API full
-	 * page reloads will be used to preserve URLs.
-	 */
-	function createBrowserHistory(options) {
-	  _invariant2['default'](_ExecutionEnvironment.canUseDOM, 'Browser history needs a DOM');
-
-	  var isSupported = _DOMUtils.supportsHistory();
-
-	  function getCurrentLocation(historyState) {
-	    historyState = historyState || window.history.state || {};
-
-	    var path = _DOMUtils.getWindowPath();
-	    var _historyState = historyState;
-	    var key = _historyState.key;
-
-	    var state = undefined;
-	    if (key) {
-	      state = _DOMStateStorage.readState(key);
-	    } else {
-	      state = null;
-	      key = history.createKey();
-	      window.history.replaceState(_extends({}, historyState, { key: key }), null, path);
-	    }
-
-	    return _createLocation2['default'](path, state, undefined, key);
-	  }
-
-	  function startPopStateListener(_ref) {
-	    var transitionTo = _ref.transitionTo;
-
-	    function popStateListener(event) {
-	      if (event.state === undefined) return; // Ignore extraneous popstate events in WebKit.
-
-	      transitionTo(getCurrentLocation(event.state));
-	    }
-
-	    _DOMUtils.addEventListener(window, 'popstate', popStateListener);
-
-	    return function () {
-	      _DOMUtils.removeEventListener(window, 'popstate', popStateListener);
-	    };
-	  }
-
-	  function finishTransition(location) {
-	    var pathname = location.pathname;
-	    var search = location.search;
-	    var state = location.state;
-	    var action = location.action;
-	    var key = location.key;
-
-	    if (action === _Actions.POP) return; // Nothing to do.
-
-	    _DOMStateStorage.saveState(key, state);
-
-	    var path = pathname + search;
-	    var historyState = {
-	      key: key
-	    };
-
-	    if (action === _Actions.PUSH) {
-	      if (isSupported) {
-	        window.history.pushState(historyState, null, path);
-	      } else {
-	        window.location.href = path; // Use page reload to preserve the URL.
-	      }
-	    } else {
-	        // REPLACE
-	        if (isSupported) {
-	          window.history.replaceState(historyState, null, path);
-	        } else {
-	          window.location.replace(path); // Use page reload to preserve the URL.
-	        }
-	      }
-	  }
-
-	  var history = _createDOMHistory2['default'](_extends({}, options, {
-	    getCurrentLocation: getCurrentLocation,
-	    finishTransition: finishTransition,
-	    saveState: _DOMStateStorage.saveState
-	  }));
-
-	  var listenerCount = 0,
-	      stopPopStateListener = undefined;
-
-	  function listen(listener) {
-	    if (++listenerCount === 1) stopPopStateListener = startPopStateListener(history);
-
-	    var unlisten = history.listen(listener);
-
-	    return function () {
-	      unlisten();
-
-	      if (--listenerCount === 0) stopPopStateListener();
-	    };
-	  }
-
-	  return _extends({}, history, {
-	    listen: listen
-	  });
-	}
-
-	exports['default'] = createBrowserHistory;
-	module.exports = exports['default'];
-
-/***/ },
-/* 222 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
@@ -25055,239 +25199,94 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _storesAppStoreJs = __webpack_require__(158);
+	var _contentAppContentSearchForm = __webpack_require__(222);
 
-	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
+	var _contentAppContentSearchForm2 = _interopRequireDefault(_contentAppContentSearchForm);
 
-	var _constantsAppConstantsJs = __webpack_require__(165);
+	var _contentAppContentAudioListJs = __webpack_require__(223);
 
-	var _constantsAppConstantsJs2 = _interopRequireDefault(_constantsAppConstantsJs);
-
-	var _dispatchersAppDispatcherJs = __webpack_require__(159);
-
-	var _dispatchersAppDispatcherJs2 = _interopRequireDefault(_dispatchersAppDispatcherJs);
-
-	var _reactRouter = __webpack_require__(172);
-
-	var _reactRouter2 = _interopRequireDefault(_reactRouter);
-
-	var _reactRouterNode_modulesHistoryLibCreateBrowserHistory = __webpack_require__(221);
-
-	var _reactRouterNode_modulesHistoryLibCreateBrowserHistory2 = _interopRequireDefault(_reactRouterNode_modulesHistoryLibCreateBrowserHistory);
-
-	var _reactRouterNode_modulesHistoryLibCreateHashHistory = __webpack_require__(175);
-
-	var _reactRouterNode_modulesHistoryLibCreateHashHistory2 = _interopRequireDefault(_reactRouterNode_modulesHistoryLibCreateHashHistory);
+	var _contentAppContentAudioListJs2 = _interopRequireDefault(_contentAppContentAudioListJs);
 
 	var _contentAppContentHeaderJs = __webpack_require__(216);
 
 	var _contentAppContentHeaderJs2 = _interopRequireDefault(_contentAppContentHeaderJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(220);
+	var _storesAppStoreJs = __webpack_require__(158);
 
-	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
+	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
 
-	var _contentAppContentAudioPersonalListJs = __webpack_require__(218);
+	var _providersProviderVkJs = __webpack_require__(167);
 
-	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
+	var _providersProviderVkJs2 = _interopRequireDefault(_providersProviderVkJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(215);
+	var _constantsAppConstantsJs = __webpack_require__(165);
 
-	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
-
-	var _contentAppContentPersonalJs = __webpack_require__(223);
-
-	var _contentAppContentPersonalJs2 = _interopRequireDefault(_contentAppContentPersonalJs);
-
-	var _contentAppContentSearchJs = __webpack_require__(224);
-
-	var _contentAppContentSearchJs2 = _interopRequireDefault(_contentAppContentSearchJs);
-
-	//let history = createBrowserHistory();
-	var history = (0, _reactRouterNode_modulesHistoryLibCreateHashHistory2['default'])();
-
-	var AppContentRouter = (function (_React$Component) {
-		_inherits(AppContentRouter, _React$Component);
-
-		function AppContentRouter(props) {
-			_classCallCheck(this, AppContentRouter);
-
-			_get(Object.getPrototypeOf(AppContentRouter.prototype), 'constructor', this).call(this, props);
-			this.state = {};
-		}
-
-		_createClass(AppContentRouter, [{
-			key: 'componentWillMount',
-			value: function componentWillMount() {}
-		}, {
-			key: 'componentDidUpdate',
-			value: function componentDidUpdate() {}
-		}, {
-			key: 'componentDidMount',
-			value: function componentDidMount() {
-
-				// TODO: replace with "self.refs.app" when React 0.14 is ready
-				//	React.render(<Router history={history}>{routes}</Router>, self.refs['routes'].getDOMNode());
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-
-				var self = this,
-				    props = self.props,
-				    routes = undefined;
-
-				routes = _react2['default'].createElement(
-					_reactRouter.Route,
-					{ path: '/', component: _contentAppContentHeaderJs2['default'], personalAudios: props.personalAudios },
-					_react2['default'].createElement(_reactRouter.IndexRoute, { component: _contentAppContentPersonalJs2['default'] }),
-					_react2['default'].createElement(_reactRouter.Route, { path: 'index', component: _contentAppContentPersonalJs2['default'] }),
-					_react2['default'].createElement(_reactRouter.Route, { path: 'search', component: _contentAppContentSearchJs2['default'] }),
-					_react2['default'].createElement(_reactRouter.Route, { path: 'my-audio', component: _contentAppContentPersonalJs2['default'] }),
-					_react2['default'].createElement(_reactRouter.Route, { path: '*', component: _notFoundAppNotfoundJs2['default'] })
-				);
-
-				return _react2['default'].createElement(
-					'div',
-					{ ref: 'routes' },
-					_react2['default'].createElement(
-						_reactRouter2['default'],
-						{ history: history },
-						routes
-					)
-				);
-			}
-		}]);
-
-		return AppContentRouter;
-	})(_react2['default'].Component);
-
-	;
-
-	exports['default'] = AppContentRouter;
-	module.exports = exports['default'];
-
-/***/ },
-/* 223 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-		value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _contentAppContentAudioListJs = __webpack_require__(226);
-
-	var _contentAppContentAudioListJs2 = _interopRequireDefault(_contentAppContentAudioListJs);
-
-	var PersonalView = (function (_React$Component) {
-		_inherits(PersonalView, _React$Component);
-
-		function PersonalView(props) {
-			_classCallCheck(this, PersonalView);
-
-			_get(Object.getPrototypeOf(PersonalView.prototype), 'constructor', this).call(this, props);
-		}
-
-		_createClass(PersonalView, [{
-			key: 'render',
-			value: function render() {
-				return _react2['default'].createElement(
-					'div',
-					{ className: 'container' },
-					_react2['default'].createElement(
-						'div',
-						{ className: 'row' },
-						_react2['default'].createElement(
-							'div',
-							{ className: 'col-lg-12 col-md-12 col-sm-12 col-xs-12' },
-							'Personal view'
-						)
-					),
-					_react2['default'].createElement(_contentAppContentAudioListJs2['default'], null)
-				);
-			}
-		}]);
-
-		return PersonalView;
-	})(_react2['default'].Component);
-
-	exports['default'] = PersonalView;
-	module.exports = exports['default'];
-
-/***/ },
-/* 224 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-		value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _contentAppContentSearchForm = __webpack_require__(225);
-
-	var _contentAppContentSearchForm2 = _interopRequireDefault(_contentAppContentSearchForm);
-
-	var _contentAppContentAudioListJs = __webpack_require__(226);
-
-	var _contentAppContentAudioListJs2 = _interopRequireDefault(_contentAppContentAudioListJs);
+	var _constantsAppConstantsJs2 = _interopRequireDefault(_constantsAppConstantsJs);
 
 	var SearchView = (function (_React$Component) {
 		_inherits(SearchView, _React$Component);
 
 		function SearchView(props) {
+			var _this = this;
+
 			_classCallCheck(this, SearchView);
 
 			_get(Object.getPrototypeOf(SearchView.prototype), 'constructor', this).call(this, props);
+
+			this.storeChangesHandler = function () {
+
+				var self = _this,
+				    listType,
+				    audioList;
+
+				listType = self.props.route.type;
+
+				audioList = _storesAppStoreJs2['default'].getAudioList(listType) || [];
+
+				self.setState({
+					audioList: audioList
+				});
+			};
+
+			this.state = {
+				audioList: []
+			};
 		}
 
 		_createClass(SearchView, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {
+				var self = this;
+				_storesAppStoreJs2['default'].addChangeListener(_constantsAppConstantsJs2['default'].CHANGE_EVENT, self.storeChangesHandler);
+			}
+		}, {
+			key: 'componentDiDMount',
+			value: function componentDiDMount() {
+				_providersProviderVkJs2['default'].getAudios();
+			}
+		}, {
 			key: 'render',
 			value: function render() {
+
+				var self, routeProps, hasSearch, audioList;
+
+				self = this;
+				routeProps = self.props.route;
+				hasSearch = routeProps.hasSearch === true;
+				audioList = self.state.audioList;
+
+				// {React.cloneElement(this.props.children, {})}
+
 				return _react2['default'].createElement(
 					'div',
-					{ className: 'container' },
+					null,
+					_react2['default'].createElement(_contentAppContentHeaderJs2['default'], null),
 					_react2['default'].createElement(
 						'div',
-						{ className: 'row' },
-						_react2['default'].createElement(
-							'div',
-							{ className: 'col-lg-12 col-md-12 col-sm-12 col-xs-12' },
-							'Search view'
-						)
-					),
-					_react2['default'].createElement(_contentAppContentSearchForm2['default'], null),
-					_react2['default'].createElement(_contentAppContentAudioListJs2['default'], null)
+						{ className: 'container' },
+						hasSearch && _react2['default'].createElement(_contentAppContentSearchForm2['default'], null),
+						_react2['default'].createElement(_contentAppContentAudioListJs2['default'], { audioList: audioList })
+					)
 				);
 			}
 		}]);
@@ -25299,7 +25298,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 225 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25331,6 +25330,12 @@
 		}
 
 		_createClass(SearchForm, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
+		}, {
+			key: 'componentWillUnmount',
+			value: function componentWillUnmount() {}
+		}, {
 			key: 'searchAudio',
 			value: function searchAudio() {
 				console.log('Searching audio');
@@ -25357,7 +25362,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 226 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25380,6 +25385,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _contentAppContentAudioItemJs = __webpack_require__(218);
+
+	var _contentAppContentAudioItemJs2 = _interopRequireDefault(_contentAppContentAudioItemJs);
+
 	var AudioList = (function (_React$Component) {
 		_inherits(AudioList, _React$Component);
 
@@ -25390,12 +25399,30 @@
 		}
 
 		_createClass(AudioList, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
+		}, {
+			key: 'componentWillUnmount',
+			value: function componentWillUnmount() {}
+		}, {
 			key: 'render',
 			value: function render() {
+
+				var self, props, audioList, audioListOutput;
+
+				self = this;
+				props = self.props;
+				audioList = props.audioList || [];
+
+				audioListOutput = '';
+				audioListOutput = audioList.map(function (audioData) {
+					return _react2['default'].createElement(_contentAppContentAudioItemJs2['default'], { data: audioData, key: audioData.aid });
+				});
+
 				return _react2['default'].createElement(
 					'div',
 					{ className: 'audio-list' },
-					'Audio list'
+					audioListOutput
 				);
 			}
 		}]);
