@@ -22,15 +22,17 @@ class AudioList extends React.Component {
 		var self,
 			props,
 			audioList,
-			audioListOutput;
+			audioListOutput,
+			playbackInfo;
 
 		self = this;
 		props = self.props;
 		audioList = props.audioList || [];
 
-		audioListOutput = '';
-		audioListOutput = audioList.map(audioData => {
-			return <AudioItem data={audioData} key={audioData.aid} />
+		playbackInfo = self.props.playbackInfo;
+
+		audioListOutput = !audioList.length ? 'Loading...' : audioList.map(audioData => {
+			return <AudioItem data={audioData} key={audioData.aid} playbackInfo={playbackInfo} />
 		});
 
 		return (

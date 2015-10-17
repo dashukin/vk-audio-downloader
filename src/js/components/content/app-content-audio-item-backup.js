@@ -14,34 +14,37 @@ class AudioItem extends React.Component {
 		super(props);
 		this.state = {
 			isPlaying: false,
+			timelineProgress: 0,
 			decreaseTime: true,
 			timeProgress: 0,
-			timelineProgress: 0,
 			bufferedPercents: 0
 		};
-	}
-
-	componentWillMount () {
-
 	}
 
 	componentDidMount () {
 
 		var self = this,
-			props = self.props,
 			audioId = self.props.data.aid,
-			isActiveAudio;
-
-		isActiveAudio = props.data.aid === props.playbackInfo.audioId;
+			audioPlayerCurrentAudioId;
 
 		self.setState({
 			timeProgress: this.convertSecondsToReadableTime(this.props.data.duration)
 		});
 
-		if (isActiveAudio) {
+		audioPlayerCurrentAudioId = AudioPlayer.getCurrentaudioId();
+
+		if (audioPlayerCurrentAudioId === audioId) {
 			AudioPlayer.addPlayerHandlers({
-				audioId: audioId
+				audioId: audioId,
+				onTimeUpdate: self.updateTime.bind(self),
+				onProgress: self.updateBufferingProgress.bind(self)
 			});
+
+			if (AudioPlayer.getCurrentPlayStatus() === true) {
+				self.setState({
+					isPlaying: true
+				})
+			}
 		}
 
 	}
@@ -68,44 +71,18 @@ class AudioItem extends React.Component {
 		var self  = this,
 			props = self.props,
 			state = self.state,
-			isActiveAudio,
-			isPaused,
+			isPlaying,
 			isPLayingClassName,
-			playingHandler,
+			isPLayingHandler,
 			audioData,
-			duration,
-			actualTimeData,
-			timeProgress,
-			timelineProgress = 0,
-			bufferedPercents = 0,
-			currentTime = 0,
-			buffered = 0,
-			seekAudioHandler;
+			duration;
 
-		audioData = props.data;
-		duration = props.data.duration;
+		isPlaying = state.isPlaying;
+		isPLayingClassName 	= isPlaying ? 'mdi-av-pause' : 'mdi-av-play-arrow';
+		isPLayingHandler 	= isPlaying ? self.pause : self.play;
 
-		isActiveAudio = props.data.aid === props.playbackInfo.audioId;
-		isPaused = isActiveAudio && props.playbackInfo.paused;
-
-		if (isActiveAudio) {
-			//console.dir(props.playbackInfo);
-			currentTime = props.playbackInfo.currentTime;
-			buffered = props.playbackInfo.buffered;
-			seekAudioHandler = self.seekAudioProgress;
-		}
-
-		actualTimeData = self.getActualTime(currentTime, audioData.duration);
-		timeProgress = actualTimeData.timeProgress;
-		timelineProgress = actualTimeData.timelineProgress;
-		bufferedPercents = self.getBufferingProgress(audioData.duration, buffered);
-
-		isPLayingClassName 	= isActiveAudio && !isPaused ? 'mdi-av-pause' : 'mdi-av-play-arrow';
-		playingHandler 	= isActiveAudio && !isPaused ? self.pause : self.play;
-
-
-
-
+		audioData = this.props.data;
+		duration = audioData.duration;
 
 		return (
 			<div className="audio-item clearfix">
@@ -115,11 +92,11 @@ class AudioItem extends React.Component {
 					<div className="audio-player clearfix">
 						<div className="audio-controls">
 
-							<a href="#" onClick={playingHandler}>
+							<a href="#" onClick={isPLayingHandler.bind(self)}>
 								<i className={isPLayingClassName}></i>
 							</a>
 
-							<a className="" href="#" onClick={self.stop}>
+							<a className="" href="#" onClick={self.stop.bind(self)}>
 								<i className="mdi-av-stop"></i>
 							</a>
 
@@ -131,14 +108,14 @@ class AudioItem extends React.Component {
 								<div className="audio-info-track-name">
 									<span className="audio-info-artist">{audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
 								</div>
-								<div className="audio-info-duration" onClick={self.handleDecrease}>
-									{isActiveAudio && state.decreaseTime ? '-' : ''} {timeProgress}
+								<div className="audio-info-duration" onClick={self.handleDecrease.bind(self)}>
+									{state.isPlaying && state.decreaseTime ? '-' : ''} {state.timeProgress}
 								</div>
 							</div>
 
-							<div className="audio-timeline-holder progress progress-striped active" onClick={seekAudioHandler}>
-								<div className="audio-buffered" style={{width: bufferedPercents + '%'}}></div>
-								<div className="audio-timeline progress-bar" style={{width: timelineProgress + '%'}}></div>
+							<div className="audio-timeline-holder progress progress-striped active" onClick={self.seekAudioProgress.bind(self)}>
+								<div className="audio-buffered" style={{width: state.bufferedPercents + '%'}}></div>
+								<div className="audio-timeline progress-bar" style={{width: state.timelineProgress + '%'}}></div>
 							</div>
 
 						</div>
@@ -148,12 +125,12 @@ class AudioItem extends React.Component {
 
 				<ul className="audio-item-actions clearfix">
 					<li>
-						<a className="audio-download" target="_blank" onClick={self.download} href={audioData.url}>
+						<a className="audio-download" target="_blank" onClick={self.download.bind(self)} href={audioData.url}>
 							<i className="mdi-file-file-download"></i>
 						</a>
 					</li>
 					<li>
-						<a className="" title="Add to my audios" onClick={self.moveToAlbum}>
+						<a className="" title="Add to my audios" onClick={self.moveToAlbum.bind(self)}>
 							<i className="mdi-av-my-library-add"></i>
 						</a>
 					</li>
@@ -162,7 +139,7 @@ class AudioItem extends React.Component {
 		);
 	}
 
-	download = (e) => {
+	download (e) {
 		!!e && e.preventDefault();
 
 		var self = this,
@@ -178,48 +155,45 @@ class AudioItem extends React.Component {
 		});
 	}
 
-	play = (e) => {
-
-		!!e && e.preventDefault();
-
-		var self = this,
-			audioId;
-
-		audioId = self.props.data.aid;
-
-		AudioPlayer.play({
-			component: self,
-			audioId: audioId
-		});
-
-		AppActions.playAudioById(audioId);
-	}
-
-	pause = (e) => {
-
-		!!e && e.preventDefault();
-
-		AppActions.pauseAudio();
-
-		AudioPlayer.pause();
-
-	}
-
-	stop = (e) => {
+	play (e) {
 
 		!!e && e.preventDefault();
 
 		var self = this;
 
-		AppActions.stopAudio();
+		AudioPlayer.play({
+			component: self,
+			audioId: self.props.data.aid,
+			onTimeUpdate: self.updateTime.bind(self),
+			onProgress: self.updateBufferingProgress.bind(self)
+		});
 
+		self.setState({isPlaying: true});
+	}
+
+	pause (e) {
+
+		!!e && e.preventDefault();
+
+		AudioPlayer.pause();
+
+		this.setState({isPlaying: false});
+	}
+
+	stop (e) {
+
+		!!e && e.preventDefault();
+
+		var self = this;
+
+		self.setState({isPlaying: false});
 		AudioPlayer.stop({
 			audioId: self.props.data.aid
 		});
 
 	}
 
-	seekAudioProgress = (e) => {
+	seekAudioProgress (e) {
 
 		e.preventDefault();
 
@@ -239,12 +213,13 @@ class AudioItem extends React.Component {
 		clickPercent = (Math.abs(clickPositionX - progressHolderLeftPosition) / progressHolderWidth);
 
 		AudioPlayer.updateCurrentTime({
+			audioId: self.props.data.aid,
 			percents: clickPercent
 		});
 
 	}
 
-	getBufferingProgress (duration, buffered) {
+	updateBufferingProgress (duration, buffered) {
 
 		var self = this,
 			bufferedLength,
@@ -257,15 +232,13 @@ class AudioItem extends React.Component {
 
 		bufferedPercents = (bufferedEnd / duration) * 100;
 
-		return bufferedPercents;
-
-		//self.setState({
-		//	bufferedPercents: bufferedPercents
-		//});
+		self.setState({
+			bufferedPercents: bufferedPercents
+		});
 
 	}
 
-	getActualTime (currentTime, duration) {
+	updateTime (currentTime, duration) {
 		var timelineProgress,
 			timeProgress;
 
@@ -274,15 +247,10 @@ class AudioItem extends React.Component {
 			? Math.floor(duration - currentTime)
 			: Math.floor(currentTime);
 
-		return {
-			timeProgress: this.convertSecondsToReadableTime(timeProgress),
-			timelineProgress: timelineProgress
-		}
-
-		//this.setState({
-		//	timelineProgress: timelineProgress,
-		//	timeProgress: this.convertSecondsToReadableTime(timeProgress)
-		//});
+		this.setState({
+			timelineProgress: timelineProgress,
+			timeProgress: this.convertSecondsToReadableTime(timeProgress)
+		});
 	}
 
 	convertSecondsToReadableTime (time) {
@@ -307,7 +275,7 @@ class AudioItem extends React.Component {
 		return (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
 	}
 
-	handleDecrease = () => {
+	handleDecrease () {
 
 		var decreaseStatus = this.state.decreaseTime;
 		this.setState({
@@ -321,7 +289,7 @@ class AudioItem extends React.Component {
 		self.removePlayerHandlers();
 
 		self.setState({
-			//isPlaying: false,
+			isPlaying: false,
 			timelineProgress: 0,
 			decreaseTime: true,
 			timeProgress: self.convertSecondsToReadableTime(self.props.data.duration),
@@ -329,7 +297,7 @@ class AudioItem extends React.Component {
 		});
 	}
 
-	moveToAlbum = (e) => {
+	moveToAlbum (e) {
 
 		var self =this;
 

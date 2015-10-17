@@ -8,30 +8,79 @@ import {EventEmitter} from 'events';
 import VKProvider from '../providers/provider-vk.js';
 import AudioPlayer from '../player/audio-player.js';
 
-let AppStore = assign(EventEmitter.prototype, {
+class AppStore extends EventEmitter {
+
+	constructor (props) {
+		super(props);
+
+		this.storeData = {
+			authState: 'loading',
+				userInfo: {
+				authorized: false,
+					firstName: '',
+					lastName: ''
+			},
+			playbackInfo: {
+				audioId: null,
+					paused: false,
+					timelineProgress: 0,
+					decreaseTime: true,
+					timeProgress: 0,
+					bufferedPercents: 0,
+					currentTime: 0,
+					buffered: 0
+			},
+			personalAudiosCount: 0,
+				personalAudios: [],
+				searchQuery: '',
+				searchResults: [],
+				currentAudioId: null,
+				currentPlayList: null
+		}
+
+		AppDispatcher.register((payload) => {
+
+			switch (payload.actionType) {
+				case AppConstants.PROCESS_USERS_DATA:
+					AppStore.processUsersData();
+					break;
+				case AppConstants.SEARCH_AUDIO:
+					AppStore.searchAudios(payload.query);
+					break;
+				case AppConstants.MOVE_TO_ALBUM:
+					AppStore.moveToAlbum(null, null, payload.audioId);
+					break;
+				case AppConstants.PLAY_AUDIO_BY_ID:
+					AppStore.playAudioById(payload.audioId);
+					break;
+				case AppConstants.PAUSE_AUDIO:
+					AppStore.pauseAudio();
+					break;
+				case AppConstants.STOP_AUDIO:
+					AppStore.stopAudio();
+					break;
+				case AppConstants.UPDATE_PLAYBACK_TIME:
+					AppStore.updatePlaybackTime(payload.currentTime);
+					break;
+				case AppConstants.UPDATE_PLAYBACK_BUFFERED:
+					AppStore.updatePlaybackBuffered(payload.buffered);
+			}
+			return true;
+		});
+	}
+
 	emitChange (changeEvent) {
 		this.emit(changeEvent || AppConstants.CHANGE_EVENT);
-	},
+	}
+
 	addChangeListener (changeEvent, callback) {
 		this.on(changeEvent || AppConstants.CHANGE_EVENT, callback);
-	},
+	}
+
 	removeChangeListener (changeEvent, callback) {
 		this.removeListener(changeEvent || AppConstants.CHANGE_EVENT, callback);
-	},
-	storeData: {
-		authState: 'loading',
-		authorized: false,
-		firstName: '',
-		lastName: '',
-		personalAudiosCount: 0,
-		personalAudios: [],
-		searchQuery: '',
-		searchResults: [],
-		currentAudioId: null,
-		currentPlayList: null
-	},
-	searchQuery: '',
-	searchResults: [],
+	}
+
 	initVK () {
 
 		var self = this,
@@ -41,7 +90,7 @@ let AppStore = assign(EventEmitter.prototype, {
 			self.processUsersData();
 		});
 
-	},
+	}
 
 	processUsersData () {
 
@@ -55,7 +104,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		});
 		self.getPersonalAudios();
 		self.getAlbums();
-	},
+	}
 
 	getAlbums () {
 
@@ -64,11 +113,11 @@ let AppStore = assign(EventEmitter.prototype, {
 		VKProvider.getAlbums(function (r) {
 
 		});
-	},
+	}
 
 	moveToAlbum (groupId, albumId, audioId) {
 		VKProvider.moveToAlbum(groupId, albumId, audioId);
-	},
+	}
 
 	getPersonalAudios () {
 
@@ -84,7 +133,7 @@ let AppStore = assign(EventEmitter.prototype, {
 		} else {
 			self.emitChange();
 		}
-	},
+	}
 
 	getAudioList (listType) {
 
@@ -102,7 +151,7 @@ let AppStore = assign(EventEmitter.prototype, {
 
 		return audioList;
 
-	},
+	}
 
 	searchAudios (query) {
 		var self = this;
@@ -113,22 +162,52 @@ let AppStore = assign(EventEmitter.prototype, {
 			AudioPlayer.loadAudioList(data.searchResults);
 			self.emitChange();
 		});
-	},
+	}
+
 	getSearchQuery () {
 		return this.storeData.searchQuery || '';
-	},
+	}
+
 	getSearchResults () {
 		return this.storeData.searchResults || [];
-	},
+	}
+
 	changeCurrentAudioId (audioId, emitChange) {
 		this.storeData.currentAudioId = audioId;
 		(emitChange !== false) &&this.emitChange(AppConstants.CHANGE_EVENT);
-	},
+	}
+
 	getCurrentAudioId () {
 		return this.storeData.currentAudioId;
-	},
+	}
 
-	changeCurrentPlayList: function (listType) {
+	playAudioById (audioId) {
+		this.storeData.playbackInfo.audioId = audioId;
+		this.storeData.playbackInfo.paused = false;
+		this.emitChange();
+	}
+
+	pauseAudio () {
+		this.storeData.playbackInfo.paused = true;
+		this.emitChange();
+	}
+
+	stopAudio () {
+		this.storeData.playbackInfo.audioId = null;
+		this.emitChange();
+	}
+
+	updatePlaybackTime (currentTime) {
+		this.storeData.playbackInfo.currentTime = currentTime;
+		this.emitChange();
+	}
+
+	updatePlaybackBuffered (buffered) {
+		this.storeData.playbackInfo.buffered = buffered;
+		this.emitChange();
+	}
+
+	changeCurrentPlayList (listType) {
 
 		var self = this,
 			storeData = self.storeData;
@@ -144,28 +223,16 @@ let AppStore = assign(EventEmitter.prototype, {
 
 		AudioPlayer.loadAudioList(self.storeData.currentPlayList);
 
-	},
+	}
+
 	getCurrentPlayList () {
 		return this.storeData.currentPlayList;
-	},
+	}
+
 	resetAudioState () {
 		this.emitChange(AppConstants.RESET_AUDIO_STATE);
-	},
-	dispatcherIndex: AppDispatcher.register((payload) => {
+	}
 
-		switch (payload.actionType) {
-			case AppConstants.PROCESS_USERS_DATA:
-				AppStore.processUsersData();
-				break;
-			case AppConstants.SEARCH_AUDIO:
-				AppStore.searchAudios(payload.query);
-				break;
-			case AppConstants.MOVE_TO_ALBUM:
-				AppStore.moveToAlbum(null, null, payload.audioId);
-				break;
-		}
-		return true;
-	})
-});
+};
 
-export default AppStore;
+export default new AppStore();

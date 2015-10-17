@@ -1,5 +1,6 @@
 'use strict';
 import React from 'react';
+import AppStore from '../../stores/app-store.js';
 
 class SearchForm extends React.Component {
 
@@ -15,8 +16,9 @@ class SearchForm extends React.Component {
 
 	}
 
-	searchAudio () {
-		console.log('Searching audio');
+	searchAudio (e) {
+		var searchValue = e.target.value;
+		AppStore.searchAudios(searchValue);
 	}
 
 	render () {

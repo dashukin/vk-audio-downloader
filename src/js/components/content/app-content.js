@@ -13,31 +13,64 @@ class SearchView extends React.Component {
 	constructor (props) {
 		super(props);
 		this.state = {
-			audioList: []
-		}
+			audioList: [],
+			userInfo: {},
+			playbackInfo: {}
+		};
+		this.type = null;
 	}
 
 	componentWillMount () {
 		var self = this;
+
+		self.type = self.props.route.type;
+
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.storeChangesHandler);
 	}
 
 	componentDiDMount () {
-		VKProvider.getAudios();
+		//this.getAppropriateAudioListAudioList(this.props);
+		this.storeChangesHandler();
+	}
+
+	shouldComponentUpdate () {
+		// TODO
+		return true;
+	}
+
+	componentWillReceiveProps (nextPprops) {
+		//this.getAppropriateAudioListAudioList(nextPprops);
+
+		this.type = nextPprops.route.type;
+
+		this.storeChangesHandler();
+	}
+
+	componentDidUpdate () {
+
+	}
+
+	getAppropriateAudioListAudioList (props) {
+
 	}
 
 	storeChangesHandler = () => {
 
 		var self = this,
 			listType,
-			audioList;
+			audioList,
+			storeData;
 
-		listType = self.props.route.type;
+		listType = self.type;
 
 		audioList = AppStore.getAudioList(listType) || [];
 
+		storeData = AppStore.storeData || {};
+
 		self.setState({
-			audioList: audioList
+			audioList: audioList,
+			userInfo: storeData.userInfo,
+			playbackInfo: storeData.playbackInfo
 		});
 	}
 
@@ -46,24 +79,29 @@ class SearchView extends React.Component {
 		var self,
 			routeProps,
 			hasSearch,
-			audioList;
+			audioList,
+			userInfo,
+			playbackInfo;
 
 		self = this;
 		routeProps = self.props.route;
 		hasSearch = routeProps.hasSearch === true;
 		audioList = self.state.audioList;
+		userInfo = self.state.userInfo;
+
+		playbackInfo = self.state.playbackInfo;
 
 		// {React.cloneElement(this.props.children, {})}
 
 		return (
 			<div>
-				<Header />
+				<Header userInfo={userInfo} />
 
 				<div className="container">
 
 					{hasSearch && <SearchForm/>}
 
-					<AudioList audioList={audioList}/>
+					<AudioList audioList={audioList} playbackInfo={playbackInfo} />
 
 				</div>
 			</div>

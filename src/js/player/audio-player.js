@@ -136,10 +136,11 @@ class AudioPlayer {
 		}
 
 		player.ontimeupdate = function () {
-			data.onTimeUpdate(player.currentTime, player.duration);
+			AppActions.updatePlayerTime(player.currentTime);
+			//data.onTimeUpdate(player.currentTime, player.duration);
 		};
 		player.onprogress = function () {
-			data.onProgress(player.duration, player.buffered);
+			AppActions.updatePlayerBuffered(player.buffered);
 		};
 
 	}
@@ -220,10 +221,6 @@ class AudioPlayer {
 		percents = data.percents;
 		newTime = self.player.duration * percents;
 
-		if (self.currentAudioId !== audioId) {
-			return;
-		}
-
 		self.player.currentTime = newTime;
 	}
 
@@ -236,14 +233,6 @@ class AudioPlayer {
 
 		return audioId && audioListMap.hasOwnProperty(audioId) ? audioListMap[audioId] : 0;
 
-	}
-
-	getCurrentaudioId () {
-		return this.currentAudioId;
-	}
-
-	getCurrentPlayStatus () {
-		return !!this.isPLaying;
 	}
 
 }

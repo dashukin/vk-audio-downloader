@@ -24,7 +24,7 @@ class Header extends React.Component {
 
 	componentWillMount () {
 		var self = this;
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
+		//AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
 	}
 
 	componentDidMount () {
@@ -33,24 +33,32 @@ class Header extends React.Component {
 
 	componentWillUnmount () {
 		var self = this;
-		AppStore.removeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
+		//AppStore.removeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
 	}
 
 	showUserInfo = () => {
 		var self = this,
-		userInfo = AppStore.storeData;
+			props = self.props,
+			userInfo = props.userInfo;
 
-		self.setState({
-			firstName: userInfo.firstName,
-			lastName: userInfo.lastName,
-			myAudiosCount: userInfo.personalAudiosCount
-		});
+		//userInfo = AppStore.storeData;
+
+		//self.setState({
+		//	firstName: userInfo.firstName,
+		//	lastName: userInfo.lastName,
+		//	myAudiosCount: userInfo.personalAudiosCount
+		//});
 	}
 
 	render () {
 
+		var self = this,
+			props = self.props,
+			userInfo = props.userInfo;
 
-		let userName = this.state.firstName ? ', ' + this.state.firstName + (this.state.lastName ? ' ' + this.state.lastName + '!' : '!') : '!';
+
+		let userName = userInfo.firstName ? ', ' + userInfo.firstName + (userInfo.lastName ? ' ' + userInfo.lastName + '!' : '!') : '!';
+
 		return (
 			<div>
 				<div className="navbar navbar-default">

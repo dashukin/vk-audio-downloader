@@ -56,6 +56,34 @@ let Actions = {
 			actionType: AppConstants.RESET_AUDIO_STATE,
 			audioId: audioId
 		});
+	},
+	playAudioById (audioId) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.PLAY_AUDIO_BY_ID,
+			audioId: audioId
+		})
+	},
+	pauseAudio () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.PAUSE_AUDIO
+		});
+	},
+	stopAudio () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.STOP_AUDIO
+		});
+	},
+	updatePlayerTime (currentTime) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.UPDATE_PLAYBACK_TIME,
+			currentTime: currentTime
+		});
+	},
+	updatePlayerBuffered (buffered) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.UPDATE_PLAYBACK_BUFFERED,
+			buffered: buffered
+		});
 	}
 };
 

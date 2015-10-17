@@ -18217,7 +18217,15 @@
 		value: true
 	});
 
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _dispatchersAppDispatcherJs = __webpack_require__(159);
 
@@ -18245,162 +18253,259 @@
 
 	var _playerAudioPlayerJs2 = _interopRequireDefault(_playerAudioPlayerJs);
 
-	var AppStore = (0, _objectAssign2['default'])(_events.EventEmitter.prototype, {
-		emitChange: function emitChange(changeEvent) {
-			this.emit(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT);
-		},
-		addChangeListener: function addChangeListener(changeEvent, callback) {
-			this.on(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT, callback);
-		},
-		removeChangeListener: function removeChangeListener(changeEvent, callback) {
-			this.removeListener(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT, callback);
-		},
-		storeData: {
-			authState: 'loading',
-			authorized: false,
-			firstName: '',
-			lastName: '',
-			personalAudiosCount: 0,
-			personalAudios: [],
-			searchQuery: '',
-			searchResults: [],
-			currentAudioId: null,
-			currentPlayList: null
-		},
-		searchQuery: '',
-		searchResults: [],
-		initVK: function initVK() {
+	var AppStore = (function (_EventEmitter) {
+		_inherits(AppStore, _EventEmitter);
 
-			var self = this,
-			    storeData = self.storeData;
+		function AppStore(props) {
+			_classCallCheck(this, AppStore);
 
-			_providersProviderVkJs2['default'].checkAppPermissions(function () {
-				self.processUsersData();
+			_get(Object.getPrototypeOf(AppStore.prototype), 'constructor', this).call(this, props);
+
+			this.storeData = {
+				authState: 'loading',
+				userInfo: {
+					authorized: false,
+					firstName: '',
+					lastName: ''
+				},
+				playbackInfo: {
+					audioId: null,
+					paused: false,
+					timelineProgress: 0,
+					decreaseTime: true,
+					timeProgress: 0,
+					bufferedPercents: 0,
+					currentTime: 0,
+					buffered: 0
+				},
+				personalAudiosCount: 0,
+				personalAudios: [],
+				searchQuery: '',
+				searchResults: [],
+				currentAudioId: null,
+				currentPlayList: null
+			};
+
+			_dispatchersAppDispatcherJs2['default'].register(function (payload) {
+
+				switch (payload.actionType) {
+					case _constantsAppConstantsJs2['default'].PROCESS_USERS_DATA:
+						AppStore.processUsersData();
+						break;
+					case _constantsAppConstantsJs2['default'].SEARCH_AUDIO:
+						AppStore.searchAudios(payload.query);
+						break;
+					case _constantsAppConstantsJs2['default'].MOVE_TO_ALBUM:
+						AppStore.moveToAlbum(null, null, payload.audioId);
+						break;
+					case _constantsAppConstantsJs2['default'].PLAY_AUDIO_BY_ID:
+						AppStore.playAudioById(payload.audioId);
+						break;
+					case _constantsAppConstantsJs2['default'].PAUSE_AUDIO:
+						AppStore.pauseAudio();
+						break;
+					case _constantsAppConstantsJs2['default'].STOP_AUDIO:
+						AppStore.stopAudio();
+						break;
+					case _constantsAppConstantsJs2['default'].UPDATE_PLAYBACK_TIME:
+						AppStore.updatePlaybackTime(payload.currentTime);
+						break;
+					case _constantsAppConstantsJs2['default'].UPDATE_PLAYBACK_BUFFERED:
+						AppStore.updatePlaybackBuffered(payload.buffered);
+				}
+				return true;
 			});
-		},
+		}
 
-		processUsersData: function processUsersData() {
+		_createClass(AppStore, [{
+			key: 'emitChange',
+			value: function emitChange(changeEvent) {
+				this.emit(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT);
+			}
+		}, {
+			key: 'addChangeListener',
+			value: function addChangeListener(changeEvent, callback) {
+				this.on(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT, callback);
+			}
+		}, {
+			key: 'removeChangeListener',
+			value: function removeChangeListener(changeEvent, callback) {
+				this.removeListener(changeEvent || _constantsAppConstantsJs2['default'].CHANGE_EVENT, callback);
+			}
+		}, {
+			key: 'initVK',
+			value: function initVK() {
 
-			var self = this,
-			    storeData = self.storeData;
+				var self = this,
+				    storeData = self.storeData;
 
-			_providersProviderVkJs2['default'].getUserInfo(function (data) {
-				storeData.firstName = data.firstName;
-				storeData.lastName = data.lastName;
-				self.emitChange();
-			});
-			self.getPersonalAudios();
-			self.getAlbums();
-		},
+				_providersProviderVkJs2['default'].checkAppPermissions(function () {
+					self.processUsersData();
+				});
+			}
+		}, {
+			key: 'processUsersData',
+			value: function processUsersData() {
 
-		getAlbums: function getAlbums() {
+				var self = this,
+				    storeData = self.storeData;
 
-			var self = this;
-
-			_providersProviderVkJs2['default'].getAlbums(function (r) {});
-		},
-
-		moveToAlbum: function moveToAlbum(groupId, albumId, audioId) {
-			_providersProviderVkJs2['default'].moveToAlbum(groupId, albumId, audioId);
-		},
-
-		getPersonalAudios: function getPersonalAudios() {
-
-			var self = this;
-
-			if (!self.storeData.personalAudios.length) {
-				_providersProviderVkJs2['default'].getAudios(function (data) {
-					self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
-					self.storeData.currentAudioList = data.audios;
-					_playerAudioPlayerJs2['default'].loadAudioList(self.storeData.currentAudioList);
+				_providersProviderVkJs2['default'].getUserInfo(function (data) {
+					storeData.firstName = data.firstName;
+					storeData.lastName = data.lastName;
 					self.emitChange();
 				});
-			} else {
-				self.emitChange();
+				self.getPersonalAudios();
+				self.getAlbums();
 			}
-		},
+		}, {
+			key: 'getAlbums',
+			value: function getAlbums() {
 
-		getAudioList: function getAudioList(listType) {
+				var self = this;
 
-			var self = this,
-			    audioList;
-
-			switch (listType) {
-				case 'search':
-					audioList = self.storeData.searchResults;
-					break;
-				case 'personal':
-					audioList = self.storeData.personalAudios;
-					break;
+				_providersProviderVkJs2['default'].getAlbums(function (r) {});
 			}
-
-			return audioList;
-		},
-
-		searchAudios: function searchAudios(query) {
-			var self = this;
-
-			_providersProviderVkJs2['default'].searchAudios(query, function (data) {
-				self.storeData.searchQuery = query;
-				self.storeData.searchResults = data.searchResults;
-				_playerAudioPlayerJs2['default'].loadAudioList(data.searchResults);
-				self.emitChange();
-			});
-		},
-		getSearchQuery: function getSearchQuery() {
-			return this.storeData.searchQuery || '';
-		},
-		getSearchResults: function getSearchResults() {
-			return this.storeData.searchResults || [];
-		},
-		changeCurrentAudioId: function changeCurrentAudioId(audioId, emitChange) {
-			this.storeData.currentAudioId = audioId;
-			emitChange !== false && this.emitChange(_constantsAppConstantsJs2['default'].CHANGE_EVENT);
-		},
-		getCurrentAudioId: function getCurrentAudioId() {
-			return this.storeData.currentAudioId;
-		},
-
-		changeCurrentPlayList: function changeCurrentPlayList(listType) {
-
-			var self = this,
-			    storeData = self.storeData;
-
-			switch (listType) {
-				case 'personal':
-					storeData.currentPlayList = storeData.personalAudios;
-					break;
-				case 'search':
-					storeData.currentPlayList = storeData.searchResults;
-					break;
+		}, {
+			key: 'moveToAlbum',
+			value: function moveToAlbum(groupId, albumId, audioId) {
+				_providersProviderVkJs2['default'].moveToAlbum(groupId, albumId, audioId);
 			}
+		}, {
+			key: 'getPersonalAudios',
+			value: function getPersonalAudios() {
 
-			_playerAudioPlayerJs2['default'].loadAudioList(self.storeData.currentPlayList);
-		},
-		getCurrentPlayList: function getCurrentPlayList() {
-			return this.storeData.currentPlayList;
-		},
-		resetAudioState: function resetAudioState() {
-			this.emitChange(_constantsAppConstantsJs2['default'].RESET_AUDIO_STATE);
-		},
-		dispatcherIndex: _dispatchersAppDispatcherJs2['default'].register(function (payload) {
+				var self = this;
 
-			switch (payload.actionType) {
-				case _constantsAppConstantsJs2['default'].PROCESS_USERS_DATA:
-					AppStore.processUsersData();
-					break;
-				case _constantsAppConstantsJs2['default'].SEARCH_AUDIO:
-					AppStore.searchAudios(payload.query);
-					break;
-				case _constantsAppConstantsJs2['default'].MOVE_TO_ALBUM:
-					AppStore.moveToAlbum(null, null, payload.audioId);
-					break;
+				if (!self.storeData.personalAudios.length) {
+					_providersProviderVkJs2['default'].getAudios(function (data) {
+						self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
+						self.storeData.currentAudioList = data.audios;
+						_playerAudioPlayerJs2['default'].loadAudioList(self.storeData.currentAudioList);
+						self.emitChange();
+					});
+				} else {
+					self.emitChange();
+				}
 			}
-			return true;
-		})
-	});
+		}, {
+			key: 'getAudioList',
+			value: function getAudioList(listType) {
 
-	exports['default'] = AppStore;
+				var self = this,
+				    audioList;
+
+				switch (listType) {
+					case 'search':
+						audioList = self.storeData.searchResults;
+						break;
+					case 'personal':
+						audioList = self.storeData.personalAudios;
+						break;
+				}
+
+				return audioList;
+			}
+		}, {
+			key: 'searchAudios',
+			value: function searchAudios(query) {
+				var self = this;
+
+				_providersProviderVkJs2['default'].searchAudios(query, function (data) {
+					self.storeData.searchQuery = query;
+					self.storeData.searchResults = data.searchResults;
+					_playerAudioPlayerJs2['default'].loadAudioList(data.searchResults);
+					self.emitChange();
+				});
+			}
+		}, {
+			key: 'getSearchQuery',
+			value: function getSearchQuery() {
+				return this.storeData.searchQuery || '';
+			}
+		}, {
+			key: 'getSearchResults',
+			value: function getSearchResults() {
+				return this.storeData.searchResults || [];
+			}
+		}, {
+			key: 'changeCurrentAudioId',
+			value: function changeCurrentAudioId(audioId, emitChange) {
+				this.storeData.currentAudioId = audioId;
+				emitChange !== false && this.emitChange(_constantsAppConstantsJs2['default'].CHANGE_EVENT);
+			}
+		}, {
+			key: 'getCurrentAudioId',
+			value: function getCurrentAudioId() {
+				return this.storeData.currentAudioId;
+			}
+		}, {
+			key: 'playAudioById',
+			value: function playAudioById(audioId) {
+				this.storeData.playbackInfo.audioId = audioId;
+				this.storeData.playbackInfo.paused = false;
+				this.emitChange();
+			}
+		}, {
+			key: 'pauseAudio',
+			value: function pauseAudio() {
+				this.storeData.playbackInfo.paused = true;
+				this.emitChange();
+			}
+		}, {
+			key: 'stopAudio',
+			value: function stopAudio() {
+				this.storeData.playbackInfo.audioId = null;
+				this.emitChange();
+			}
+		}, {
+			key: 'updatePlaybackTime',
+			value: function updatePlaybackTime(currentTime) {
+				this.storeData.playbackInfo.currentTime = currentTime;
+				this.emitChange();
+			}
+		}, {
+			key: 'updatePlaybackBuffered',
+			value: function updatePlaybackBuffered(buffered) {
+				this.storeData.playbackInfo.buffered = buffered;
+				this.emitChange();
+			}
+		}, {
+			key: 'changeCurrentPlayList',
+			value: function changeCurrentPlayList(listType) {
+
+				var self = this,
+				    storeData = self.storeData;
+
+				switch (listType) {
+					case 'personal':
+						storeData.currentPlayList = storeData.personalAudios;
+						break;
+					case 'search':
+						storeData.currentPlayList = storeData.searchResults;
+						break;
+				}
+
+				_playerAudioPlayerJs2['default'].loadAudioList(self.storeData.currentPlayList);
+			}
+		}, {
+			key: 'getCurrentPlayList',
+			value: function getCurrentPlayList() {
+				return this.storeData.currentPlayList;
+			}
+		}, {
+			key: 'resetAudioState',
+			value: function resetAudioState() {
+				this.emitChange(_constantsAppConstantsJs2['default'].RESET_AUDIO_STATE);
+			}
+		}]);
+
+		return AppStore;
+	})(_events.EventEmitter);
+
+	;
+
+	exports['default'] = new AppStore();
 	module.exports = exports['default'];
 
 /***/ },
@@ -18856,6 +18961,34 @@
 				actionType: _constantsAppConstantsJs2['default'].RESET_AUDIO_STATE,
 				audioId: audioId
 			});
+		},
+		playAudioById: function playAudioById(audioId) {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].PLAY_AUDIO_BY_ID,
+				audioId: audioId
+			});
+		},
+		pauseAudio: function pauseAudio() {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].PAUSE_AUDIO
+			});
+		},
+		stopAudio: function stopAudio() {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].STOP_AUDIO
+			});
+		},
+		updatePlayerTime: function updatePlayerTime(currentTime) {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].UPDATE_PLAYBACK_TIME,
+				currentTime: currentTime
+			});
+		},
+		updatePlayerBuffered: function updatePlayerBuffered(buffered) {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].UPDATE_PLAYBACK_BUFFERED,
+				buffered: buffered
+			});
 		}
 	};
 
@@ -18902,7 +19035,12 @@
 		MOVE_TO_ALBUM: 'MOVE_TO_ALBUM',
 		CURRENT_AUDIO_CHANGED: 'CURRENT_AUDIO_CHANGED',
 		CHANGE_CURRENT_PLAYLIST: 'CHANGE_CURRENT_PLAYLIST',
-		RESET_AUDIO_STATE: 'RESET_AUDIO_STATE'
+		RESET_AUDIO_STATE: 'RESET_AUDIO_STATE',
+		PLAY_AUDIO_BY_ID: 'PLAY_AUDIO_BY_ID',
+		PAUSE_AUDIO: 'PAUSE_AUDIO',
+		STOP_AUDIO: 'STOP_AUDIO',
+		UPDATE_PLAYBACK_TIME: 'UPDATE_PLAYBACK_TIME',
+		UPDATE_PLAYBACK_BUFFERED: 'UPDATE_PLAYBACK_BUFFERED'
 	};
 
 	exports['default'] = Constants;
@@ -19640,10 +19778,11 @@
 				}
 
 				player.ontimeupdate = function () {
-					data.onTimeUpdate(player.currentTime, player.duration);
+					_actionsAppActionsJs2['default'].updatePlayerTime(player.currentTime);
+					//data.onTimeUpdate(player.currentTime, player.duration);
 				};
 				player.onprogress = function () {
-					data.onProgress(player.duration, player.buffered);
+					_actionsAppActionsJs2['default'].updatePlayerBuffered(player.buffered);
 				};
 			}
 		}, {
@@ -19724,10 +19863,6 @@
 				percents = data.percents;
 				newTime = self.player.duration * percents;
 
-				if (self.currentAudioId !== audioId) {
-					return;
-				}
-
 				self.player.currentTime = newTime;
 			}
 		}, {
@@ -19740,16 +19875,6 @@
 				audioListMap = self.audioListMap;
 
 				return audioId && audioListMap.hasOwnProperty(audioId) ? audioListMap[audioId] : 0;
-			}
-		}, {
-			key: 'getCurrentaudioId',
-			value: function getCurrentaudioId() {
-				return this.currentAudioId;
-			}
-		}, {
-			key: 'getCurrentPlayStatus',
-			value: function getCurrentPlayStatus() {
-				return !!this.isPLaying;
 			}
 		}]);
 
@@ -24278,13 +24403,16 @@
 
 			this.showUserInfo = function () {
 				var self = _this,
-				    userInfo = _storesAppStoreJs2['default'].storeData;
+				    props = self.props,
+				    userInfo = props.userInfo;
 
-				self.setState({
-					firstName: userInfo.firstName,
-					lastName: userInfo.lastName,
-					myAudiosCount: userInfo.personalAudiosCount
-				});
+				//userInfo = AppStore.storeData;
+
+				//self.setState({
+				//	firstName: userInfo.firstName,
+				//	lastName: userInfo.lastName,
+				//	myAudiosCount: userInfo.personalAudiosCount
+				//});
 			};
 
 			this.state = {
@@ -24298,7 +24426,7 @@
 			key: 'componentWillMount',
 			value: function componentWillMount() {
 				var self = this;
-				_storesAppStoreJs2['default'].addChangeListener(_constantsAppConstantsJs2['default'].CHANGE_EVENT, self.showUserInfo);
+				//AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
 			}
 		}, {
 			key: 'componentDidMount',
@@ -24307,13 +24435,18 @@
 			key: 'componentWillUnmount',
 			value: function componentWillUnmount() {
 				var self = this;
-				_storesAppStoreJs2['default'].removeListener(_constantsAppConstantsJs2['default'].CHANGE_EVENT, self.showUserInfo);
+				//AppStore.removeListener(AppConstants.CHANGE_EVENT, self.showUserInfo);
 			}
 		}, {
 			key: 'render',
 			value: function render() {
 
-				var userName = this.state.firstName ? ', ' + this.state.firstName + (this.state.lastName ? ' ' + this.state.lastName + '!' : '!') : '!';
+				var self = this,
+				    props = self.props,
+				    userInfo = props.userInfo;
+
+				var userName = userInfo.firstName ? ', ' + userInfo.firstName + (userInfo.lastName ? ' ' + userInfo.lastName + '!' : '!') : '!';
+
 				return _react2['default'].createElement(
 					'div',
 					null,
@@ -24582,44 +24715,138 @@
 		_inherits(AudioItem, _React$Component);
 
 		function AudioItem(props) {
+			var _this = this;
+
 			_classCallCheck(this, AudioItem);
 
 			_get(Object.getPrototypeOf(AudioItem.prototype), 'constructor', this).call(this, props);
+
+			this.download = function (e) {
+				!!e && e.preventDefault();
+
+				var self = _this,
+				    audioData = self.props.data,
+				    trackName = self.prepareFileName(audioData.artist + ' ' + audioData.title),
+				    url = audioData.url;
+
+				chrome.downloads.download({
+					url: url,
+					filename: trackName,
+					saveAs: true
+				});
+			};
+
+			this.play = function (e) {
+
+				!!e && e.preventDefault();
+
+				var self = _this,
+				    audioId;
+
+				audioId = self.props.data.aid;
+
+				_playerAudioPlayerJs2['default'].play({
+					component: self,
+					audioId: audioId
+				});
+
+				_actionsAppActionsJs2['default'].playAudioById(audioId);
+			};
+
+			this.pause = function (e) {
+
+				!!e && e.preventDefault();
+
+				_actionsAppActionsJs2['default'].pauseAudio();
+
+				_playerAudioPlayerJs2['default'].pause();
+			};
+
+			this.stop = function (e) {
+
+				!!e && e.preventDefault();
+
+				var self = _this;
+
+				_actionsAppActionsJs2['default'].stopAudio();
+
+				_playerAudioPlayerJs2['default'].stop({
+					audioId: self.props.data.aid
+				});
+			};
+
+			this.seekAudioProgress = function (e) {
+
+				e.preventDefault();
+
+				var self = _this,
+				    progressHolder,
+				    progressHolderWidth,
+				    progressHolderBoundings,
+				    progressHolderLeftPosition,
+				    clickPositionX,
+				    clickPercent;
+
+				progressHolder = e.target;
+				progressHolderWidth = progressHolder.offsetWidth;
+				progressHolderBoundings = progressHolder.getBoundingClientRect();
+				progressHolderLeftPosition = progressHolderBoundings.left;
+				clickPositionX = e.clientX;
+				clickPercent = Math.abs(clickPositionX - progressHolderLeftPosition) / progressHolderWidth;
+
+				_playerAudioPlayerJs2['default'].updateCurrentTime({
+					percents: clickPercent
+				});
+			};
+
+			this.handleDecrease = function () {
+
+				var decreaseStatus = _this.state.decreaseTime;
+				_this.setState({
+					decreaseTime: !decreaseStatus
+				});
+			};
+
+			this.moveToAlbum = function (e) {
+
+				var self = _this;
+
+				!!e && e.preventDefault();
+
+				_actionsAppActionsJs2['default'].moveToAlbum(self.props.data.aid);
+			};
+
 			this.state = {
 				isPlaying: false,
-				timelineProgress: 0,
 				decreaseTime: true,
 				timeProgress: 0,
+				timelineProgress: 0,
 				bufferedPercents: 0
 			};
 		}
 
 		_createClass(AudioItem, [{
+			key: 'componentWillMount',
+			value: function componentWillMount() {}
+		}, {
 			key: 'componentDidMount',
 			value: function componentDidMount() {
 
 				var self = this,
+				    props = self.props,
 				    audioId = self.props.data.aid,
-				    audioPlayerCurrentAudioId;
+				    isActiveAudio;
+
+				isActiveAudio = props.data.aid === props.playbackInfo.audioId;
 
 				self.setState({
 					timeProgress: this.convertSecondsToReadableTime(this.props.data.duration)
 				});
 
-				audioPlayerCurrentAudioId = _playerAudioPlayerJs2['default'].getCurrentaudioId();
-
-				if (audioPlayerCurrentAudioId === audioId) {
+				if (isActiveAudio) {
 					_playerAudioPlayerJs2['default'].addPlayerHandlers({
-						audioId: audioId,
-						onTimeUpdate: self.updateTime.bind(self),
-						onProgress: self.updateBufferingProgress.bind(self)
+						audioId: audioId
 					});
-
-					if (_playerAudioPlayerJs2['default'].getCurrentPlayStatus() === true) {
-						self.setState({
-							isPlaying: true
-						});
-					}
 				}
 			}
 		}, {
@@ -24647,18 +24874,40 @@
 				var self = this,
 				    props = self.props,
 				    state = self.state,
-				    isPlaying,
+				    isActiveAudio,
+				    isPaused,
 				    isPLayingClassName,
-				    isPLayingHandler,
+				    playingHandler,
 				    audioData,
-				    duration;
+				    duration,
+				    actualTimeData,
+				    timeProgress,
+				    timelineProgress = 0,
+				    bufferedPercents = 0,
+				    currentTime = 0,
+				    buffered = 0,
+				    seekAudioHandler;
 
-				isPlaying = state.isPlaying;
-				isPLayingClassName = isPlaying ? 'mdi-av-pause' : 'mdi-av-play-arrow';
-				isPLayingHandler = isPlaying ? self.pause : self.play;
+				audioData = props.data;
+				duration = props.data.duration;
 
-				audioData = this.props.data;
-				duration = audioData.duration;
+				isActiveAudio = props.data.aid === props.playbackInfo.audioId;
+				isPaused = isActiveAudio && props.playbackInfo.paused;
+
+				if (isActiveAudio) {
+					//console.dir(props.playbackInfo);
+					currentTime = props.playbackInfo.currentTime;
+					buffered = props.playbackInfo.buffered;
+					seekAudioHandler = self.seekAudioProgress;
+				}
+
+				actualTimeData = self.getActualTime(currentTime, audioData.duration);
+				timeProgress = actualTimeData.timeProgress;
+				timelineProgress = actualTimeData.timelineProgress;
+				bufferedPercents = self.getBufferingProgress(audioData.duration, buffered);
+
+				isPLayingClassName = isActiveAudio && !isPaused ? 'mdi-av-pause' : 'mdi-av-play-arrow';
+				playingHandler = isActiveAudio && !isPaused ? self.pause : self.play;
 
 				return _react2['default'].createElement(
 					'div',
@@ -24674,12 +24923,12 @@
 								{ className: 'audio-controls' },
 								_react2['default'].createElement(
 									'a',
-									{ href: '#', onClick: isPLayingHandler.bind(self) },
+									{ href: '#', onClick: playingHandler },
 									_react2['default'].createElement('i', { className: isPLayingClassName })
 								),
 								_react2['default'].createElement(
 									'a',
-									{ className: '', href: '#', onClick: self.stop.bind(self) },
+									{ className: '', href: '#', onClick: self.stop },
 									_react2['default'].createElement('i', { className: 'mdi-av-stop' })
 								)
 							),
@@ -24706,17 +24955,17 @@
 									),
 									_react2['default'].createElement(
 										'div',
-										{ className: 'audio-info-duration', onClick: self.handleDecrease.bind(self) },
-										state.isPlaying && state.decreaseTime ? '-' : '',
+										{ className: 'audio-info-duration', onClick: self.handleDecrease },
+										isActiveAudio && state.decreaseTime ? '-' : '',
 										' ',
-										state.timeProgress
+										timeProgress
 									)
 								),
 								_react2['default'].createElement(
 									'div',
-									{ className: 'audio-timeline-holder progress progress-striped active', onClick: self.seekAudioProgress.bind(self) },
-									_react2['default'].createElement('div', { className: 'audio-buffered', style: { width: state.bufferedPercents + '%' } }),
-									_react2['default'].createElement('div', { className: 'audio-timeline progress-bar', style: { width: state.timelineProgress + '%' } })
+									{ className: 'audio-timeline-holder progress progress-striped active', onClick: seekAudioHandler },
+									_react2['default'].createElement('div', { className: 'audio-buffered', style: { width: bufferedPercents + '%' } }),
+									_react2['default'].createElement('div', { className: 'audio-timeline progress-bar', style: { width: timelineProgress + '%' } })
 								)
 							)
 						)
@@ -24729,7 +24978,7 @@
 							null,
 							_react2['default'].createElement(
 								'a',
-								{ className: 'audio-download', target: '_blank', onClick: self.download.bind(self), href: audioData.url },
+								{ className: 'audio-download', target: '_blank', onClick: self.download, href: audioData.url },
 								_react2['default'].createElement('i', { className: 'mdi-file-file-download' })
 							)
 						),
@@ -24738,7 +24987,7 @@
 							null,
 							_react2['default'].createElement(
 								'a',
-								{ className: '', title: 'Add to my audios', onClick: self.moveToAlbum.bind(self) },
+								{ className: '', title: 'Add to my audios', onClick: self.moveToAlbum },
 								_react2['default'].createElement('i', { className: 'mdi-av-my-library-add' })
 							)
 						)
@@ -24746,90 +24995,8 @@
 				);
 			}
 		}, {
-			key: 'download',
-			value: function download(e) {
-				!!e && e.preventDefault();
-
-				var self = this,
-				    audioData = self.props.data,
-				    trackName = self.prepareFileName(audioData.artist + ' ' + audioData.title),
-				    url = audioData.url;
-
-				chrome.downloads.download({
-					url: url,
-					filename: trackName,
-					saveAs: true
-				});
-			}
-		}, {
-			key: 'play',
-			value: function play(e) {
-
-				!!e && e.preventDefault();
-
-				var self = this;
-
-				_playerAudioPlayerJs2['default'].play({
-					component: self,
-					audioId: self.props.data.aid,
-					onTimeUpdate: self.updateTime.bind(self),
-					onProgress: self.updateBufferingProgress.bind(self)
-				});
-
-				self.setState({ isPlaying: true });
-			}
-		}, {
-			key: 'pause',
-			value: function pause(e) {
-
-				!!e && e.preventDefault();
-
-				_playerAudioPlayerJs2['default'].pause();
-
-				this.setState({ isPlaying: false });
-			}
-		}, {
-			key: 'stop',
-			value: function stop(e) {
-
-				!!e && e.preventDefault();
-
-				var self = this;
-
-				self.setState({ isPlaying: false });
-				_playerAudioPlayerJs2['default'].stop({
-					audioId: self.props.data.aid
-				});
-			}
-		}, {
-			key: 'seekAudioProgress',
-			value: function seekAudioProgress(e) {
-
-				e.preventDefault();
-
-				var self = this,
-				    progressHolder,
-				    progressHolderWidth,
-				    progressHolderBoundings,
-				    progressHolderLeftPosition,
-				    clickPositionX,
-				    clickPercent;
-
-				progressHolder = e.target;
-				progressHolderWidth = progressHolder.offsetWidth;
-				progressHolderBoundings = progressHolder.getBoundingClientRect();
-				progressHolderLeftPosition = progressHolderBoundings.left;
-				clickPositionX = e.clientX;
-				clickPercent = Math.abs(clickPositionX - progressHolderLeftPosition) / progressHolderWidth;
-
-				_playerAudioPlayerJs2['default'].updateCurrentTime({
-					audioId: self.props.data.aid,
-					percents: clickPercent
-				});
-			}
-		}, {
-			key: 'updateBufferingProgress',
-			value: function updateBufferingProgress(duration, buffered) {
+			key: 'getBufferingProgress',
+			value: function getBufferingProgress(duration, buffered) {
 
 				var self = this,
 				    bufferedLength,
@@ -24842,22 +25009,29 @@
 
 				bufferedPercents = bufferedEnd / duration * 100;
 
-				self.setState({
-					bufferedPercents: bufferedPercents
-				});
+				return bufferedPercents;
+
+				//self.setState({
+				//	bufferedPercents: bufferedPercents
+				//});
 			}
 		}, {
-			key: 'updateTime',
-			value: function updateTime(currentTime, duration) {
+			key: 'getActualTime',
+			value: function getActualTime(currentTime, duration) {
 				var timelineProgress, timeProgress;
 
 				timelineProgress = (currentTime / duration * 100).toFixed(2);
 				timeProgress = this.state.decreaseTime ? Math.floor(duration - currentTime) : Math.floor(currentTime);
 
-				this.setState({
-					timelineProgress: timelineProgress,
-					timeProgress: this.convertSecondsToReadableTime(timeProgress)
-				});
+				return {
+					timeProgress: this.convertSecondsToReadableTime(timeProgress),
+					timelineProgress: timelineProgress
+				};
+
+				//this.setState({
+				//	timelineProgress: timelineProgress,
+				//	timeProgress: this.convertSecondsToReadableTime(timeProgress)
+				//});
 			}
 		}, {
 			key: 'convertSecondsToReadableTime',
@@ -24880,15 +25054,6 @@
 				return (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
 			}
 		}, {
-			key: 'handleDecrease',
-			value: function handleDecrease() {
-
-				var decreaseStatus = this.state.decreaseTime;
-				this.setState({
-					decreaseTime: !decreaseStatus
-				});
-			}
-		}, {
 			key: 'resetState',
 			value: function resetState() {
 				var self = this;
@@ -24896,22 +25061,12 @@
 				self.removePlayerHandlers();
 
 				self.setState({
-					isPlaying: false,
+					//isPlaying: false,
 					timelineProgress: 0,
 					decreaseTime: true,
 					timeProgress: self.convertSecondsToReadableTime(self.props.data.duration),
 					bufferedPercents: 0
 				});
-			}
-		}, {
-			key: 'moveToAlbum',
-			value: function moveToAlbum(e) {
-
-				var self = this;
-
-				!!e && e.preventDefault();
-
-				_actionsAppActionsJs2['default'].moveToAlbum(self.props.data.aid);
 			}
 		}, {
 			key: 'playAudio',
@@ -25237,55 +25392,91 @@
 
 				var self = _this,
 				    listType,
-				    audioList;
+				    audioList,
+				    storeData;
 
-				listType = self.props.route.type;
+				listType = self.type;
 
 				audioList = _storesAppStoreJs2['default'].getAudioList(listType) || [];
 
+				storeData = _storesAppStoreJs2['default'].storeData || {};
+
 				self.setState({
-					audioList: audioList
+					audioList: audioList,
+					userInfo: storeData.userInfo,
+					playbackInfo: storeData.playbackInfo
 				});
 			};
 
 			this.state = {
-				audioList: []
+				audioList: [],
+				userInfo: {},
+				playbackInfo: {}
 			};
+			this.type = null;
 		}
 
 		_createClass(SearchView, [{
 			key: 'componentWillMount',
 			value: function componentWillMount() {
 				var self = this;
+
+				self.type = self.props.route.type;
+
 				_storesAppStoreJs2['default'].addChangeListener(_constantsAppConstantsJs2['default'].CHANGE_EVENT, self.storeChangesHandler);
 			}
 		}, {
 			key: 'componentDiDMount',
 			value: function componentDiDMount() {
-				_providersProviderVkJs2['default'].getAudios();
+				//this.getAppropriateAudioListAudioList(this.props);
+				this.storeChangesHandler();
 			}
+		}, {
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate() {
+				// TODO
+				return true;
+			}
+		}, {
+			key: 'componentWillReceiveProps',
+			value: function componentWillReceiveProps(nextPprops) {
+				//this.getAppropriateAudioListAudioList(nextPprops);
+
+				this.type = nextPprops.route.type;
+
+				this.storeChangesHandler();
+			}
+		}, {
+			key: 'componentDidUpdate',
+			value: function componentDidUpdate() {}
+		}, {
+			key: 'getAppropriateAudioListAudioList',
+			value: function getAppropriateAudioListAudioList(props) {}
 		}, {
 			key: 'render',
 			value: function render() {
 
-				var self, routeProps, hasSearch, audioList;
+				var self, routeProps, hasSearch, audioList, userInfo, playbackInfo;
 
 				self = this;
 				routeProps = self.props.route;
 				hasSearch = routeProps.hasSearch === true;
 				audioList = self.state.audioList;
+				userInfo = self.state.userInfo;
+
+				playbackInfo = self.state.playbackInfo;
 
 				// {React.cloneElement(this.props.children, {})}
 
 				return _react2['default'].createElement(
 					'div',
 					null,
-					_react2['default'].createElement(_contentAppContentHeaderJs2['default'], null),
+					_react2['default'].createElement(_contentAppContentHeaderJs2['default'], { userInfo: userInfo }),
 					_react2['default'].createElement(
 						'div',
 						{ className: 'container' },
 						hasSearch && _react2['default'].createElement(_contentAppContentSearchForm2['default'], null),
-						_react2['default'].createElement(_contentAppContentAudioListJs2['default'], { audioList: audioList })
+						_react2['default'].createElement(_contentAppContentAudioListJs2['default'], { audioList: audioList, playbackInfo: playbackInfo })
 					)
 				);
 			}
@@ -25320,6 +25511,10 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _storesAppStoreJs = __webpack_require__(158);
+
+	var _storesAppStoreJs2 = _interopRequireDefault(_storesAppStoreJs);
+
 	var SearchForm = (function (_React$Component) {
 		_inherits(SearchForm, _React$Component);
 
@@ -25337,8 +25532,9 @@
 			value: function componentWillUnmount() {}
 		}, {
 			key: 'searchAudio',
-			value: function searchAudio() {
-				console.log('Searching audio');
+			value: function searchAudio(e) {
+				var searchValue = e.target.value;
+				_storesAppStoreJs2['default'].searchAudios(searchValue);
 			}
 		}, {
 			key: 'render',
@@ -25408,15 +25604,16 @@
 			key: 'render',
 			value: function render() {
 
-				var self, props, audioList, audioListOutput;
+				var self, props, audioList, audioListOutput, playbackInfo;
 
 				self = this;
 				props = self.props;
 				audioList = props.audioList || [];
 
-				audioListOutput = '';
-				audioListOutput = audioList.map(function (audioData) {
-					return _react2['default'].createElement(_contentAppContentAudioItemJs2['default'], { data: audioData, key: audioData.aid });
+				playbackInfo = self.props.playbackInfo;
+
+				audioListOutput = !audioList.length ? 'Loading...' : audioList.map(function (audioData) {
+					return _react2['default'].createElement(_contentAppContentAudioItemJs2['default'], { data: audioData, key: audioData.aid, playbackInfo: playbackInfo });
 				});
 
 				return _react2['default'].createElement(
