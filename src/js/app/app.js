@@ -66,9 +66,7 @@ class App extends React.Component {
 
 	render() {
 
-		console.warn('rendering app.js');
-
-		let self = this,
+		var self = this,
 			state = self.state,
 			view,
 			appClassName = 'app ' + (state.authState);

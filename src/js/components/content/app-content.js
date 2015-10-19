@@ -8,14 +8,20 @@ import Header from '../content/app-content-header.js';
 import AppStore from '../../stores/app-store.js';
 import VKProvider from '../../providers/provider-vk.js';
 import AppConstants from '../../constants/app-constants.js';
+import {Map, List} from 'immutable';
 
-class SearchView extends React.Component {
+class ContentView extends React.Component {
 
 	constructor (props) {
 		super(props);
 		this.state = {
 			audioList: [],
-			userInfo: {},
+			userInfo: Map({
+				authorized: false,
+				firstName: '',
+				lastName: '',
+				personalAudiosCount: 0
+			}),
 			playbackInfo: {}
 		};
 		this.type = null;
@@ -30,12 +36,11 @@ class SearchView extends React.Component {
 	}
 
 	componentDiDMount () {
-		//this.getAppropriateAudioListAudioList(this.props);
+
 		this.storeChangesHandler();
 	}
 
 	componentWillReceiveProps (nextPprops) {
-		//this.getAppropriateAudioListAudioList(nextPprops);
 
 		this.type = nextPprops.route.type;
 
@@ -55,24 +60,32 @@ class SearchView extends React.Component {
 		var self = this,
 			listType,
 			audioList,
-			storeData;
+			storeData,
+			storeUserInfo
 
 		listType = self.type;
 
 		audioList = AppStore.getAudioList(listType) || [];
 
 		storeData = AppStore.storeData || {};
+		storeUserInfo = storeData.userInfo;
 
 		self.setState({
 			audioList: audioList,
-			userInfo: storeData.userInfo,
+			//userInfo: storeData.userInfo,
 			playbackInfo: storeData.playbackInfo
 		});
+
+		this.setState(({userInfo}) => ({
+			userInfo: userInfo.update('firstName', () => storeUserInfo.firstName)
+		}));
+
+		this.setState(({userInfo}) => ({
+			userInfo: userInfo.update('personalAudiosCount', () => storeUserInfo.personalAudiosCount)
+		}));
 	}
 
 	render () {
-
-		console.warn('rendering app-content.js');
 
 		var self,
 			routeProps,
@@ -108,4 +121,4 @@ class SearchView extends React.Component {
 
 }
 
-export default SearchView;
+export default ContentView;

@@ -4,6 +4,7 @@ import React from 'react';
 import Immutable from 'immutable';
 import Component from '../component.js';
 import AudioItem from '../content/app-content-audio-item.js';
+import Loading from '../loading/app-loading.js';
 
 class AudioList extends React.Component {
 
@@ -35,10 +36,7 @@ class AudioList extends React.Component {
 
 		playbackInfo = self.props.playbackInfo;
 
-		//TODO: remove;
-		audioList = audioList.slice(0,2);
-
-		audioListOutput = !audioList.length ? 'Loading...' : audioList.map(audioData => {
+		audioListOutput = !audioList.length ? <Loading/> : audioList.map(audioData => {
 			isActiveAudio = audioData.aid === playbackInfo.audioId;
 
 			playBackInfoProperties = isActiveAudio ? playbackInfo : null;
@@ -48,8 +46,12 @@ class AudioList extends React.Component {
 		});
 
 		return (
-			<div className="audio-list">
-				{audioListOutput}
+			<div className="row">
+				<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div className="audio-list">
+						{audioListOutput}
+					</div>
+				</div>
 			</div>
 		);
 	}

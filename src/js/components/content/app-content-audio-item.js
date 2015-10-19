@@ -42,12 +42,6 @@ class AudioItem extends React.Component {
 			timeProgress: this.convertSecondsToReadableTime(this.props.data.duration)
 		});
 
-		if (isActiveAudio) {
-			AudioPlayer.addPlayerHandlers({
-				audioId: audioId
-			});
-		}
-
 	}
 
 	shouldComponentUpdate (newProps) {
@@ -57,19 +51,6 @@ class AudioItem extends React.Component {
 
 	componentWillUnmount () {
 
-		var self = this;
-
-		self.removePlayerHandlers();
-
-	}
-
-	removePlayerHandlers () {
-
-		var self = this;
-
-		AudioPlayer.removePlayerHandlers({
-			audioId: self.props.data.aid
-		});
 	}
 
 	render () {
@@ -90,7 +71,8 @@ class AudioItem extends React.Component {
 			bufferedPercents = 0,
 			currentTime = 0,
 			buffered = 0,
-			seekAudioHandler;
+			seekAudioHandler,
+			stopHandler;
 
 		audioData = props.data;
 		duration = props.data.duration;
@@ -114,7 +96,7 @@ class AudioItem extends React.Component {
 		isPLayingClassName 	= isActiveAudio && !isPaused ? 'mdi-av-pause' : 'mdi-av-play-arrow';
 		playingHandler 	= isActiveAudio && !isPaused ? self.pause : self.play;
 
-
+		stopHandler = isActiveAudio ? self.stop : function (e) {e.preventDefault()};
 
 
 
@@ -130,7 +112,7 @@ class AudioItem extends React.Component {
 								<i className={isPLayingClassName}></i>
 							</a>
 
-							<a className="" href="#" onClick={self.stop}>
+							<a className="" href="#" onClick={stopHandler}>
 								<i className="mdi-av-stop"></i>
 							</a>
 
@@ -201,7 +183,6 @@ class AudioItem extends React.Component {
 		AppActions.playAudioById(audioId);
 
 		AudioPlayer.play({
-			component: self,
 			audioId: audioId
 		});
 	}
@@ -328,8 +309,6 @@ class AudioItem extends React.Component {
 
 	resetState () {
 		var self = this;
-
-		self.removePlayerHandlers();
 
 		self.setState({
 			//isPlaying: false,

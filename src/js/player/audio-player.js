@@ -20,9 +20,6 @@ class AudioPlayer {
 
 		self.currentAudioId = null;
 
-		// link to current playing component
-		self.currentAudioComponent = null;
-
 		self.player = new Audio();
 
 		self.player.preload = 'auto';
@@ -40,7 +37,14 @@ class AudioPlayer {
 		var self = this,
 			player = self.player;
 
-		player.addEventListener('ended', self.playNext.bind(self));
+		player.ontimeupdate = function () {
+			AppActions.updatePlayerTime(player.currentTime);
+		};
+		player.onprogress = function () {
+			AppActions.updatePlayerBuffered(player.buffered);
+		};
+
+		player.addEventListener('ended', self.playNext);
 
 	}
 
@@ -97,15 +101,6 @@ class AudioPlayer {
 
 
 
-		self.removePlayerHandlers(data);
-		// call reset method on currently playing component
-		//self.currentAudioComponent && self.currentAudioComponent.resetState();
-
-		console.info('gonna call resetAudioState');
-		AppActions.resetAudioState(self.currentAudioId);
-
-		self.currentAudioComponent = data.component;
-
 		audioList = self.audioList;
 		audioListMap = self.audioListMap;
 		player = self.player;
@@ -118,44 +113,9 @@ class AudioPlayer {
 
 		player.src = audioData.url;
 
-		self.addPlayerHandlers(data);
-
 		player.play();
 
 		self.isPLaying = true;
-
-	}
-
-	addPlayerHandlers (data) {
-
-		var self = this,
-			player = self.player;
-
-		if (self.currentAudioId !== data.audioId) {
-			return;
-		}
-
-		player.ontimeupdate = function () {
-			AppActions.updatePlayerTime(player.currentTime);
-			//data.onTimeUpdate(player.currentTime, player.duration);
-		};
-		player.onprogress = function () {
-			AppActions.updatePlayerBuffered(player.buffered);
-		};
-
-	}
-
-	removePlayerHandlers (data) {
-
-		var self = this,
-			player = self.player;
-
-		if (self.currentAudioId !== data.audioId) {
-			return;
-		}
-
-		player.ontimeupdate = null;
-		player.onprogress = null;
 
 	}
 
@@ -175,22 +135,21 @@ class AudioPlayer {
 			player = self.player,
 			audioId = data.audioId;
 
-		if (self.currentAudioId !== audioId) {
-			return;
-		}
-
 		player.pause();
 		player.currentTime = 0;
+
+		AppActions.updatePlayerTime(0);
+		AppActions.updatePlayerBuffered(0);
 
 		self.isPLaying = false;
 
 	}
 
 	playPrevious () {
-
+		// TODO
 	}
 
-	playNext () {
+	playNext = () => {
 
 		var self = this,
 			audioList,
@@ -205,8 +164,11 @@ class AudioPlayer {
 		nextIndex = currentIndex == null ? 0 : ((currentIndex + 1) <= lastIndex ? currentIndex + 1 : 0);
 		nextAudioId = audioList[nextIndex].aid;
 
-		AppStore.resetAudioState(self.currentAudioId);
-		AppStore.changeCurrentAudioId(nextAudioId);
+		AppActions.playAudioById(nextAudioId);
+
+		self.play({
+			audioId: nextAudioId
+		});
 
 	}
 
@@ -217,7 +179,6 @@ class AudioPlayer {
 			percents,
 			newTime;
 
-		audioId = data.audioId;
 		percents = data.percents;
 		newTime = self.player.duration * percents;
 

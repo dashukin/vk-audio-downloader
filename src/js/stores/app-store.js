@@ -17,27 +17,24 @@ class AppStore extends EventEmitter {
 
 		this.storeData = {
 			authState: 'loading',
-				userInfo: {
+			userInfo: {
 				authorized: false,
-					firstName: '',
-					lastName: ''
+				firstName: '',
+				lastName: '',
+				personalAudiosCount: 0
 			},
 			playbackInfo: {
 				audioId: null,
-					paused: false,
-					timelineProgress: 0,
-					decreaseTime: true,
-					timeProgress: 0,
-					bufferedPercents: 0,
-					currentTime: 0,
-					buffered: 0
+				paused: false,
+				decreaseTime: true,
+				currentTime: 0,
+				buffered: 0
 			},
-			personalAudiosCount: 0,
-				personalAudios: [],
-				searchQuery: '',
-				searchResults: [],
-				currentAudioId: null,
-				currentPlayList: null
+			personalAudios: [],
+			searchQuery: '',
+			searchResults: [],
+			currentAudioId: null,
+			currentPlayList: null
 		}
 
 		AppDispatcher.register((payload) => {
@@ -101,8 +98,8 @@ class AppStore extends EventEmitter {
 			storeData = self.storeData;
 
 		VKProvider.getUserInfo(function (data) {
-			storeData.firstName = data.firstName;
-			storeData.lastName = data.lastName;
+			storeData.userInfo.firstName = data.firstName;
+			storeData.userInfo.lastName = data.lastName;
 			self.emitChange();
 		});
 		self.getPersonalAudios();
@@ -129,6 +126,7 @@ class AppStore extends EventEmitter {
 		if (!self.storeData.personalAudios.length) {
 			VKProvider.getAudios(function (data) {
 				self.storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
+				self.storeData.userInfo.personalAudiosCount = data.audios.length || 0;
 				self.storeData.currentAudioList = data.audios;
 				AudioPlayer.loadAudioList(self.storeData.currentAudioList);
 				self.emitChange();
@@ -151,6 +149,8 @@ class AppStore extends EventEmitter {
 				audioList = self.storeData.personalAudios;
 				break;
 		}
+
+		self.changeCurrentPlayList(listType);
 
 		return audioList;
 
