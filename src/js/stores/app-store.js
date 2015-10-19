@@ -3,7 +3,6 @@
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
 import AppActions from '../actions/app-actions.js';
 import AppConstants from '../constants/app-constants.js';
-import assign from 'object-assign';
 import {EventEmitter} from 'events';
 import VKProvider from '../providers/provider-vk.js';
 import AudioPlayer from '../player/audio-player.js';
@@ -11,7 +10,10 @@ import AudioPlayer from '../player/audio-player.js';
 class AppStore extends EventEmitter {
 
 	constructor (props) {
+
 		super(props);
+
+		var self = this;
 
 		this.storeData = {
 			authState: 'loading',
@@ -42,28 +44,29 @@ class AppStore extends EventEmitter {
 
 			switch (payload.actionType) {
 				case AppConstants.PROCESS_USERS_DATA:
-					AppStore.processUsersData();
+					self.processUsersData();
 					break;
 				case AppConstants.SEARCH_AUDIO:
-					AppStore.searchAudios(payload.query);
+					self.searchAudios(payload.query);
 					break;
 				case AppConstants.MOVE_TO_ALBUM:
-					AppStore.moveToAlbum(null, null, payload.audioId);
+					self.moveToAlbum(null, null, payload.audioId);
 					break;
 				case AppConstants.PLAY_AUDIO_BY_ID:
-					AppStore.playAudioById(payload.audioId);
+					self.playAudioById(payload.audioId);
 					break;
 				case AppConstants.PAUSE_AUDIO:
-					AppStore.pauseAudio();
+					self.pauseAudio();
 					break;
 				case AppConstants.STOP_AUDIO:
-					AppStore.stopAudio();
+					self.stopAudio();
 					break;
 				case AppConstants.UPDATE_PLAYBACK_TIME:
-					AppStore.updatePlaybackTime(payload.currentTime);
+					self.updatePlaybackTime(payload.currentTime);
 					break;
 				case AppConstants.UPDATE_PLAYBACK_BUFFERED:
-					AppStore.updatePlaybackBuffered(payload.buffered);
+					self.updatePlaybackBuffered(payload.buffered);
+					break;
 			}
 			return true;
 		});

@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import Component from '../component.js';
 import SearchForm from '../content/app-content-search-form';
 import AudioList from '../content/app-content-audio-list.js';
 import Header from '../content/app-content-header.js';
@@ -31,11 +32,6 @@ class SearchView extends React.Component {
 	componentDiDMount () {
 		//this.getAppropriateAudioListAudioList(this.props);
 		this.storeChangesHandler();
-	}
-
-	shouldComponentUpdate () {
-		// TODO
-		return true;
 	}
 
 	componentWillReceiveProps (nextPprops) {
@@ -75,6 +71,8 @@ class SearchView extends React.Component {
 	}
 
 	render () {
+
+		console.warn('rendering app-content.js');
 
 		var self,
 			routeProps,

@@ -1,6 +1,8 @@
 'use strict';
 
 import React from 'react';
+import Immutable from 'immutable';
+import Component from '../component.js';
 import AudioItem from '../content/app-content-audio-item.js';
 
 class AudioList extends React.Component {
@@ -23,7 +25,9 @@ class AudioList extends React.Component {
 			props,
 			audioList,
 			audioListOutput,
-			playbackInfo;
+			playbackInfo,
+			playBackInfoProperties,
+			isActiveAudio;
 
 		self = this;
 		props = self.props;
@@ -31,8 +35,16 @@ class AudioList extends React.Component {
 
 		playbackInfo = self.props.playbackInfo;
 
+		//TODO: remove;
+		audioList = audioList.slice(0,2);
+
 		audioListOutput = !audioList.length ? 'Loading...' : audioList.map(audioData => {
-			return <AudioItem data={audioData} key={audioData.aid} playbackInfo={playbackInfo} />
+			isActiveAudio = audioData.aid === playbackInfo.audioId;
+
+			playBackInfoProperties = isActiveAudio ? playbackInfo : null;
+			playBackInfoProperties = Immutable.fromJS(playBackInfoProperties);
+
+			return <AudioItem data={audioData} key={audioData.aid} playbackInfo={playBackInfoProperties} />
 		});
 
 		return (

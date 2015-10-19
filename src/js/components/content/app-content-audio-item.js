@@ -4,6 +4,7 @@
 'use strict';
 
 import React from 'react';
+import Component from '../component.js';
 import AppActions from '../../actions/app-actions.js';
 import AppConstants from '../../constants/app-constants.js';
 import AudioPlayer from '../../player/audio-player.js';
@@ -30,9 +31,12 @@ class AudioItem extends React.Component {
 		var self = this,
 			props = self.props,
 			audioId = self.props.data.aid,
+			playbackInfo,
 			isActiveAudio;
 
-		isActiveAudio = props.data.aid === props.playbackInfo.audioId;
+		playbackInfo = props.playbackInfo && props.playbackInfo.toObject() || null;;
+
+		isActiveAudio = playbackInfo && (props.data.aid === playbackInfo.audioId);
 
 		self.setState({
 			timeProgress: this.convertSecondsToReadableTime(this.props.data.duration)
@@ -44,6 +48,11 @@ class AudioItem extends React.Component {
 			});
 		}
 
+	}
+
+	shouldComponentUpdate (newProps) {
+		var shouldUpdate = this.props.playbackInfo !== newProps.playbackInfo;
+		return shouldUpdate;
 	}
 
 	componentWillUnmount () {
@@ -68,6 +77,7 @@ class AudioItem extends React.Component {
 		var self  = this,
 			props = self.props,
 			state = self.state,
+			playbackInfo,
 			isActiveAudio,
 			isPaused,
 			isPLayingClassName,
@@ -85,13 +95,14 @@ class AudioItem extends React.Component {
 		audioData = props.data;
 		duration = props.data.duration;
 
-		isActiveAudio = props.data.aid === props.playbackInfo.audioId;
-		isPaused = isActiveAudio && props.playbackInfo.paused;
+		playbackInfo = props.playbackInfo && props.playbackInfo.toObject() || null;
+
+		isActiveAudio = playbackInfo && (props.data.aid === playbackInfo.audioId);
+		isPaused = isActiveAudio && playbackInfo.paused;
 
 		if (isActiveAudio) {
-			//console.dir(props.playbackInfo);
-			currentTime = props.playbackInfo.currentTime;
-			buffered = props.playbackInfo.buffered;
+			currentTime = playbackInfo.currentTime;
+			buffered = playbackInfo.buffered;
 			seekAudioHandler = self.seekAudioProgress;
 		}
 
@@ -187,12 +198,12 @@ class AudioItem extends React.Component {
 
 		audioId = self.props.data.aid;
 
+		AppActions.playAudioById(audioId);
+
 		AudioPlayer.play({
 			component: self,
 			audioId: audioId
 		});
-
-		AppActions.playAudioById(audioId);
 	}
 
 	pause = (e) => {
@@ -347,7 +358,6 @@ class AudioItem extends React.Component {
 	}
 
 	prepareFileName (input) {
-		console.log(input);
 		return input.replace(/[^\d\wа-я\-\.]+/gi, '_') + '.mp3';
 	}
 

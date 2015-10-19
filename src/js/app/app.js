@@ -1,6 +1,7 @@
 'use strict';
 
 import React from 'react';
+import Component from '../components/component.js';
 import LoadingView from '../components/loading/app-loading.js';
 import LoginView from '../components/login/app-login.js';
 import AppContentView from '../components/content/app-content-router.js';
@@ -65,12 +66,12 @@ class App extends React.Component {
 
 	render() {
 
+		console.warn('rendering app.js');
+
 		let self = this,
 			state = self.state,
 			view,
 			appClassName = 'app ' + (state.authState);
-
-		console.log('app.render:', this.state.personalAudios);
 
 		switch (self.state.authState) {
 			case 'loading':
