@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import Component from '../component.js';
 import AppStore from '../../stores/app-store.js';
 import AppDispatcher from '../../dispatchers/app-dispatcher.js';
 import AppActions from '../../actions/app-actions.js';
@@ -16,13 +15,10 @@ class Header extends React.Component {
 
 	constructor (props) {
 		super(props);
-		this.state = {
-			personalAudiosCount: 0
-		}
 	}
 
 	componentWillMount () {
-		var self = this;
+
 	}
 
 	componentDidMount () {
@@ -30,50 +26,45 @@ class Header extends React.Component {
 	}
 
 	shouldComponentUpdate (nextProps, nextState) {
-		var self = this,
-			shouldUpdate = self.props.userInfo !== nextProps.userInfo;
-		return shouldUpdate;
+		return this.props.userInfo !== nextProps.userInfo;
 	}
 
 	componentWillUnmount () {
 
 	}
 
-	showUserInfo = () => {
-
-	}
-
 	render () {
 
-		var self = this,
-			props = self.props,
-			userInfo = props.userInfo.toObject();
+		var userInfo = this.props.userInfo,
+			firstName = userInfo.get('firstName'),
+			lastName = userInfo.get('lastName'),
+			personalAudiosCount = userInfo.get('personalAudiosCount'),
+			userName;
 
-		let userName = userInfo.firstName ? ', ' + userInfo.firstName + (userInfo.lastName ? ' ' + userInfo.lastName + '!' : '!') : '!';
+
+		userName = firstName ? ', ' + firstName + (lastName ? ' ' + lastName + '!' : '!') : '!';
 
 		return (
-			<div>
-				<div className="navbar navbar-default">
-					<div className="container">
-						<div className="row">
-							<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-								<ul className="nav navbar-nav list-unstyled">
-									<li>
-										<a>Welcome{userName}</a>
-									</li>
-									<li>
-										<Link to="/search">Search</Link>
-									</li>
-									<li>
-										<Link to="/my-audio">My audio
-											{!!userInfo.personalAudiosCount
-												? <span className="my-audios-count"> ({userInfo.personalAudiosCount})</span>
-												: ''
-											}
-										</Link>
-									</li>
-								</ul>
-							</div>
+			<div className="navbar navbar-default app-content-header-navbar">
+				<div className="container">
+					<div className="row">
+						<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+							<ul className="nav navbar-nav list-unstyled">
+								<li>
+									<a>Welcome{userName}</a>
+								</li>
+								<li>
+									<Link to="/search">Search</Link>
+								</li>
+								<li>
+									<Link to="/my-audio">My audio
+										{!!personalAudiosCount
+											? <span className="my-audios-count"> ({personalAudiosCount})</span>
+											: ''
+										}
+									</Link>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>

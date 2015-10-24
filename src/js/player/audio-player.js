@@ -95,7 +95,6 @@ class AudioPlayer {
 			}
 			return;
 		} else {
-			AppStore.resetAudioState(audioId);
 			AppStore.changeCurrentAudioId(audioId, false);
 		}
 
@@ -129,11 +128,10 @@ class AudioPlayer {
 		self.isPLaying = false;
 	}
 
-	stop (data) {
+	stop () {
 
 		var self = this,
-			player = self.player,
-			audioId = data.audioId;
+			player = self.player;
 
 		player.pause();
 		player.currentTime = 0;

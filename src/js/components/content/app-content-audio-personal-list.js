@@ -14,9 +14,10 @@ class MyAudios extends React.Component {
 
 	constructor (props) {
 		super(props);
-		this.state = {
-			personalAudios: []
-		}
+	}
+
+	state = {
+		personalAudios: []
 	}
 
 	componentWillMount () {

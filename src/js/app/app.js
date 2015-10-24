@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-import Component from '../components/component.js';
 import LoadingView from '../components/loading/app-loading.js';
 import LoginView from '../components/login/app-login.js';
 import AppContentView from '../components/content/app-content-router.js';
@@ -13,16 +12,14 @@ class App extends React.Component {
 
 	constructor (props) {
 		super(props);
-		this.state = {
-			authState: 'loading',
-			personalAudios: []
-		}
-		this.dispatcherIndex = null;
+	}
+
+	state = {
+		authState: 'loading'
 	}
 
 	componentWillMount () {
 		AppStore.initVK();
-		AppStore.addListener(AppConstants.CHANGE_EVENT, this.processAudio);
 	}
 
 	componentDidMount () {
@@ -46,18 +43,6 @@ class App extends React.Component {
 		AppStore.removeChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
 	}
 
-	processAudio = () => {
-
-		var self = this,
-			personalAudios = AppStore.storeData.personalAudios;
-
-		this.setState({
-			personalAudios: personalAudios
-		});
-
-	}
-
-
 	changeView (viewAlias) {
 		this.setState({
 			authState: viewAlias
@@ -76,7 +61,7 @@ class App extends React.Component {
 				view =  <LoadingView />;
 				break;
 			case 'content':
-				view = <AppContentView personalAudios={this.state.personalAudios} />;
+				view = <AppContentView />;
 				break;
 			case 'login':
 			default:

@@ -21,7 +21,6 @@ class AppContentRouter extends React.Component {
 
 	constructor (props) {
 		super(props);
-		this.state = {};
 	}
 
 	componentWillMount () {
@@ -34,16 +33,11 @@ class AppContentRouter extends React.Component {
 
 	componentDidMount () {
 
-
-		// TODO: replace with "self.refs.app" when React 0.14 is ready
-		// React.render(<Router history={history}>{routes}</Router>, self.refs['routes'].getDOMNode());
 	}
 
 	render () {
 
-		let self = this,
-			props = self.props,
-			routes;
+		var routes;
 
 		routes = (
 			<Route path='/'>

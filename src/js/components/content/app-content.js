@@ -1,116 +1,106 @@
 'use strict';
 
 import React from 'react';
-import Component from '../component.js';
 import SearchForm from '../content/app-content-search-form';
 import AudioList from '../content/app-content-audio-list.js';
 import Header from '../content/app-content-header.js';
 import AppStore from '../../stores/app-store.js';
 import VKProvider from '../../providers/provider-vk.js';
 import AppConstants from '../../constants/app-constants.js';
-import {Map, List} from 'immutable';
+import {Map, List, Record} from 'immutable';
 
 class ContentView extends React.Component {
 
 	constructor (props) {
 		super(props);
-		this.state = {
-			audioList: [],
-			userInfo: Map({
-				authorized: false,
-				firstName: '',
-				lastName: '',
-				personalAudiosCount: 0
-			}),
-			playbackInfo: {}
-		};
-		this.type = null;
+	}
+
+	state = {
+		audioList: [],
+		userInfo: AppStore.storeData.userInfo,
+		searchQuery: '',
+		playbackInfo: null,
+		contentType: null
 	}
 
 	componentWillMount () {
+
 		var self = this;
 
-		self.type = self.props.route.type;
+		//self.setState({
+		//	contentType: self.props.route.type
+		//});
 
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.storeChangesHandler);
 	}
 
 	componentDiDMount () {
-
 		this.storeChangesHandler();
 	}
 
-	componentWillReceiveProps (nextPprops) {
+	componentWillReceiveProps (nextProps) {
 
-		this.type = nextPprops.route.type;
+		if (this.props.contentType !== nextProps.route.type) {
+			this.storeChangesHandler(nextProps.route.type);
+		}
 
-		this.storeChangesHandler();
 	}
 
 	componentDidUpdate () {
 
 	}
 
-	getAppropriateAudioListAudioList (props) {
+	storeChangesHandler = (routeType) => {
 
-	}
-
-	storeChangesHandler = () => {
-
-		var self = this,
-			listType,
+		var listType,
 			audioList,
-			storeData,
-			storeUserInfo
+			storeData;
 
-		listType = self.type;
+		listType = routeType || this.props.route.type;
 
 		audioList = AppStore.getAudioList(listType) || [];
 
 		storeData = AppStore.storeData || {};
-		storeUserInfo = storeData.userInfo;
 
-		self.setState({
+		this.setState({
 			audioList: audioList,
-			//userInfo: storeData.userInfo,
-			playbackInfo: storeData.playbackInfo
+			userInfo: storeData.userInfo,
+			playbackInfo: storeData.playbackInfo,
+			searchQuery: storeData.searchQuery
 		});
 
-		this.setState(({userInfo}) => ({
-			userInfo: userInfo.update('firstName', () => storeUserInfo.firstName)
-		}));
-
-		this.setState(({userInfo}) => ({
-			userInfo: userInfo.update('personalAudiosCount', () => storeUserInfo.personalAudiosCount)
-		}));
 	}
 
 	render () {
 
-		var self,
+		var state,
 			routeProps,
 			hasSearch,
 			audioList,
 			userInfo,
-			playbackInfo;
+			playbackInfo,
+			searchQuery;
 
-		self = this;
-		routeProps = self.props.route;
+		state = this.state;
+
+		routeProps = this.props.route;
 		hasSearch = routeProps.hasSearch === true;
-		audioList = self.state.audioList;
-		userInfo = self.state.userInfo;
+		audioList = state.audioList;
+		userInfo = state.userInfo;
 
-		playbackInfo = self.state.playbackInfo;
+		playbackInfo = state.playbackInfo;
+
+		searchQuery = state.searchQuery || '';
 
 		// {React.cloneElement(this.props.children, {})}
 
 		return (
-			<div>
+			<div className="app-content">
 				<Header userInfo={userInfo} />
 
-				<div className="container">
+				<div className="container app-content-container">
 
-					{hasSearch && <SearchForm/>}
+					{hasSearch && <SearchForm searchQuery={searchQuery}/>}
 
 					<AudioList audioList={audioList} playbackInfo={playbackInfo} />
 

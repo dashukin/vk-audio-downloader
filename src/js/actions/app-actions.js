@@ -84,6 +84,11 @@ let Actions = {
 			actionType: AppConstants.UPDATE_PLAYBACK_BUFFERED,
 			buffered: buffered
 		});
+	},
+	toggleDecrease () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.TOGGLE_DECREASE
+		});
 	}
 };
 

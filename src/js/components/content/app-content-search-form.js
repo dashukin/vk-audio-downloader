@@ -12,6 +12,10 @@ class SearchForm extends React.Component {
 
 	}
 
+	shouldComponentUpdate (nextProps) {
+		return this.props.searchQuery !== nextProps.searchQuery;
+	}
+
 	componentWillUnmount () {
 
 	}
@@ -23,9 +27,9 @@ class SearchForm extends React.Component {
 
 	render () {
 		return (
-			<div className="row">
+			<div className="row app-content-search-form-row">
 				<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue="" onKeyUp={this.searchAudio}/>
+					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={this.props.searchQuery} onChange={this.searchAudio}/>
 				</div>
 			</div>
 		);

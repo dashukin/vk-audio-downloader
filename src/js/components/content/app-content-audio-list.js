@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Immutable from 'immutable';
-import Component from '../component.js';
 import AudioItem from '../content/app-content-audio-item.js';
 import Loading from '../loading/app-loading.js';
 

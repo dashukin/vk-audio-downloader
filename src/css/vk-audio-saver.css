@@ -98,7 +98,23 @@ body {
 	   }
 }
 
+/* app-content */
+.app-content-container {
+	/*padding-top: 60px;*/
+	/*height: 100%;*/
+	/*overflow: hidden;*/
+}
+
+/* app-content-header */
+.app-content-header-navbar {
+	/*margin-bottom: 0;*/
+}
+
 /* search */
+.app-content-search-form-row {
+	/*padding-top: 15px;*/
+	/*padding-bottom: 15px;*/
+}
 .search-results {
 	padding-top: 20px;
 }
