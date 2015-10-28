@@ -7,6 +7,8 @@ import React from 'react';
 import AppActions from '../../actions/app-actions.js';
 import AppConstants from '../../constants/app-constants.js';
 import AudioPlayer from '../../player/audio-player.js';
+import ChromeProvider from '../../providers/provider-chrome.js';
+import CircleProgressBar from './app-content-progress-bar-circle.js';
 
 class AudioItem extends React.Component {
 
@@ -23,7 +25,21 @@ class AudioItem extends React.Component {
 	}
 
 	shouldComponentUpdate (newProps) {
-		return this.props.playbackInfo !== newProps.playbackInfo;
+
+		var props = this.props,
+			updatePlaybackInfo,
+			updateDownloadProgress,
+			shouldUpdate,
+			includesActualDownloadProgress;
+
+		updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
+		updateDownloadProgress = !!newProps.downloadProgress && (props.downloadProgress !== newProps.downloadProgress);
+
+		includesActualDownloadProgress = updateDownloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
+
+		shouldUpdate = updatePlaybackInfo || (updateDownloadProgress && includesActualDownloadProgress);
+
+		return shouldUpdate;
 	}
 
 	componentWillUnmount () {
@@ -35,6 +51,7 @@ class AudioItem extends React.Component {
 		var props = this.props,
 			playbackInfo,
 			isActiveAudio,
+			isActiveClassName = '',
 			isPaused,
 			isPLayingClassName,
 			playingHandler,
@@ -48,7 +65,10 @@ class AudioItem extends React.Component {
 			buffered = 0,
 			seekAudioHandler,
 			stopHandler,
-			decreaseHandler;
+			decreaseHandler,
+			downloadProgress,
+			downloadProgressData,
+			percentsLoaded;
 
 		audioData = props.data;
 		duration = props.data.duration;
@@ -59,6 +79,7 @@ class AudioItem extends React.Component {
 		isPaused = isActiveAudio && !!playbackInfo.paused;
 
 		if (isActiveAudio) {
+			isActiveClassName = 'active-item'
 			currentTime = playbackInfo.currentTime;
 			buffered = playbackInfo.buffered;
 			seekAudioHandler = this.seekAudioProgress;
@@ -78,9 +99,12 @@ class AudioItem extends React.Component {
 		stopHandler = isActiveAudio ? this.stop : (e) => {e.preventDefault()};
 		decreaseHandler = isActiveAudio ? this.toggleDecrease : (e) => {e.preventDefault()};
 
+		downloadProgress = props.downloadProgress && props.downloadProgress.size > 0 && props.downloadProgress.filter((v) => v.get('url') === audioData.url).take(1);
+		downloadProgressData = downloadProgress && downloadProgress.size > 0 && downloadProgress.toObject();
+		downloadProgressData = downloadProgressData && downloadProgressData[Object.keys(downloadProgressData)[0]];
 
 		return (
-			<div className="audio-item clearfix">
+			<div className={"audio-item clearfix " + isActiveClassName}>
 
 				<div className="audio-item-audioplayer">
 
@@ -119,10 +143,21 @@ class AudioItem extends React.Component {
 				</div>
 
 				<ul className="audio-item-actions clearfix">
-					<li>
-						<a className="audio-download" target="_blank" onClick={this.download} href={audioData.url}>
-							<i className="mdi-file-file-download"></i>
-						</a>
+					<li className={downloadProgressData && downloadProgressData.get('state')}>
+						{!!downloadProgressData
+							? 	downloadProgressData.get('percentsLoaded') < 100
+
+								? 	<CircleProgressBar percents={downloadProgressData.get('percentsLoaded')} />
+
+								: 	<a className="audio-item-open-folder" onClick={this.show.bind(this, downloadProgressData.get('id'))}>
+										<span className="mdi-file-folder-open"></span>
+									</a>
+
+							: 	<a className="audio-download" target="_blank" onClick={this.download} href={audioData.url}>
+									<i className="mdi-file-file-download"></i>
+								</a>
+						}
+
 					</li>
 					<li>
 						<a className="" title="Add to my audios" onClick={this.moveToAlbum}>
@@ -139,15 +174,16 @@ class AudioItem extends React.Component {
 		!!e && e.preventDefault();
 
 		var audioData = this.props.data,
-			trackName = this.prepareFileName(audioData.artist + ' ' + audioData.title),
+			filename = this.prepareFileName(audioData.artist + ' ' + audioData.title),
 			url = audioData.url;
 
+		ChromeProvider.downloadFile({filename, url});
 
-		chrome.downloads.download({
-			url: url,
-			filename: trackName,
-			saveAs: true
-		});
+	}
+
+	show = (downloadId) => {
+		console.warn(downloadId);
+		ChromeProvider.showDownloadedFile(downloadId);
 	}
 
 	play = (e) => {

@@ -41,7 +41,7 @@ class AudioList extends React.Component {
 			playBackInfoProperties = isActiveAudio ? playbackInfo : null;
 			playBackInfoProperties = Immutable.fromJS(playBackInfoProperties);
 
-			return <AudioItem data={audioData} key={audioData.aid} playbackInfo={playBackInfoProperties} />
+			return <AudioItem data={audioData} downloadProgress={props.downloadProgress} key={audioData.aid} playbackInfo={playBackInfoProperties} />
 		});
 
 		return (

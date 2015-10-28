@@ -1,6 +1,6 @@
-/**
- *
- */
+/** @namespace VK.Auth */
+/** @namespace VK.Auth.login */
+/** @namespace VK.Api.getLoginStatus */
 
 
 'use strict';
@@ -11,9 +11,6 @@ import AppActions from '../actions/app-actions.js';
 var VK = window.VK;
 
 class VKProvider {
-	/** @namespace VK.Auth */
-	/** @namespace VK.Auth.login */
-	/** @namespace VK.Api.getLoginStatus */
 
 	constructor () {
 		this.timeoutId = null;
@@ -136,9 +133,9 @@ class VKProvider {
 		currentCallTimestamp = +(new Date());
 		timestampDifference = (currentCallTimestamp - (self.lastCallTimestamp || 0));
 
-		if (self.timeoutId !== null || (timestampDifference < 350)) {
+		if (self.timeoutId !== null || (timestampDifference < 330)) {
 			clearTimeout(self.timeoutId);
-			timeoutInterval = timestampDifference > 350 ? 350 : timestampDifference;
+			timeoutInterval = timestampDifference > 330 ? 330 : timestampDifference;
 			self.timeoutId = setTimeout(() => {
 				self.__searchAudiosHandler(query, callback);
 				self.timeoutId = null;

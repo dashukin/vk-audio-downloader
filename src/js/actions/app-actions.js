@@ -89,6 +89,12 @@ let Actions = {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.TOGGLE_DECREASE
 		});
+	},
+	trackDownloadProgress (downloadProgress) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.TRACK_DOWNLOAD_PROGRESS,
+			downloadProgress: downloadProgress
+		})
 	}
 };
 

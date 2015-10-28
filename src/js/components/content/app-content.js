@@ -66,7 +66,8 @@ class ContentView extends React.Component {
 			audioList: audioList,
 			userInfo: storeData.userInfo,
 			playbackInfo: storeData.playbackInfo,
-			searchQuery: storeData.searchQuery
+			searchQuery: storeData.searchQuery,
+			downloadProgress: storeData.downloadProgress
 		});
 
 	}
@@ -79,6 +80,7 @@ class ContentView extends React.Component {
 			audioList,
 			userInfo,
 			playbackInfo,
+			downloadProgress,
 			searchQuery;
 
 		state = this.state;
@@ -89,6 +91,7 @@ class ContentView extends React.Component {
 		userInfo = state.userInfo;
 
 		playbackInfo = state.playbackInfo;
+		downloadProgress = state.downloadProgress;
 
 		searchQuery = state.searchQuery || '';
 
@@ -102,7 +105,7 @@ class ContentView extends React.Component {
 
 					{hasSearch && <SearchForm searchQuery={searchQuery}/>}
 
-					<AudioList audioList={audioList} playbackInfo={playbackInfo} />
+					<AudioList audioList={audioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
 
 				</div>
 			</div>

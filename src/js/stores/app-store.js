@@ -43,6 +43,10 @@ class AppStore extends EventEmitter {
 					break;
 				case AppConstants.TOGGLE_DECREASE:
 					this.toggleDecrease();
+					break;
+				case AppConstants.TRACK_DOWNLOAD_PROGRESS:
+					this.trackDownloadProgress(payload.downloadProgress);
+					break;
 			}
 			return true;
 		});
@@ -63,6 +67,7 @@ class AppStore extends EventEmitter {
 			currentTime: 0,
 			buffered: 0
 		},
+		downloadProgress: null,
 		personalAudios: [],
 		searchQuery: '',
 		searchResults: [],
@@ -232,6 +237,11 @@ class AppStore extends EventEmitter {
 
 	toggleDecrease () {
 		this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
+		this.emitChange();
+	}
+
+	trackDownloadProgress (downloadProgress) {
+		this.storeData.downloadProgress = downloadProgress;
 		this.emitChange();
 	}
 

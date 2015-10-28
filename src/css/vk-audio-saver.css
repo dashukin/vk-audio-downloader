@@ -126,9 +126,12 @@ body {
 
 /* Audio item */
 .audio-item {
-	padding-bottom: 10px;
-	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 3px;
 	/*border-bottom: 1px solid #ccc;*/
+}
+.audio-item.active-item {
+	background: #F0F3F1;
 }
 .audio-item-audioplayer {
 	padding-right: 90px;
@@ -148,6 +151,113 @@ body {
 }
 .audio-item-actions li:first-child {
 	margin-right: 10px;
+}
+.audio-item-download-percents {
+	font-size: 12px;
+}
+.audio-item-open-folder {
+	cursor: pointer;
+}
+
+/* circle progress bar */
+.progress-bar-wrapper {
+	width: 2em;
+	height: 2em;
+	margin: 0 0.2em;
+	font-size: 10px;
+	position: relative;
+	top: 0.1em;
+}
+.progress-bar-outer, .progress-bar-inner {
+	position: absolute;
+	box-sizing: border-box;
+	border-radius: 50%;
+}
+.progress-bar-outer {
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: #009688;
+	overflow: hidden;
+}
+.progress-bar-overlay {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: #fff;
+}
+.progress-bar-overlay-clip {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.progress-bar-overlay-clip-right {
+	clip: rect(0, 2em, 2em, 1em);
+}
+.progress-bar-overlay-clip-left {
+	clip: rect(0, 1em, 2em, 0);
+}
+.progress-bar-overlay.progress-bar-overlay-right {
+	clip: rect(0, 2em, 2em, 1em);
+}
+.progress-bar-overlay.progress-bar-overlay-left {
+	clip: rect(0, 1em, 2em, 0);
+}
+.progress-bar-inner {
+	width: 1.6em;
+	height: 1.6em;
+	top: 0.2em;
+	left: 0.2em;
+	background: #fff;
+}
+
+
+/* loading item */
+.audio-item-loader {
+	display: block;
+	font-size: 10px;
+	position: relative;
+	text-indent: -9999em;
+	border-top: 2px solid #009688;
+	border-right: 2px solid #009688;
+	border-bottom: 2px solid #009688;
+	border-left: 2px solid #ffffff;
+	-webkit-transform: translateZ(0);
+	-ms-transform: translateZ(0);
+	transform: translateZ(0);
+	-webkit-animation: load8 1.1s infinite linear;
+	animation: load8 1.1s infinite linear;
+}
+.audio-item-loader,
+.audio-item-loader:after {
+	border-radius: 50%;
+	width: 20px;
+	height: 20px;
+}
+@-webkit-keyframes load8 {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
+}
+@keyframes load8 {
+	0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+		transform: rotate(360deg);
+	}
 }
 
 /* audio player */

@@ -19691,6 +19691,7 @@
 					currentTime: 0,
 					buffered: 0
 				},
+				downloadProgress: null,
 				personalAudios: [],
 				searchQuery: '',
 				searchResults: [],
@@ -19726,6 +19727,10 @@
 						break;
 					case _constantsAppConstantsJs2['default'].TOGGLE_DECREASE:
 						_this.toggleDecrease();
+						break;
+					case _constantsAppConstantsJs2['default'].TRACK_DOWNLOAD_PROGRESS:
+						_this.trackDownloadProgress(payload.downloadProgress);
+						break;
 				}
 				return true;
 			});
@@ -19922,6 +19927,12 @@
 			key: 'toggleDecrease',
 			value: function toggleDecrease() {
 				this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
+				this.emitChange();
+			}
+		}, {
+			key: 'trackDownloadProgress',
+			value: function trackDownloadProgress(downloadProgress) {
+				this.storeData.downloadProgress = downloadProgress;
 				this.emitChange();
 			}
 		}]);
@@ -20420,6 +20431,12 @@
 			_dispatchersAppDispatcherJs2['default'].dispatch({
 				actionType: _constantsAppConstantsJs2['default'].TOGGLE_DECREASE
 			});
+		},
+		trackDownloadProgress: function trackDownloadProgress(downloadProgress) {
+			_dispatchersAppDispatcherJs2['default'].dispatch({
+				actionType: _constantsAppConstantsJs2['default'].TRACK_DOWNLOAD_PROGRESS,
+				downloadProgress: downloadProgress
+			});
 		}
 	};
 
@@ -20472,7 +20489,8 @@
 		STOP_AUDIO: 'STOP_AUDIO',
 		UPDATE_PLAYBACK_TIME: 'UPDATE_PLAYBACK_TIME',
 		UPDATE_PLAYBACK_BUFFERED: 'UPDATE_PLAYBACK_BUFFERED',
-		TOGGLE_DECREASE: 'TOGGLE_DECREASE'
+		TOGGLE_DECREASE: 'TOGGLE_DECREASE',
+		TRACK_DOWNLOAD_PROGRESS: 'TRACK_DOWNLOAD_PROGRESS'
 	};
 
 	exports['default'] = Constants;
@@ -20749,9 +20767,9 @@
 /* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 *
-	 */
+	/** @namespace VK.Auth */
+	/** @namespace VK.Auth.login */
+	/** @namespace VK.Api.getLoginStatus */
 
 	'use strict';
 
@@ -20778,10 +20796,6 @@
 	var VK = window.VK;
 
 	var VKProvider = (function () {
-		/** @namespace VK.Auth */
-		/** @namespace VK.Auth.login */
-		/** @namespace VK.Api.getLoginStatus */
-
 		function VKProvider() {
 			_classCallCheck(this, VKProvider);
 
@@ -20910,9 +20924,9 @@
 				currentCallTimestamp = +new Date();
 				timestampDifference = currentCallTimestamp - (self.lastCallTimestamp || 0);
 
-				if (self.timeoutId !== null || timestampDifference < 350) {
+				if (self.timeoutId !== null || timestampDifference < 330) {
 					clearTimeout(self.timeoutId);
-					timeoutInterval = timestampDifference > 350 ? 350 : timestampDifference;
+					timeoutInterval = timestampDifference > 330 ? 330 : timestampDifference;
 					self.timeoutId = setTimeout(function () {
 						self.__searchAudiosHandler(query, callback);
 						self.timeoutId = null;
@@ -21227,7 +21241,7 @@
 			}
 		}, {
 			key: 'stop',
-			value: function stop(data) {
+			value: function stop() {
 
 				var self = this,
 				    player = self.player;
@@ -25721,7 +25735,7 @@
 
 	var _contentAppContentHeaderJs2 = _interopRequireDefault(_contentAppContentHeaderJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(221);
+	var _contentAppContentAudioSearchJs = __webpack_require__(222);
 
 	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
 
@@ -25729,11 +25743,11 @@
 
 	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(222);
+	var _notFoundAppNotfoundJs = __webpack_require__(223);
 
 	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
 
-	var _contentAppContentJs = __webpack_require__(223);
+	var _contentAppContentJs = __webpack_require__(224);
 
 	var _contentAppContentJs2 = _interopRequireDefault(_contentAppContentJs);
 
@@ -25994,11 +26008,11 @@
 
 	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(221);
+	var _contentAppContentAudioSearchJs = __webpack_require__(222);
 
 	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(222);
+	var _notFoundAppNotfoundJs = __webpack_require__(223);
 
 	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
 
@@ -26296,6 +26310,14 @@
 
 	var _playerAudioPlayerJs2 = _interopRequireDefault(_playerAudioPlayerJs);
 
+	var _providersProviderChromeJs = __webpack_require__(221);
+
+	var _providersProviderChromeJs2 = _interopRequireDefault(_providersProviderChromeJs);
+
+	var _appContentProgressBarCircleJs = __webpack_require__(227);
+
+	var _appContentProgressBarCircleJs2 = _interopRequireDefault(_appContentProgressBarCircleJs);
+
 	var AudioItem = (function (_React$Component) {
 		_inherits(AudioItem, _React$Component);
 
@@ -26311,14 +26333,15 @@
 				!!e && e.preventDefault();
 
 				var audioData = _this.props.data,
-				    trackName = _this.prepareFileName(audioData.artist + ' ' + audioData.title),
+				    filename = _this.prepareFileName(audioData.artist + ' ' + audioData.title),
 				    url = audioData.url;
 
-				chrome.downloads.download({
-					url: url,
-					filename: trackName,
-					saveAs: true
-				});
+				_providersProviderChromeJs2['default'].downloadFile({ filename: filename, url: url });
+			};
+
+			this.show = function (downloadId) {
+				console.warn(downloadId);
+				_providersProviderChromeJs2['default'].showDownloadedFile(downloadId);
 			};
 
 			this.play = function (e) {
@@ -26398,7 +26421,23 @@
 		}, {
 			key: 'shouldComponentUpdate',
 			value: function shouldComponentUpdate(newProps) {
-				return this.props.playbackInfo !== newProps.playbackInfo;
+
+				var props = this.props,
+				    updatePlaybackInfo,
+				    updateDownloadProgress,
+				    shouldUpdate,
+				    includesActualDownloadProgress;
+
+				updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
+				updateDownloadProgress = !!newProps.downloadProgress && props.downloadProgress !== newProps.downloadProgress;
+
+				includesActualDownloadProgress = updateDownloadProgress && newProps.downloadProgress.filter(function (v) {
+					return v.get('url') === props.data.url;
+				}).size > 0;
+
+				shouldUpdate = updatePlaybackInfo || updateDownloadProgress && includesActualDownloadProgress;
+
+				return shouldUpdate;
 			}
 		}, {
 			key: 'componentWillUnmount',
@@ -26410,6 +26449,7 @@
 				var props = this.props,
 				    playbackInfo,
 				    isActiveAudio,
+				    isActiveClassName = '',
 				    isPaused,
 				    isPLayingClassName,
 				    playingHandler,
@@ -26423,7 +26463,10 @@
 				    buffered = 0,
 				    seekAudioHandler,
 				    stopHandler,
-				    decreaseHandler;
+				    decreaseHandler,
+				    downloadProgress,
+				    downloadProgressData,
+				    percentsLoaded;
 
 				audioData = props.data;
 				duration = props.data.duration;
@@ -26434,6 +26477,7 @@
 				isPaused = isActiveAudio && !!playbackInfo.paused;
 
 				if (isActiveAudio) {
+					isActiveClassName = 'active-item';
 					currentTime = playbackInfo.currentTime;
 					buffered = playbackInfo.buffered;
 					seekAudioHandler = this.seekAudioProgress;
@@ -26456,9 +26500,15 @@
 					e.preventDefault();
 				};
 
+				downloadProgress = props.downloadProgress && props.downloadProgress.size > 0 && props.downloadProgress.filter(function (v) {
+					return v.get('url') === audioData.url;
+				}).take(1);
+				downloadProgressData = downloadProgress && downloadProgress.size > 0 && downloadProgress.toObject();
+				downloadProgressData = downloadProgressData && downloadProgressData[Object.keys(downloadProgressData)[0]];
+
 				return _react2['default'].createElement(
 					'div',
-					{ className: 'audio-item clearfix' },
+					{ className: "audio-item clearfix " + isActiveClassName },
 					_react2['default'].createElement(
 						'div',
 						{ className: 'audio-item-audioplayer' },
@@ -26522,8 +26572,12 @@
 						{ className: 'audio-item-actions clearfix' },
 						_react2['default'].createElement(
 							'li',
-							null,
-							_react2['default'].createElement(
+							{ className: downloadProgressData && downloadProgressData.get('state') },
+							!!downloadProgressData ? downloadProgressData.get('percentsLoaded') < 100 ? _react2['default'].createElement(_appContentProgressBarCircleJs2['default'], { percents: downloadProgressData.get('percentsLoaded') }) : _react2['default'].createElement(
+								'a',
+								{ className: 'audio-item-open-folder', onClick: this.show.bind(this, downloadProgressData.get('id')) },
+								_react2['default'].createElement('span', { className: 'mdi-file-folder-open' })
+							) : _react2['default'].createElement(
 								'a',
 								{ className: 'audio-download', target: '_blank', onClick: this.download, href: audioData.url },
 								_react2['default'].createElement('i', { className: 'mdi-file-file-download' })
@@ -26618,6 +26672,177 @@
 
 /***/ },
 /* 221 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**@namespace chrome.downloads.onCreated*/
+	/**@namespace chrome.downloads.onChanged*/
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	var _constantsAppConstantsJs = __webpack_require__(166);
+
+	var _constantsAppConstantsJs2 = _interopRequireDefault(_constantsAppConstantsJs);
+
+	var _actionsAppActionsJs = __webpack_require__(165);
+
+	var _actionsAppActionsJs2 = _interopRequireDefault(_actionsAppActionsJs);
+
+	var _immutable = __webpack_require__(170);
+
+	var ChromeProvider = (function () {
+		function ChromeProvider() {
+			_classCallCheck(this, ChromeProvider);
+
+			this.downloadProgressIntervalId = null;
+			this.downloadItems = (0, _immutable.Map)({});
+			this.downloadStartTimes = [];
+
+			this.createListeners();
+		}
+
+		_createClass(ChromeProvider, [{
+			key: 'createListeners',
+			value: function createListeners() {
+				var _this = this;
+
+				chrome.downloads.onCreated.addListener(function (downloadItem) {
+
+					console.log(downloadItem);
+
+					_this.downloadStartTimes.push(+new Date(downloadItem.startTime));
+
+					_this.downloadItems = _this.downloadItems.set(downloadItem.id, (0, _immutable.Map)({
+						id: downloadItem.id,
+						url: downloadItem.url,
+						totalBytes: downloadItem.totalBytes,
+						bytesReceived: 0,
+						percentsLoaded: 0,
+						state: downloadItem.state
+					}));
+
+					_this.shouldCheckDownloadProgress();
+				});
+
+				chrome.downloads.onChanged.addListener(function (properties) {
+
+					console.warn(properties);
+
+					if (properties.hasOwnProperty('error')) {
+						switch (properties.error.current) {
+							case 'USER_CANCELED':
+								console.warn('USER_CANCELED...');
+								_this.downloadItems = _this.downloadItems['delete'](properties.id);
+								clearInterval(_this.downloadProgressIntervalId);
+								_actionsAppActionsJs2['default'].trackDownloadProgress(_this.downloadItems);
+								break;
+						}
+					}
+
+					if (properties.state && properties.state.current === 'complete') {
+
+						_this.downloadItems = _this.downloadItems.updateIn([properties.id, 'percentsLoaded'], function () {
+							return 100;
+						});
+						_this.downloadItems = _this.downloadItems.updateIn([properties.id, 'state'], function () {
+							return properties.state.current;
+						});
+						_actionsAppActionsJs2['default'].trackDownloadProgress(_this.downloadItems);
+
+						_this.shouldCheckDownloadProgress();
+					}
+				});
+			}
+		}, {
+			key: 'shouldCheckDownloadProgress',
+			value: function shouldCheckDownloadProgress() {
+				var _this2 = this;
+
+				if (this.downloadItems.size > 0) {
+					if (this.downloadProgressIntervalId === null) {
+						this.downloadProgressIntervalId = setInterval(function () {
+							_this2.checkDownloadProgress();
+						}, 200);
+					}
+				} else {
+					clearInterval(this.downloadProgressIntervalId);
+					this.downloadProgressIntervalId = null;
+				}
+			}
+		}, {
+			key: 'checkDownloadProgress',
+			value: function checkDownloadProgress() {
+				var _this3 = this;
+
+				var earliestTime, percentsLoaded;
+
+				earliestTime = +new Date();
+
+				if (this.downloadStartTimes.length) {
+					earliestTime = Math.min.apply(null, this.downloadStartTimes);
+				}
+
+				earliestTime -= 1;
+
+				chrome.downloads.search({
+					startedAfter: earliestTime + '', // TODO: check startedAfter behavior to remove limit key
+					orderBy: ['-startTime'],
+					limit: 100
+				}, function (items) {
+					items.forEach(function (item) {
+						if (_this3.downloadItems.has(item.id)) {
+							percentsLoaded = parseInt(item.bytesReceived / item.totalBytes * 100, 10);
+							_this3.downloadItems = _this3.downloadItems.updateIn([item.id, 'bytesReceived'], function () {
+								return item.bytesReceived;
+							});
+							_this3.downloadItems = _this3.downloadItems.updateIn([item.id, 'percentsLoaded'], function () {
+								return percentsLoaded;
+							});
+							_actionsAppActionsJs2['default'].trackDownloadProgress(_this3.downloadItems);
+						}
+					});
+				});
+			}
+		}, {
+			key: 'downloadFile',
+			value: function downloadFile(options) {
+
+				var downloadData = {
+					url: options.url,
+					saveAs: false
+				};
+
+				options.filename && (downloadData.filename = options.filename);
+
+				chrome.downloads.download(downloadData);
+			}
+		}, {
+			key: 'showDownloadedFile',
+			value: function showDownloadedFile(downloadId) {
+				chrome.downloads.show(downloadId);
+			}
+
+			// TODO: move other calls here
+
+		}]);
+
+		return ChromeProvider;
+	})();
+
+	exports['default'] = new ChromeProvider();
+	module.exports = exports['default'];
+
+/***/ },
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26800,7 +27025,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 222 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26852,7 +27077,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 223 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26875,11 +27100,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _contentAppContentSearchForm = __webpack_require__(224);
+	var _contentAppContentSearchForm = __webpack_require__(225);
 
 	var _contentAppContentSearchForm2 = _interopRequireDefault(_contentAppContentSearchForm);
 
-	var _contentAppContentAudioListJs = __webpack_require__(225);
+	var _contentAppContentAudioListJs = __webpack_require__(226);
 
 	var _contentAppContentAudioListJs2 = _interopRequireDefault(_contentAppContentAudioListJs);
 
@@ -26932,7 +27157,8 @@
 					audioList: audioList,
 					userInfo: storeData.userInfo,
 					playbackInfo: storeData.playbackInfo,
-					searchQuery: storeData.searchQuery
+					searchQuery: storeData.searchQuery,
+					downloadProgress: storeData.downloadProgress
 				});
 			};
 		}
@@ -26969,7 +27195,7 @@
 			key: 'render',
 			value: function render() {
 
-				var state, routeProps, hasSearch, audioList, userInfo, playbackInfo, searchQuery;
+				var state, routeProps, hasSearch, audioList, userInfo, playbackInfo, downloadProgress, searchQuery;
 
 				state = this.state;
 
@@ -26979,6 +27205,7 @@
 				userInfo = state.userInfo;
 
 				playbackInfo = state.playbackInfo;
+				downloadProgress = state.downloadProgress;
 
 				searchQuery = state.searchQuery || '';
 
@@ -26992,7 +27219,7 @@
 						'div',
 						{ className: 'container app-content-container' },
 						hasSearch && _react2['default'].createElement(_contentAppContentSearchForm2['default'], { searchQuery: searchQuery }),
-						_react2['default'].createElement(_contentAppContentAudioListJs2['default'], { audioList: audioList, playbackInfo: playbackInfo })
+						_react2['default'].createElement(_contentAppContentAudioListJs2['default'], { audioList: audioList, playbackInfo: playbackInfo, downloadProgress: downloadProgress })
 					)
 				);
 			}
@@ -27005,7 +27232,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 224 */
+/* 225 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27079,7 +27306,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 225 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27147,7 +27374,7 @@
 					playBackInfoProperties = isActiveAudio ? playbackInfo : null;
 					playBackInfoProperties = _immutable2['default'].fromJS(playBackInfoProperties);
 
-					return _react2['default'].createElement(_contentAppContentAudioItemJs2['default'], { data: audioData, key: audioData.aid, playbackInfo: playBackInfoProperties });
+					return _react2['default'].createElement(_contentAppContentAudioItemJs2['default'], { data: audioData, downloadProgress: props.downloadProgress, key: audioData.aid, playbackInfo: playBackInfoProperties });
 				});
 
 				return _react2['default'].createElement(
@@ -27170,6 +27397,90 @@
 	})(_react2['default'].Component);
 
 	exports['default'] = AudioList;
+	module.exports = exports['default'];
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	*
+	* */
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var CircleProgressBar = (function (_React$Component) {
+		_inherits(CircleProgressBar, _React$Component);
+
+		function CircleProgressBar() {
+			_classCallCheck(this, CircleProgressBar);
+
+			_get(Object.getPrototypeOf(CircleProgressBar.prototype), 'constructor', this).apply(this, arguments);
+		}
+
+		_createClass(CircleProgressBar, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(newProps) {
+				return true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+
+				var percents, totalRotation, leftSideRotation, rightSideRotation;
+
+				percents = this.props.percents;
+
+				totalRotation = percents >= 100 ? 360 : parseInt(360 / 100 * percents, 10);
+
+				rightSideRotation = totalRotation > 180 ? 180 : totalRotation;
+
+				leftSideRotation = totalRotation > 180 ? totalRotation - 180 : 0;
+
+				return _react2['default'].createElement(
+					'div',
+					{ className: 'progress-bar-wrapper' },
+					_react2['default'].createElement(
+						'div',
+						{ className: 'progress-bar-outer' },
+						_react2['default'].createElement(
+							'div',
+							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-right' },
+							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-right', style: { transform: "rotate(" + rightSideRotation + "deg)" } })
+						),
+						_react2['default'].createElement(
+							'div',
+							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-left' },
+							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-left', style: { transform: "rotate(" + leftSideRotation + "deg)" } })
+						),
+						_react2['default'].createElement('div', { className: 'progress-bar-inner' })
+					)
+				);
+			}
+		}]);
+
+		return CircleProgressBar;
+	})(_react2['default'].Component);
+
+	exports['default'] = CircleProgressBar;
 	module.exports = exports['default'];
 
 /***/ }
