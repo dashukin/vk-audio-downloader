@@ -12,17 +12,13 @@ var VK = window.VK;
 
 class VKProvider {
 
-	constructor () {
-		this.timeoutId = null;
-		this.lastCallTimestamp = null;
-		this.accessToken = null;
-		this.userId = null;
-		this.requestsURL = 'https://api.vk.com/method/';
-	}
-
-	init () {
-
-	}
+	timeoutId = null;
+	lastCallTimestamp = null;
+	accessToken = null;
+	userId = null;
+	requestsURL = 'https://api.vk.com/method/';
+	authURL = 'https://oauth.vk.com/authorize?client_id=5060172&redirect_uri=https://oauth.vk.com/blank.html&display=page&scope=' + AppConstants.APP_PERMISSIONS + '&response_type=token&v=5.37';
+	searchAudioXhrId = null;
 
 	request (methodName, parameters, success, error) {
 
@@ -61,24 +57,25 @@ class VKProvider {
 			}
 		}
 		xhr.send();
+
+		return xhr;
 	}
 
 	checkAppPermissions (callback) {
 
-		var self = this,
-			accessToken;
+		var accessToken;
 
-		accessToken = chrome.storage.local.get(['userId', 'accessToken'], function (data) {
+		accessToken = chrome.storage.local.get(['userId', 'accessToken'], (data) => {
 			if (!data.userId || !data.accessToken) {
 				AppActions.changeView('login');
 			} else {
-				self.userId = data.userId;
-				self.accessToken = data.accessToken;
+				this.userId = data.userId;
+				this.accessToken = data.accessToken;
 
-				self.request('account.getAppPermissions', {
-					user_id: self.userId,
-					access_token: self.accessToken
-				}, function (r) {
+				this.request('account.getAppPermissions', {
+					user_id: this.userId,
+					access_token: this.accessToken
+				}, (r) => {
 					if (r.response === AppConstants.APP_PERMISSIONS) {
 						AppActions.changeView('content');
 						(typeof callback === 'function') && callback();
@@ -94,7 +91,7 @@ class VKProvider {
 
 		var self = this;
 
-		self.request('users.get', {user_ids: self.userId}, function (r) {
+		self.request('users.get', {user_ids: self.userId}, (r) => {
 			if (r.response && r.response[0]) {
 				let userData = r.response[0];
 
@@ -110,7 +107,7 @@ class VKProvider {
 
 		var self = this;
 
-		self.request('audio.get', {owner_id: self.userId}, function (r) {
+		self.request('audio.get', {owner_id: self.userId}, (r) => {
 			let audios = r.response && r.response.length && r.response.slice(1);
 
 			callback && callback({
@@ -120,28 +117,26 @@ class VKProvider {
 	}
 
 	searchAudios (query, callback) {
-		var self = this,
-			currentCallTimestamp,
+		var currentCallTimestamp,
 			timestampDifference,
 			timeoutInterval;
 
 		if (!query) {
-			this.storeDatasearchQuery = ''; // TODO: ???
 			return;
 		}
 
 		currentCallTimestamp = +(new Date());
-		timestampDifference = (currentCallTimestamp - (self.lastCallTimestamp || 0));
+		timestampDifference = (currentCallTimestamp - (this.lastCallTimestamp || 0));
 
-		if (self.timeoutId !== null || (timestampDifference < 330)) {
-			clearTimeout(self.timeoutId);
-			timeoutInterval = timestampDifference > 330 ? 330 : timestampDifference;
-			self.timeoutId = setTimeout(() => {
-				self.__searchAudiosHandler(query, callback);
-				self.timeoutId = null;
+		if (this.timeoutId !== null || (timestampDifference < 340)) {
+			clearTimeout(this.timeoutId);
+			timeoutInterval = timestampDifference > 340 ? 340 : timestampDifference;
+			this.timeoutId = setTimeout(() => {
+				this.__searchAudiosHandler(query, callback);
+				this.timeoutId = null;
 			}, timeoutInterval);
 		} else {
-			self.__searchAudiosHandler(query, callback);
+			this.__searchAudiosHandler(query, callback);
 		}
 
 	}
@@ -152,7 +147,7 @@ class VKProvider {
 
 		self.request('audio.getAlbums', {
 			owner_id: self.userId
-		}, function (r) {
+		}, (r) => {
 			callback && callback(r);
 		});
 	}
@@ -161,31 +156,31 @@ class VKProvider {
 
 		return;
 
-		var self = this,
-			requestData = {};
+		var requestData = {};
 
 		!!groupId && (requestData.group_id = groupId);
 		!!albumId && (requestData.album_id = albumId);
 		!!audioIds && (requestData.audio_ids = audioIds);
 
-		self.request('audio.moveToAlbum', requestData, function (r) {
+		this.request('audio.moveToAlbum', requestData, (r) => {
 			console.log(r)
 		});
 	}
 
 	__searchAudiosHandler (query, callback) {
 
-		var self = this;
+		if (this.searchAudioXhrId) {
+			this.searchAudioXhrId.abort();
+		}
 
-		self.lastCallTimestamp = +(new Date());
+		this.lastCallTimestamp = +(new Date());
 
-
-		self.request('audio.search', {
+		this.searchAudioXhrId = this.request('audio.search', {
 			q: query,
 			auto_complete: 1,
 			count: 100
-		}, function (r) {
-			console.log(r);
+		}, (r) => {
+
 			var searchResults = !r.error && r.response.slice(1) || [];
 
 			callback && callback({
@@ -198,20 +193,19 @@ class VKProvider {
 
 		var self = this;
 
-		var authURL = 'https://oauth.vk.com/authorize?client_id=5060172&redirect_uri=https://oauth.vk.com/blank.html&display=page&scope=' + AppConstants.APP_PERMISSIONS + '&response_type=token&v=5.37';
 		var currentTabId = null;
 		// get current tab
 
-		chrome.tabs.getCurrent(function (tab) {
+		chrome.tabs.getCurrent((tab) => {
 			currentTabId = tab.id;
 		});
 
 		chrome.tabs.create({
-			url: authURL,
+			url: self.authURL,
 			selected: true
-		}, function (tab) {
+		}, (tab) => {
 			var createdTabId = tab.id;
-			chrome.tabs.onUpdated.addListener(function (tabId, tabInfo) {
+			chrome.tabs.onUpdated.addListener((tabId, tabInfo) => {
 
 				var a,
 					hash,
@@ -255,7 +249,7 @@ class VKProvider {
 								highlighted: true
 							});
 
-							chrome.tabs.remove(tabId, function () {});
+							chrome.tabs.remove(tabId, () => {});
 
 						}
 

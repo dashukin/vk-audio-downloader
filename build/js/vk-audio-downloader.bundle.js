@@ -20804,12 +20804,11 @@
 			this.accessToken = null;
 			this.userId = null;
 			this.requestsURL = 'https://api.vk.com/method/';
+			this.authURL = 'https://oauth.vk.com/authorize?client_id=5060172&redirect_uri=https://oauth.vk.com/blank.html&display=page&scope=' + _constantsAppConstantsJs2['default'].APP_PERMISSIONS + '&response_type=token&v=5.37';
+			this.searchAudioXhrId = null;
 		}
 
 		_createClass(VKProvider, [{
-			key: 'init',
-			value: function init() {}
-		}, {
 			key: 'request',
 			value: function request(methodName, parameters, success, error) {
 
@@ -20848,24 +20847,26 @@
 					}
 				};
 				xhr.send();
+
+				return xhr;
 			}
 		}, {
 			key: 'checkAppPermissions',
 			value: function checkAppPermissions(callback) {
+				var _this = this;
 
-				var self = this,
-				    accessToken;
+				var accessToken;
 
 				accessToken = chrome.storage.local.get(['userId', 'accessToken'], function (data) {
 					if (!data.userId || !data.accessToken) {
 						_actionsAppActionsJs2['default'].changeView('login');
 					} else {
-						self.userId = data.userId;
-						self.accessToken = data.accessToken;
+						_this.userId = data.userId;
+						_this.accessToken = data.accessToken;
 
-						self.request('account.getAppPermissions', {
-							user_id: self.userId,
-							access_token: self.accessToken
+						_this.request('account.getAppPermissions', {
+							user_id: _this.userId,
+							access_token: _this.accessToken
 						}, function (r) {
 							if (r.response === _constantsAppConstantsJs2['default'].APP_PERMISSIONS) {
 								_actionsAppActionsJs2['default'].changeView('content');
@@ -20911,28 +20912,26 @@
 		}, {
 			key: 'searchAudios',
 			value: function searchAudios(query, callback) {
-				var self = this,
-				    currentCallTimestamp,
-				    timestampDifference,
-				    timeoutInterval;
+				var _this2 = this;
+
+				var currentCallTimestamp, timestampDifference, timeoutInterval;
 
 				if (!query) {
-					this.storeDatasearchQuery = ''; // TODO: ???
 					return;
 				}
 
 				currentCallTimestamp = +new Date();
-				timestampDifference = currentCallTimestamp - (self.lastCallTimestamp || 0);
+				timestampDifference = currentCallTimestamp - (this.lastCallTimestamp || 0);
 
-				if (self.timeoutId !== null || timestampDifference < 330) {
-					clearTimeout(self.timeoutId);
-					timeoutInterval = timestampDifference > 330 ? 330 : timestampDifference;
-					self.timeoutId = setTimeout(function () {
-						self.__searchAudiosHandler(query, callback);
-						self.timeoutId = null;
+				if (this.timeoutId !== null || timestampDifference < 340) {
+					clearTimeout(this.timeoutId);
+					timeoutInterval = timestampDifference > 340 ? 340 : timestampDifference;
+					this.timeoutId = setTimeout(function () {
+						_this2.__searchAudiosHandler(query, callback);
+						_this2.timeoutId = null;
 					}, timeoutInterval);
 				} else {
-					self.__searchAudiosHandler(query, callback);
+					this.__searchAudiosHandler(query, callback);
 				}
 			}
 		}, {
@@ -20953,14 +20952,13 @@
 
 				return;
 
-				var self = this,
-				    requestData = {};
+				var requestData = {};
 
 				!!groupId && (requestData.group_id = groupId);
 				!!albumId && (requestData.album_id = albumId);
 				!!audioIds && (requestData.audio_ids = audioIds);
 
-				self.request('audio.moveToAlbum', requestData, function (r) {
+				this.request('audio.moveToAlbum', requestData, function (r) {
 					console.log(r);
 				});
 			}
@@ -20968,16 +20966,18 @@
 			key: '__searchAudiosHandler',
 			value: function __searchAudiosHandler(query, callback) {
 
-				var self = this;
+				if (this.searchAudioXhrId) {
+					this.searchAudioXhrId.abort();
+				}
 
-				self.lastCallTimestamp = +new Date();
+				this.lastCallTimestamp = +new Date();
 
-				self.request('audio.search', {
+				this.searchAudioXhrId = this.request('audio.search', {
 					q: query,
 					auto_complete: 1,
 					count: 100
 				}, function (r) {
-					console.log(r);
+
 					var searchResults = !r.error && r.response.slice(1) || [];
 
 					callback && callback({
@@ -20991,7 +20991,6 @@
 
 				var self = this;
 
-				var authURL = 'https://oauth.vk.com/authorize?client_id=5060172&redirect_uri=https://oauth.vk.com/blank.html&display=page&scope=' + _constantsAppConstantsJs2['default'].APP_PERMISSIONS + '&response_type=token&v=5.37';
 				var currentTabId = null;
 				// get current tab
 
@@ -21000,7 +20999,7 @@
 				});
 
 				chrome.tabs.create({
-					url: authURL,
+					url: self.authURL,
 					selected: true
 				}, function (tab) {
 					var createdTabId = tab.id;
@@ -25735,7 +25734,7 @@
 
 	var _contentAppContentHeaderJs2 = _interopRequireDefault(_contentAppContentHeaderJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(222);
+	var _contentAppContentAudioSearchJs = __webpack_require__(223);
 
 	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
 
@@ -25743,11 +25742,11 @@
 
 	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(223);
+	var _notFoundAppNotfoundJs = __webpack_require__(224);
 
 	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
 
-	var _contentAppContentJs = __webpack_require__(224);
+	var _contentAppContentJs = __webpack_require__(225);
 
 	var _contentAppContentJs2 = _interopRequireDefault(_contentAppContentJs);
 
@@ -26008,11 +26007,11 @@
 
 	var _contentAppContentAudioPersonalListJs2 = _interopRequireDefault(_contentAppContentAudioPersonalListJs);
 
-	var _contentAppContentAudioSearchJs = __webpack_require__(222);
+	var _contentAppContentAudioSearchJs = __webpack_require__(223);
 
 	var _contentAppContentAudioSearchJs2 = _interopRequireDefault(_contentAppContentAudioSearchJs);
 
-	var _notFoundAppNotfoundJs = __webpack_require__(223);
+	var _notFoundAppNotfoundJs = __webpack_require__(224);
 
 	var _notFoundAppNotfoundJs2 = _interopRequireDefault(_notFoundAppNotfoundJs);
 
@@ -26314,7 +26313,7 @@
 
 	var _providersProviderChromeJs2 = _interopRequireDefault(_providersProviderChromeJs);
 
-	var _appContentProgressBarCircleJs = __webpack_require__(227);
+	var _appContentProgressBarCircleJs = __webpack_require__(222);
 
 	var _appContentProgressBarCircleJs2 = _interopRequireDefault(_appContentProgressBarCircleJs);
 
@@ -26340,7 +26339,6 @@
 			};
 
 			this.show = function (downloadId) {
-				console.warn(downloadId);
 				_providersProviderChromeJs2['default'].showDownloadedFile(downloadId);
 			};
 
@@ -26426,7 +26424,10 @@
 				    updatePlaybackInfo,
 				    updateDownloadProgress,
 				    shouldUpdate,
-				    includesActualDownloadProgress;
+				    includesActualDownloadProgress,
+				    hasActualDownloadProgress,
+				    willLoseActualDownloadProgress,
+				    hadActualDownloadProgress;
 
 				updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
 				updateDownloadProgress = !!newProps.downloadProgress && props.downloadProgress !== newProps.downloadProgress;
@@ -26434,8 +26435,15 @@
 				includesActualDownloadProgress = updateDownloadProgress && newProps.downloadProgress.filter(function (v) {
 					return v.get('url') === props.data.url;
 				}).size > 0;
+				hasActualDownloadProgress = props.downloadProgress && props.downloadProgress.filter(function (v) {
+					return v.get('url') === props.data.url;
+				}).size > 0;
+				willLoseActualDownloadProgress = newProps.downloadProgress && newProps.downloadProgress.filter(function (v) {
+					return v.get('url') === props.data.url;
+				}).size === 0;
+				hadActualDownloadProgress = hasActualDownloadProgress && willLoseActualDownloadProgress;
 
-				shouldUpdate = updatePlaybackInfo || updateDownloadProgress && includesActualDownloadProgress;
+				shouldUpdate = updatePlaybackInfo || updateDownloadProgress && includesActualDownloadProgress || hadActualDownloadProgress;
 
 				return shouldUpdate;
 			}
@@ -26717,8 +26725,6 @@
 
 				chrome.downloads.onCreated.addListener(function (downloadItem) {
 
-					console.log(downloadItem);
-
 					_this.downloadStartTimes.push(+new Date(downloadItem.startTime));
 
 					_this.downloadItems = _this.downloadItems.set(downloadItem.id, (0, _immutable.Map)({
@@ -26735,15 +26741,14 @@
 
 				chrome.downloads.onChanged.addListener(function (properties) {
 
-					console.warn(properties);
+					//console.warn(properties);
 
 					if (properties.hasOwnProperty('error')) {
 						switch (properties.error.current) {
 							case 'USER_CANCELED':
-								console.warn('USER_CANCELED...');
 								_this.downloadItems = _this.downloadItems['delete'](properties.id);
-								clearInterval(_this.downloadProgressIntervalId);
 								_actionsAppActionsJs2['default'].trackDownloadProgress(_this.downloadItems);
+								_this.shouldCheckDownloadProgress();
 								break;
 						}
 					}
@@ -26767,7 +26772,11 @@
 			value: function shouldCheckDownloadProgress() {
 				var _this2 = this;
 
-				if (this.downloadItems.size > 0) {
+				var hasItemsInProgress = this.downloadItems.filter(function (item) {
+					return item.get('state') === 'in_progress';
+				}).size > 0;
+
+				if (hasItemsInProgress) {
 					if (this.downloadProgressIntervalId === null) {
 						this.downloadProgressIntervalId = setInterval(function () {
 							_this2.checkDownloadProgress();
@@ -26843,6 +26852,90 @@
 
 /***/ },
 /* 222 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*
+	*
+	* */
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+		value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var CircleProgressBar = (function (_React$Component) {
+		_inherits(CircleProgressBar, _React$Component);
+
+		function CircleProgressBar() {
+			_classCallCheck(this, CircleProgressBar);
+
+			_get(Object.getPrototypeOf(CircleProgressBar.prototype), 'constructor', this).apply(this, arguments);
+		}
+
+		_createClass(CircleProgressBar, [{
+			key: 'shouldComponentUpdate',
+			value: function shouldComponentUpdate(newProps) {
+				return true;
+			}
+		}, {
+			key: 'render',
+			value: function render() {
+
+				var percents, totalRotation, leftSideRotation, rightSideRotation;
+
+				percents = this.props.percents;
+
+				totalRotation = percents >= 100 ? 360 : parseInt(360 / 100 * percents, 10);
+
+				rightSideRotation = totalRotation > 180 ? 180 : totalRotation;
+
+				leftSideRotation = totalRotation > 180 ? totalRotation - 180 : 0;
+
+				return _react2['default'].createElement(
+					'div',
+					{ className: 'progress-bar-wrapper' },
+					_react2['default'].createElement(
+						'div',
+						{ className: 'progress-bar-outer' },
+						_react2['default'].createElement(
+							'div',
+							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-right' },
+							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-right', style: { transform: "rotate(" + rightSideRotation + "deg)" } })
+						),
+						_react2['default'].createElement(
+							'div',
+							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-left' },
+							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-left', style: { transform: "rotate(" + leftSideRotation + "deg)" } })
+						),
+						_react2['default'].createElement('div', { className: 'progress-bar-inner' })
+					)
+				);
+			}
+		}]);
+
+		return CircleProgressBar;
+	})(_react2['default'].Component);
+
+	exports['default'] = CircleProgressBar;
+	module.exports = exports['default'];
+
+/***/ },
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27025,7 +27118,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 223 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27077,7 +27170,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 224 */
+/* 225 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27100,11 +27193,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _contentAppContentSearchForm = __webpack_require__(225);
+	var _contentAppContentSearchForm = __webpack_require__(226);
 
 	var _contentAppContentSearchForm2 = _interopRequireDefault(_contentAppContentSearchForm);
 
-	var _contentAppContentAudioListJs = __webpack_require__(226);
+	var _contentAppContentAudioListJs = __webpack_require__(227);
 
 	var _contentAppContentAudioListJs2 = _interopRequireDefault(_contentAppContentAudioListJs);
 
@@ -27232,7 +27325,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 225 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27306,7 +27399,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 226 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27397,90 +27490,6 @@
 	})(_react2['default'].Component);
 
 	exports['default'] = AudioList;
-	module.exports = exports['default'];
-
-/***/ },
-/* 227 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/*
-	*
-	* */
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-		value: true
-	});
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var _react = __webpack_require__(2);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var CircleProgressBar = (function (_React$Component) {
-		_inherits(CircleProgressBar, _React$Component);
-
-		function CircleProgressBar() {
-			_classCallCheck(this, CircleProgressBar);
-
-			_get(Object.getPrototypeOf(CircleProgressBar.prototype), 'constructor', this).apply(this, arguments);
-		}
-
-		_createClass(CircleProgressBar, [{
-			key: 'shouldComponentUpdate',
-			value: function shouldComponentUpdate(newProps) {
-				return true;
-			}
-		}, {
-			key: 'render',
-			value: function render() {
-
-				var percents, totalRotation, leftSideRotation, rightSideRotation;
-
-				percents = this.props.percents;
-
-				totalRotation = percents >= 100 ? 360 : parseInt(360 / 100 * percents, 10);
-
-				rightSideRotation = totalRotation > 180 ? 180 : totalRotation;
-
-				leftSideRotation = totalRotation > 180 ? totalRotation - 180 : 0;
-
-				return _react2['default'].createElement(
-					'div',
-					{ className: 'progress-bar-wrapper' },
-					_react2['default'].createElement(
-						'div',
-						{ className: 'progress-bar-outer' },
-						_react2['default'].createElement(
-							'div',
-							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-right' },
-							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-right', style: { transform: "rotate(" + rightSideRotation + "deg)" } })
-						),
-						_react2['default'].createElement(
-							'div',
-							{ className: 'progress-bar-overlay-clip progress-bar-overlay-clip-left' },
-							_react2['default'].createElement('div', { className: 'progress-bar-overlay progress-bar-overlay-left', style: { transform: "rotate(" + leftSideRotation + "deg)" } })
-						),
-						_react2['default'].createElement('div', { className: 'progress-bar-inner' })
-					)
-				);
-			}
-		}]);
-
-		return CircleProgressBar;
-	})(_react2['default'].Component);
-
-	exports['default'] = CircleProgressBar;
 	module.exports = exports['default'];
 
 /***/ }

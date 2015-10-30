@@ -24,8 +24,6 @@ class ChromeProvider {
 
 		chrome.downloads.onCreated.addListener((downloadItem) => {
 
-			console.log(downloadItem);
-
 			this.downloadStartTimes.push(+(new Date(downloadItem.startTime)));
 
 			this.downloadItems = this.downloadItems.set(downloadItem.id, Map({
@@ -42,15 +40,14 @@ class ChromeProvider {
 
 		chrome.downloads.onChanged.addListener((properties) => {
 
-			console.warn(properties);
+			//console.warn(properties);
 
 			if (properties.hasOwnProperty('error')) {
 				switch (properties.error.current) {
 					case 'USER_CANCELED':
-						console.warn('USER_CANCELED...');
 						this.downloadItems = this.downloadItems.delete(properties.id);
-						clearInterval(this.downloadProgressIntervalId);
 						AppActions.trackDownloadProgress(this.downloadItems);
+						this.shouldCheckDownloadProgress();
 						break;
 				}
 			}
@@ -69,7 +66,10 @@ class ChromeProvider {
 	}
 
 	shouldCheckDownloadProgress () {
-		if (this.downloadItems.size > 0) {
+
+		var hasItemsInProgress = this.downloadItems.filter((item) => item.get('state') === 'in_progress').size > 0;
+
+		if (hasItemsInProgress) {
 			if (this.downloadProgressIntervalId === null) {
 				this.downloadProgressIntervalId = setInterval(() => {
 					this.checkDownloadProgress();

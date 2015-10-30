@@ -30,14 +30,20 @@ class AudioItem extends React.Component {
 			updatePlaybackInfo,
 			updateDownloadProgress,
 			shouldUpdate,
-			includesActualDownloadProgress;
+			includesActualDownloadProgress,
+			hasActualDownloadProgress,
+			willLoseActualDownloadProgress,
+			hadActualDownloadProgress;
 
 		updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
 		updateDownloadProgress = !!newProps.downloadProgress && (props.downloadProgress !== newProps.downloadProgress);
 
 		includesActualDownloadProgress = updateDownloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
+		hasActualDownloadProgress = props.downloadProgress && (props.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
+		willLoseActualDownloadProgress = newProps.downloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size === 0;
+		hadActualDownloadProgress = hasActualDownloadProgress && willLoseActualDownloadProgress;
 
-		shouldUpdate = updatePlaybackInfo || (updateDownloadProgress && includesActualDownloadProgress);
+		shouldUpdate = updatePlaybackInfo || (updateDownloadProgress && includesActualDownloadProgress) || hadActualDownloadProgress;
 
 		return shouldUpdate;
 	}
@@ -182,7 +188,6 @@ class AudioItem extends React.Component {
 	}
 
 	show = (downloadId) => {
-		console.warn(downloadId);
 		ChromeProvider.showDownloadedFile(downloadId);
 	}
 
