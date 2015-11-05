@@ -20,11 +20,21 @@ class AppStore extends EventEmitter {
 				case AppConstants.PROCESS_USERS_DATA:
 					this.processUsersData();
 					break;
+				case AppConstants.GET_PERSONAL_AUDIOS:
+					this.getPersonalAudios(payload.refresh);
+					break;
 				case AppConstants.SEARCH_AUDIO:
 					this.searchAudios(payload.query);
 					break;
-				case AppConstants.MOVE_TO_ALBUM:
-					this.moveToAlbum(null, null, payload.audioId);
+				case AppConstants.UPDATE_SEARCH_RESULTS:
+					this.updateSearchResult();
+					break;
+				case AppConstants.ADD_TO_ALBUM:
+					//this.moveToAlbum(null, null, payload.audioId);
+					this.addToAlbum(payload.data);
+					break;
+				case AppConstants.REMOVE_FROM_ALBUM:
+					this.removeFromAlbum(payload.data);
 					break;
 				case AppConstants.PLAY_AUDIO_BY_ID:
 					this.playAudioById(payload.audioId);
@@ -60,19 +70,21 @@ class AppStore extends EventEmitter {
 			lastName: '',
 			personalAudiosCount: 0
 		}),
-		playbackInfo: {
+		playbackInfo: Map({
 			audioId: null,
 			paused: false,
 			decreaseTime: true,
 			currentTime: 0,
 			buffered: 0
-		},
+		}),
 		downloadProgress: null,
 		personalAudios: [],
 		searchQuery: '',
 		searchResults: [],
+		shouldSearchBeUpdated: false,
 		currentAudioId: null,
-		currentPlayList: null
+		currentPlayList: null,
+		shouldRefreshSearch: false
 	}
 
 	emitChange (changeEvent) {
@@ -120,27 +132,48 @@ class AppStore extends EventEmitter {
 		});
 	}
 
-	moveToAlbum (groupId, albumId, audioId) {
-		VKProvider.moveToAlbum(groupId, albumId, audioId);
+	addToAlbum (audioData) {
+		VKProvider.addToAlbum(audioData);
 	}
 
-	getPersonalAudios () {
+	removeFromAlbum (audioData) {
+		VKProvider.removeFromAlbum(audioData);
+	}
+
+	getPersonalAudios (refresh) {
 
 		var storeData = this.storeData;
 
-		if (!this.storeData.personalAudios.length) {
+		if (!this.storeData.personalAudios.length || !!refresh) {
 			VKProvider.getAudios((data) => {
 				storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
-
-				storeData.userInfo = storeData.userInfo.update('personalAudiosCount', () => data.audios.length || 0);
-
 				storeData.currentAudioList = data.audios;
 				AudioPlayer.loadAudioList(storeData.currentAudioList);
+
 				this.emitChange();
 			});
+
+			this.getPersonalAudiosCount();
+
 		} else {
 			this.emitChange();
 		}
+	}
+
+	getPersonalAudiosCount () {
+
+		var storeData = this.storeData;
+
+		VKProvider.getCount({
+			callback: ({count}) => {
+				storeData.userInfo = storeData.userInfo.update('personalAudiosCount', () => count || 0);
+				// TODO: refactor
+				if (this.storeData.shouldSearchBeUpdated) {
+					this.searchAudios(this.storeData.searchQuery);
+				}
+				this.emitChange();
+			}
+		});
 	}
 
 	getAudioList (listType) {
@@ -171,6 +204,11 @@ class AppStore extends EventEmitter {
 		});
 	}
 
+	updateSearchResult () {
+		console.warn('updateSearchResult');
+		this.storeData.shouldSearchBeUpdated = true;
+	}
+
 	getSearchQuery () {
 		return this.storeData.searchQuery || '';
 	}
@@ -189,28 +227,45 @@ class AppStore extends EventEmitter {
 	}
 
 	playAudioById (audioId) {
-		this.storeData.playbackInfo.audioId = audioId;
-		this.storeData.playbackInfo.paused = false;
+		//this.storeData.playbackInfo.audioId = audioId;
+		//this.storeData.playbackInfo.paused = false;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('audioId', () => audioId);
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('paused', () => false);
+
 		this.emitChange();
 	}
 
 	pauseAudio () {
-		this.storeData.playbackInfo.paused = true;
+		//this.storeData.playbackInfo.paused = true;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('paused', () => true);
+
 		this.emitChange();
 	}
 
 	stopAudio () {
-		this.storeData.playbackInfo.audioId = null;
+		//this.storeData.playbackInfo.audioId = null;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('audioId', () => null);
+
 		this.emitChange();
 	}
 
 	updatePlaybackTime (currentTime) {
-		this.storeData.playbackInfo.currentTime = currentTime;
+
+		//this.storeData.playbackInfo.currentTime = currentTime;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('currentTime', () => currentTime);
+
 		this.emitChange();
 	}
 
 	updatePlaybackBuffered (buffered) {
-		this.storeData.playbackInfo.buffered = buffered;
+		//this.storeData.playbackInfo.buffered = buffered;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('buffered', () => buffered);
+
 		this.emitChange();
 	}
 
@@ -236,7 +291,10 @@ class AppStore extends EventEmitter {
 	}
 
 	toggleDecrease () {
-		this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
+		//this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
+
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('decreaseTime', () => !this.storeData.playbackInfo.decreaseTime);
+
 		this.emitChange();
 	}
 

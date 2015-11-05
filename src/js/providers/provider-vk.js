@@ -1,6 +1,9 @@
 /** @namespace VK.Auth */
 /** @namespace VK.Auth.login */
 /** @namespace VK.Api.getLoginStatus */
+/** @namespace chrome.tabs.getCurrent */
+/** @namespace chrome.tabs.onUpdated */
+/** @namespace chrome.storage */
 
 
 'use strict';
@@ -105,13 +108,19 @@ class VKProvider {
 
 	getAudios (callback) {
 
-		var self = this;
-
-		self.request('audio.get', {owner_id: self.userId}, (r) => {
+		this.request('audio.get', {owner_id: this.userId}, (r) => {
 			let audios = r.response && r.response.length && r.response.slice(1);
 
 			callback && callback({
 				audios: audios
+			});
+		});
+	}
+
+	getCount ({userId = this.userId, callback = null}) {
+		this.request('audio.getCount', {owner_id: userId}, (r) => {
+			callback && callback({
+				count: r.response
 			});
 		});
 	}
@@ -152,18 +161,36 @@ class VKProvider {
 		});
 	}
 
-	moveToAlbum (groupId, albumId, audioIds) {
+	addToAlbum ({groupId, albumId, audioId, ownerId, success, error}) {
 
-		return;
+		//return;
 
 		var requestData = {};
 
+
 		!!groupId && (requestData.group_id = groupId);
 		!!albumId && (requestData.album_id = albumId);
-		!!audioIds && (requestData.audio_ids = audioIds);
+		!!audioId && (requestData.audio_id = audioId);
+		!!ownerId && (requestData.owner_id = ownerId);
 
-		this.request('audio.moveToAlbum', requestData, (r) => {
-			console.log(r)
+		this.request('audio.add', requestData, (r) => {
+			console.info(r);
+			AppActions.getPersonalAudios(true);
+			success && success();
+		});
+	}
+
+	removeFromAlbum ({audioId, ownerId, success, error}) {
+
+		var requestData = {};
+
+		!!audioId && (requestData.audio_id = audioId);
+		!!ownerId && (requestData.owner_id = ownerId);
+
+		this.request('audio.delete', requestData, (r) => {
+			if (r && (r.response === 1)) {
+				AppActions.getPersonalAudios(true);
+			}
 		});
 	}
 
@@ -178,7 +205,8 @@ class VKProvider {
 		this.searchAudioXhrId = this.request('audio.search', {
 			q: query,
 			auto_complete: 1,
-			count: 100
+			count: 100,
+			search_own: 1
 		}, (r) => {
 
 			var searchResults = !r.error && r.response.slice(1) || [];

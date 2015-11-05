@@ -7,6 +7,7 @@ import AppContentView from '../components/content/app-content-router.js';
 import AppStore from '../stores/app-store.js';
 import AppConstants from '../constants/app-constants.js';
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
+import NotificationSystem from 'react-notification-system';
 
 class App extends React.Component {
 

@@ -40,28 +40,37 @@ class ChromeProvider {
 
 		chrome.downloads.onChanged.addListener((properties) => {
 
-			//console.warn(properties);
+			var downloadId = properties.id;
 
+			// track user_cancelled action
 			if (properties.hasOwnProperty('error')) {
 				switch (properties.error.current) {
 					case 'USER_CANCELED':
-						this.downloadItems = this.downloadItems.delete(properties.id);
+						this.downloadItems = this.downloadItems.delete(downloadId);
 						AppActions.trackDownloadProgress(this.downloadItems);
 						this.shouldCheckDownloadProgress();
 						break;
 				}
 			}
 
+			// track loaded state
 			if (properties.state && (properties.state.current === 'complete')) {
 
-				this.downloadItems = this.downloadItems.updateIn([properties.id, 'percentsLoaded'], () => 100);
-				this.downloadItems = this.downloadItems.updateIn([properties.id, 'state'], () => properties.state.current);
+				this.downloadItems = this.downloadItems.updateIn([downloadId, 'percentsLoaded'], () => 100);
+				this.downloadItems = this.downloadItems.updateIn([downloadId, 'state'], () => properties.state.current);
 				AppActions.trackDownloadProgress(this.downloadItems);
 
 				this.shouldCheckDownloadProgress();
 
-
 			}
+
+			// track if file has been removed
+			/** @namespace properties.exists.previous */
+			if (properties.exists && (properties.exists.current === false) && (properties.exists.previous === true)) {
+				this.handleFileDoesNotExist(downloadId);
+				// TODO: create notification
+			}
+
 		});
 	}
 
@@ -103,7 +112,7 @@ class ChromeProvider {
 				if (this.downloadItems.has(item.id)) {
 					percentsLoaded = parseInt(((item.bytesReceived / item.totalBytes) * 100), 10);
 					this.downloadItems = this.downloadItems.updateIn([item.id, 'bytesReceived'], () => item.bytesReceived);
-					this.downloadItems = this.downloadItems.updateIn([item.id, 'percentsLoaded'], () => percentsLoaded);
+					this.downloadItems = this.downloadItems.updateIn([item.id, 'percentsLoaded'], () => percentsLoaded);1
 					AppActions.trackDownloadProgress(this.downloadItems);
 				}
 			});
@@ -122,8 +131,36 @@ class ChromeProvider {
 		chrome.downloads.download(downloadData);
 	}
 
+	checkIfFileExists ({downloadId, success, error}) {
+		console.info('checking if file exists');
+		chrome.downloads.search({
+			id: downloadId
+		}, ([downloadItem]) => {
+			console.log(downloadItem);
+			if (downloadItem.exists === true) {
+				success && success();
+			} else {
+				error && error();
+			}
+		});
+	}
+
 	showDownloadedFile (downloadId) {
-		chrome.downloads.show(downloadId);
+		this.checkIfFileExists({
+			downloadId: downloadId,
+			success: () => {
+				chrome.downloads.show(downloadId);
+			},
+			error: () => {
+				console.log('not exists');
+				this.handleFileDoesNotExist(downloadId);
+			}
+		});
+	}
+
+	handleFileDoesNotExist (downloadId) {
+		this.downloadItems = this.downloadItems.remove(downloadId);
+		AppActions.trackDownloadProgress(this.downloadItems);
 	}
 
 	// TODO: move other calls here

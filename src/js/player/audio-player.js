@@ -52,9 +52,9 @@ class AudioPlayer {
 
 		var self = this;
 
-		self.audioList = audioList;
+		self.audioList = audioList || [];
 
-		if (!audioList.length) {
+		if (!self.audioList.length) {
 			self.audioListMap = {};
 		} else {
 			// store audio id and it's index

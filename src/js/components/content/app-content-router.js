@@ -41,10 +41,9 @@ class AppContentRouter extends React.Component {
 
 		routes = (
 			<Route path='/'>
-				<IndexRoute component={ContentView} />
-				<Route path="index" component={ContentView} />
-				<Route path="search" type="search" hasSearch={true} component={ContentView} />
-				<Route path="my-audio" type="personal" component={ContentView} />
+				<IndexRoute type="personal" component={ContentView} />
+				<Route path="search" contentType="search" hasSearch={true} component={ContentView} />
+				<Route path="my-audio" contentType="personal" component={ContentView} />
 				<Route path="*" component={NotFoundView}/>
 			</Route>
 		);

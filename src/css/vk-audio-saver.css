@@ -152,6 +152,9 @@ body {
 .audio-item-actions li:first-child {
 	margin-right: 10px;
 }
+.audio-item-actions a {
+	cursor: pointer;
+}
 .audio-item-download-percents {
 	font-size: 12px;
 }

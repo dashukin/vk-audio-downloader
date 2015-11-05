@@ -4,6 +4,7 @@ import React from 'react';
 import Immutable from 'immutable';
 import AudioItem from '../content/app-content-audio-item.js';
 import Loading from '../loading/app-loading.js';
+import _ from 'lodash';
 
 class AudioList extends React.Component {
 
@@ -24,24 +25,32 @@ class AudioList extends React.Component {
 		var self,
 			props,
 			audioList,
+			personalAudioList,
 			audioListOutput,
 			playbackInfo,
 			playBackInfoProperties,
-			isActiveAudio;
+			isActiveAudio,
+			isInPlaylist;
 
 		self = this;
 		props = self.props;
 		audioList = props.audioList || [];
 
+		// for debugging
+		//audioList = audioList.slice(0, 1);
+
+		personalAudioList = props.personalAudioList || [];
+
 		playbackInfo = self.props.playbackInfo;
 
 		audioListOutput = !audioList.length ? <Loading/> : audioList.map(audioData => {
-			isActiveAudio = audioData.aid === playbackInfo.audioId;
+			isActiveAudio = audioData.aid === playbackInfo.get('audioId');
 
 			playBackInfoProperties = isActiveAudio ? playbackInfo : null;
-			playBackInfoProperties = Immutable.fromJS(playBackInfoProperties);
+			//playBackInfoProperties = Immutable.fromJS(playBackInfoProperties);
+			isInPlaylist = !!_.find(personalAudioList, {aid: audioData.aid});
 
-			return <AudioItem data={audioData} downloadProgress={props.downloadProgress} key={audioData.aid} playbackInfo={playBackInfoProperties} />
+			return <AudioItem contentType={this.props.contentType} data={audioData} downloadProgress={props.downloadProgress} key={audioData.aid} playbackInfo={playBackInfoProperties} isInPlaylist={isInPlaylist} />
 		});
 
 		return (

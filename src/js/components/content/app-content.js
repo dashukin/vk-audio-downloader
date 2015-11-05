@@ -8,6 +8,7 @@ import AppStore from '../../stores/app-store.js';
 import VKProvider from '../../providers/provider-vk.js';
 import AppConstants from '../../constants/app-constants.js';
 import {Map, List, Record} from 'immutable';
+import _ from 'lodash';
 
 class ContentView extends React.Component {
 
@@ -27,10 +28,6 @@ class ContentView extends React.Component {
 
 		var self = this;
 
-		//self.setState({
-		//	contentType: self.props.route.type
-		//});
-
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.storeChangesHandler);
 	}
 
@@ -40,8 +37,8 @@ class ContentView extends React.Component {
 
 	componentWillReceiveProps (nextProps) {
 
-		if (this.props.contentType !== nextProps.route.type) {
-			this.storeChangesHandler(nextProps.route.type);
+		if (this.props.contentType !== nextProps.route.contentType) {
+			this.storeChangesHandler(nextProps.route.contentType);
 		}
 
 	}
@@ -54,16 +51,19 @@ class ContentView extends React.Component {
 
 		var listType,
 			audioList,
+			personalAudioList,
 			storeData;
 
-		listType = routeType || this.props.route.type;
+		listType = routeType || this.props.route.contentType;
 
 		audioList = AppStore.getAudioList(listType) || [];
+		personalAudioList = AppStore.getAudioList('personal') || [];
 
 		storeData = AppStore.storeData || {};
 
 		this.setState({
 			audioList: audioList,
+			personalAudioList: personalAudioList,
 			userInfo: storeData.userInfo,
 			playbackInfo: storeData.playbackInfo,
 			searchQuery: storeData.searchQuery,
@@ -78,6 +78,7 @@ class ContentView extends React.Component {
 			routeProps,
 			hasSearch,
 			audioList,
+			personalAudioList,
 			userInfo,
 			playbackInfo,
 			downloadProgress,
@@ -88,6 +89,7 @@ class ContentView extends React.Component {
 		routeProps = this.props.route;
 		hasSearch = routeProps.hasSearch === true;
 		audioList = state.audioList;
+		personalAudioList = state.personalAudioList;
 		userInfo = state.userInfo;
 
 		playbackInfo = state.playbackInfo;
@@ -105,7 +107,7 @@ class ContentView extends React.Component {
 
 					{hasSearch && <SearchForm searchQuery={searchQuery}/>}
 
-					<AudioList audioList={audioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
+					<AudioList contentType={this.props.route.contentType} audioList={audioList} personalAudioList={personalAudioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
 
 				</div>
 			</div>

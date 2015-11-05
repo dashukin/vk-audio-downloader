@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import AppStore from '../../stores/app-store.js';
+import AppActions from '../../actions/app-actions.js';
 
 class SearchForm extends React.Component {
 
@@ -22,7 +23,7 @@ class SearchForm extends React.Component {
 
 	searchAudio (e) {
 		var searchValue = e.target.value;
-		AppStore.searchAudios(searchValue);
+		AppActions.searchAudios(searchValue);
 	}
 
 	render () {

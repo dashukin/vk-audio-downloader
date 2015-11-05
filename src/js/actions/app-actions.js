@@ -4,10 +4,10 @@ import AppDispatcher from '../dispatchers/app-dispatcher.js';
 import AppConstants from '../constants/app-constants.js';
 
 let Actions = {
-	changeView (viewName) {
+	changeView (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.CHANGE_VIEW,
-			viewName: viewName
+			viewName: payload
 		});
 	},
 	processUsersData () {
@@ -15,52 +15,69 @@ let Actions = {
 			actionType: AppConstants.PROCESS_USERS_DATA
 		});
 	},
-	processPersonalList (personalList) {
+	processPersonalList (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PROCESS_PERSONAL_LIST,
-			personalList: personalList
+			personalList: payload
 		});
 	},
-	searchAudio (query) {
+	getPersonalAudios (payload) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.GET_PERSONAL_AUDIOS,
+			refresh: payload
+		});
+	},
+	searchAudios (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.SEARCH_AUDIO,
-			query: query
+			query: payload
 		});
 	},
-	processSearchResults (searchResults) {
+	updateSearchResults () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.UPDATE_SEARCH_RESULTS
+		});
+	},
+	processSearchResults (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PROCESS_SEARCH_RESULTS,
-			searchResults: searchResults
+			searchResults: payload
 		})
 	},
-	processRoutesHandler (Handler) {
+	processRoutesHandler (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PROCESS_ROUTES_HANDLER,
-			routesHandler: Handler
+			routesHandler: payload
 		});
 	},
-	moveToAlbum (audioId) {
+	addToAlbum (payload) {
 		AppDispatcher.dispatch({
-			actionType: AppConstants.MOVE_TO_ALBUM,
-			audioId: audioId
+			actionType: AppConstants.ADD_TO_ALBUM,
+			data: payload
 		});
 	},
-	changeCurrentPlaylist (listType) {
+	removeFromAlbum (payload) {
 		AppDispatcher.dispatch({
-			actionType: AppConstants.CHANGE_CURRENT_PLAYLIST,
-			listType: listType
+			actionType: AppConstants.REMOVE_FROM_ALBUM,
+			data: payload
 		})
 	},
-	resetAudioState (audioId) {
+	changeCurrentPlaylist (payload) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.CHANGE_CURRENT_PLAYLIST,
+			listType: payload
+		})
+	},
+	resetAudioState (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.RESET_AUDIO_STATE,
-			audioId: audioId
+			audioId: payload
 		});
 	},
-	playAudioById (audioId) {
+	playAudioById (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PLAY_AUDIO_BY_ID,
-			audioId: audioId
+			audioId: payload
 		})
 	},
 	pauseAudio () {
@@ -73,10 +90,10 @@ let Actions = {
 			actionType: AppConstants.STOP_AUDIO
 		});
 	},
-	updatePlayerTime (currentTime) {
+	updatePlayerTime (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.UPDATE_PLAYBACK_TIME,
-			currentTime: currentTime
+			currentTime: payload
 		});
 	},
 	updatePlayerBuffered (buffered) {

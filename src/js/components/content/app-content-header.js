@@ -57,7 +57,7 @@ class Header extends React.Component {
 									<Link to="/search">Search</Link>
 								</li>
 								<li>
-									<Link to="/my-audio">My audio
+									<Link to="/my-audio">My audios
 										{!!personalAudiosCount
 											? <span className="my-audios-count"> ({personalAudiosCount})</span>
 											: ''

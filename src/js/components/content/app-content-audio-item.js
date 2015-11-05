@@ -9,11 +9,15 @@ import AppConstants from '../../constants/app-constants.js';
 import AudioPlayer from '../../player/audio-player.js';
 import ChromeProvider from '../../providers/provider-chrome.js';
 import CircleProgressBar from './app-content-progress-bar-circle.js';
+import {Map} from 'immutable';
 
 class AudioItem extends React.Component {
 
 	constructor(props) {
 		super(props);
+		this.state = {
+			isAdded: null
+		};
 	}
 
 	componentWillMount () {
@@ -24,9 +28,10 @@ class AudioItem extends React.Component {
 
 	}
 
-	shouldComponentUpdate (newProps) {
+	shouldComponentUpdate (newProps, newState) {
 
 		var props = this.props,
+			updateState,
 			updatePlaybackInfo,
 			updateDownloadProgress,
 			shouldUpdate,
@@ -35,15 +40,19 @@ class AudioItem extends React.Component {
 			willLoseActualDownloadProgress,
 			hadActualDownloadProgress;
 
+		updateState = this.state.isAdded !== newState.isAdded;
+
+		//console.info(newProps.isInPlaylist);
+
 		updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
 		updateDownloadProgress = !!newProps.downloadProgress && (props.downloadProgress !== newProps.downloadProgress);
 
-		includesActualDownloadProgress = updateDownloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
-		hasActualDownloadProgress = props.downloadProgress && (props.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
-		willLoseActualDownloadProgress = newProps.downloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size === 0;
+		includesActualDownloadProgress = !!updateDownloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
+		hasActualDownloadProgress = !!props.downloadProgress && (props.downloadProgress.filter((v) => v.get('url') === props.data.url)).size > 0;
+		willLoseActualDownloadProgress = !!newProps.downloadProgress && (newProps.downloadProgress.filter((v) => v.get('url') === props.data.url)).size === 0;
 		hadActualDownloadProgress = hasActualDownloadProgress && willLoseActualDownloadProgress;
 
-		shouldUpdate = updatePlaybackInfo || (updateDownloadProgress && includesActualDownloadProgress) || hadActualDownloadProgress;
+		shouldUpdate = updateState || updatePlaybackInfo || (updateDownloadProgress && includesActualDownloadProgress) || hadActualDownloadProgress;
 
 		return shouldUpdate;
 	}
@@ -55,6 +64,7 @@ class AudioItem extends React.Component {
 	render () {
 
 		var props = this.props,
+			state = this.state,
 			playbackInfo,
 			isActiveAudio,
 			isActiveClassName = '',
@@ -74,7 +84,8 @@ class AudioItem extends React.Component {
 			decreaseHandler,
 			downloadProgress,
 			downloadProgressData,
-			percentsLoaded;
+			percentsLoaded,
+			couldBeAddedToAlbum;
 
 		audioData = props.data;
 		duration = props.data.duration;
@@ -109,6 +120,8 @@ class AudioItem extends React.Component {
 		downloadProgressData = downloadProgress && downloadProgress.size > 0 && downloadProgress.toObject();
 		downloadProgressData = downloadProgressData && downloadProgressData[Object.keys(downloadProgressData)[0]];
 
+		couldBeAddedToAlbum = ((props.contentType === 'search') && (!props.isInPlaylist)) && !state.isAdded;
+
 		return (
 			<div className={"audio-item clearfix " + isActiveClassName}>
 
@@ -131,7 +144,7 @@ class AudioItem extends React.Component {
 
 							<div className="clearfix">
 								<div className="audio-info-track-name">
-									<span className="audio-info-artist">{audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
+									<span className="audio-info-artist">{audioData.aid} {audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
 								</div>
 								<div className="audio-info-duration" onClick={decreaseHandler}>
 									{isActiveAudio && playbackInfo.decreaseTime ? '-' : ''} {timeProgress}
@@ -166,9 +179,24 @@ class AudioItem extends React.Component {
 
 					</li>
 					<li>
-						<a className="" title="Add to my audios" onClick={this.moveToAlbum}>
-							<i className="mdi-av-my-library-add"></i>
-						</a>
+						{!!couldBeAddedToAlbum
+
+							? 	<a className="" title="Add to my audios" onClick={this.addToAlbum}>
+									<i className="mdi-av-my-library-add"></i>
+								</a>
+
+							:	(state.isAdded === true)
+
+								? 	<a className="" title="Remove from audios">
+										<i className="mdi-action-done"></i>
+									</a>
+
+								: 	<a className="" title="Remove from audios" onClick={this.removeFromAlbum}>
+										<i className="mdi-navigation-cancel"></i>
+									</a>
+
+						}
+
 					</li>
 				</ul>
 			</div>
@@ -280,13 +308,13 @@ class AudioItem extends React.Component {
 
 
 
-		timelineProgress = ((currentTime / duration) * 100).toFixed(2);
+		timelineProgress = ((currentTime / duration) * 100).toFixed(1);
 		timeProgress = decreaseTime
 			? Math.floor(duration - currentTime)
 			: Math.floor(currentTime);
 
 		return {
-			timeProgress: this.convertSecondsToReadableTime(timeProgress || duration),
+			timeProgress: this.convertSecondsToReadableTime((timeProgress || duration) | 0),
 			timelineProgress: timelineProgress
 		}
 	}
@@ -320,11 +348,29 @@ class AudioItem extends React.Component {
 
 	}
 
-	moveToAlbum = (e) => {
+	addToAlbum = (e) => {
+
+		!!e && e.preventDefault();
+		//groupId, albumId, audioId
+		AppActions.addToAlbum({
+			audioId: this.props.data.aid,
+			ownerId: this.props.data.owner_id
+		});
+		this.setState({
+			isAdded: true
+		});
+		AppActions.updateSearchResults();
+	}
+
+	removeFromAlbum = (e) => {
 
 		!!e && e.preventDefault();
 
-		AppActions.moveToAlbum(this.props.data.aid);
+		AppActions.removeFromAlbum({
+			audioId: this.props.data.aid,
+			ownerId: this.props.data.owner_id
+		});
+
 	}
 
 	playAudio () {
