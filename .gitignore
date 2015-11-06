@@ -81,8 +81,8 @@ bower_components
 
 #build
 
-/build/*
-/chrome-extension/app/build/*
+build
+chrome-extension/app/build
 
 
 .gitignore
