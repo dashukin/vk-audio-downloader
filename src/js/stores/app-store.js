@@ -5,6 +5,7 @@ import AppActions from '../actions/app-actions.js';
 import AppConstants from '../constants/app-constants.js';
 import {EventEmitter} from 'events';
 import VKProvider from '../providers/provider-vk.js';
+import ChromeProvider from '../providers/provider-chrome.js';
 import AudioPlayer from '../player/audio-player.js';
 import {Map, Record} from 'immutable';
 
@@ -17,6 +18,9 @@ class AppStore extends EventEmitter {
 		AppDispatcher.register((payload) => {
 
 			switch (payload.actionType) {
+				case AppConstants.LOG_OUT:
+					this.logout();
+					break;
 				case AppConstants.PROCESS_USERS_DATA:
 					this.processUsersData();
 					break;
@@ -105,6 +109,15 @@ class AppStore extends EventEmitter {
 			this.processUsersData();
 		});
 
+	}
+
+	logout () {
+		var self = this;
+		ChromeProvider.clearUsersCredentials({
+			success () {
+				document.location.reload();
+			}
+		});
 	}
 
 	processUsersData () {
@@ -293,7 +306,7 @@ class AppStore extends EventEmitter {
 	toggleDecrease () {
 		//this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
 
-		this.storeData.playbackInfo = this.storeData.playbackInfo.update('decreaseTime', () => !this.storeData.playbackInfo.decreaseTime);
+		this.storeData.playbackInfo = this.storeData.playbackInfo.update('decreaseTime', () => !this.storeData.playbackInfo.get('decreaseTime'));
 
 		this.emitChange();
 	}

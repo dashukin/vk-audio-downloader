@@ -132,11 +132,11 @@ class ChromeProvider {
 	}
 
 	checkIfFileExists ({downloadId, success, error}) {
-		console.info('checking if file exists');
+
 		chrome.downloads.search({
 			id: downloadId
 		}, ([downloadItem]) => {
-			console.log(downloadItem);
+
 			if (downloadItem.exists === true) {
 				success && success();
 			} else {
@@ -152,7 +152,6 @@ class ChromeProvider {
 				chrome.downloads.show(downloadId);
 			},
 			error: () => {
-				console.log('not exists');
 				this.handleFileDoesNotExist(downloadId);
 			}
 		});
@@ -161,6 +160,14 @@ class ChromeProvider {
 	handleFileDoesNotExist (downloadId) {
 		this.downloadItems = this.downloadItems.remove(downloadId);
 		AppActions.trackDownloadProgress(this.downloadItems);
+	}
+
+	clearUsersCredentials ({success, error}) {
+		//console.log('clearUsersCredentials');
+		chrome.storage.local.remove(['accessToken', 'userId'], (r) => {
+			//console.log(r);
+			success && success();
+		});
 	}
 
 	// TODO: move other calls here

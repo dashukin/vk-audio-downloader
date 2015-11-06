@@ -49,7 +49,7 @@ class Header extends React.Component {
 				<div className="container">
 					<div className="row">
 						<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-							<ul className="nav navbar-nav list-unstyled">
+							<ul className="nav navbar-nav navbar-left list-unstyled">
 								<li>
 									<a>Welcome{userName}</a>
 								</li>
@@ -65,11 +65,22 @@ class Header extends React.Component {
 									</Link>
 								</li>
 							</ul>
+							<ul className="nav navbar-nav navbar-right">
+								<li>
+									<a href="#" onClick={this.exit}>Exit</a>
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>
 			</div>
 		);
+	}
+
+	exit = (e) => {
+
+		!!e && e.preventDefault();
+		AppActions.logout();
 	}
 }
 

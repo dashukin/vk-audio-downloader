@@ -29,7 +29,7 @@ class App extends React.Component {
 
 		AppStore.addChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
 
-		AppDispatcher.register(function (payload) {
+		AppDispatcher.register((payload) => {
 			var actionType = payload.actionType;
 			switch (actionType) {
 				case AppConstants.CHANGE_VIEW:
@@ -44,7 +44,7 @@ class App extends React.Component {
 		AppStore.removeChangeListener(AppConstants.CHANGE_AUTH_STATE, self.changeView);
 	}
 
-	changeView (viewAlias) {
+	changeView = (viewAlias) => {
 		this.setState({
 			authState: viewAlias
 		});
@@ -55,7 +55,7 @@ class App extends React.Component {
 		var self = this,
 			state = self.state,
 			view,
-			appClassName = 'app ' + (state.authState);
+			appClassName = ('app ' + (state.authState || 'login'));
 
 		switch (self.state.authState) {
 			case 'loading':

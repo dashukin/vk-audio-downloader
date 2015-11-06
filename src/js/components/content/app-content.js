@@ -25,14 +25,12 @@ class ContentView extends React.Component {
 	}
 
 	componentWillMount () {
-
-		var self = this;
-
-		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, self.storeChangesHandler);
+		this.storeChangesHandler();
+		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, this.storeChangesHandler);
 	}
 
 	componentDiDMount () {
-		this.storeChangesHandler();
+
 	}
 
 	componentWillReceiveProps (nextProps) {

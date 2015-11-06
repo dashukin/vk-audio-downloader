@@ -144,7 +144,7 @@ class AudioItem extends React.Component {
 
 							<div className="clearfix">
 								<div className="audio-info-track-name">
-									<span className="audio-info-artist">{audioData.aid} {audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
+									<span className="audio-info-artist">{audioData.artist}</span> - <span className="audio-info-title">{audioData.title}</span>
 								</div>
 								<div className="audio-info-duration" onClick={decreaseHandler}>
 									{isActiveAudio && playbackInfo.decreaseTime ? '-' : ''} {timeProgress}
@@ -324,9 +324,10 @@ class AudioItem extends React.Component {
 		var days,
 			hours,
 			minutes,
-			seconds;
+			seconds,
+			output;
 
-		time = parseInt(time, 10);
+		time = time > 0 ? parseInt(time, 10) : 0;
 		if (!time || Object.prototype.toString.call(time).slice(8, -1) !== 'Number') return '00m 00s';
 
 		days 	= Math.floor(time / (3600 * 24)) || 0;
@@ -339,7 +340,9 @@ class AudioItem extends React.Component {
 		seconds = seconds + '';
 		seconds = seconds.length === 1 ? '0' + seconds : seconds;
 
-		return (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
+		output = (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
+
+		return output;
 	}
 
 	toggleDecrease = () => {

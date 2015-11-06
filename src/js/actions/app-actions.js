@@ -4,6 +4,14 @@ import AppDispatcher from '../dispatchers/app-dispatcher.js';
 import AppConstants from '../constants/app-constants.js';
 
 let Actions = {
+	login () {
+
+	},
+	logout () {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.LOG_OUT
+		});
+	},
 	changeView (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.CHANGE_VIEW,
