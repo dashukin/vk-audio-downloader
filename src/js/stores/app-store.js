@@ -145,12 +145,18 @@ class AppStore extends EventEmitter {
 		});
 	}
 
-	addToAlbum (audioData) {
-		VKProvider.addToAlbum(audioData);
+	addToAlbum (data) {
+		data.success = () => {
+			this.getPersonalAudios(true);
+		};
+		VKProvider.addToAlbum(data);
 	}
 
-	removeFromAlbum (audioData) {
-		VKProvider.removeFromAlbum(audioData);
+	removeFromAlbum (data) {
+		data.success = () => {
+			this.getPersonalAudios(true);
+		}
+		VKProvider.removeFromAlbum(data);
 	}
 
 	getPersonalAudios (refresh) {
@@ -162,6 +168,8 @@ class AppStore extends EventEmitter {
 				storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
 				storeData.currentAudioList = data.audios;
 				AudioPlayer.loadAudioList(storeData.currentAudioList);
+
+				this.searchAudios(this.storeData.searchQuery);
 
 				this.emitChange();
 			});
@@ -181,9 +189,6 @@ class AppStore extends EventEmitter {
 			callback: ({count}) => {
 				storeData.userInfo = storeData.userInfo.update('personalAudiosCount', () => count || 0);
 				// TODO: refactor
-				if (this.storeData.shouldSearchBeUpdated) {
-					this.searchAudios(this.storeData.searchQuery);
-				}
 				this.emitChange();
 			}
 		});

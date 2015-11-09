@@ -174,8 +174,6 @@ class VKProvider {
 		!!ownerId && (requestData.owner_id = ownerId);
 
 		this.request('audio.add', requestData, (r) => {
-			console.info(r);
-			AppActions.getPersonalAudios(true);
 			success && success();
 		});
 	}
@@ -189,7 +187,7 @@ class VKProvider {
 
 		this.request('audio.delete', requestData, (r) => {
 			if (r && (r.response === 1)) {
-				AppActions.getPersonalAudios(true);
+				success && success();
 			}
 		});
 	}
