@@ -29,18 +29,16 @@ class SearchForm extends React.Component {
 
 	render () {
 		return (
-			<div className="row app-content-search-form-row">
-				<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<TextField
-						hintText="type here..."
-						floatingLabelText="search tracks..."
-						defaultValue={this.props.searchQuery}
-						onChange={this.searchAudio}
-						style={{
+			<div className="app-content-search-holder">
+				<TextField
+					hintText="type here..."
+					floatingLabelText="search tracks..."
+					defaultValue={this.props.searchQuery}
+					onChange={this.searchAudio}
+					style={{
 							width: '100%'
 						}}
-					/>
-				</div>
+				/>
 			</div>
 		);
 	}

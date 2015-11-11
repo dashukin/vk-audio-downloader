@@ -84,7 +84,8 @@ class ContentView extends React.Component {
 			playbackInfo,
 			downloadProgress,
 			searchQuery,
-			selectedAudioData;
+			selectedAudioData,
+			noResultsAudioData;
 
 		state = this.state;
 
@@ -101,6 +102,8 @@ class ContentView extends React.Component {
 
 		selectedAudioData = Map(state.selectedAudioId &&  _.find(audioList, {aid: state.selectedAudioId}) || {defaultText: 'Select audio to see it\'s description'});
 
+		noResultsAudioData = Map({defaultText: 'Search for audios to see additional info...'});
+
 		return (
 			<div className="app-content-wrapper">
 
@@ -108,22 +111,38 @@ class ContentView extends React.Component {
 
 				<div className="app-content-holder">
 
-					{hasSearch && <SearchForm searchQuery={searchQuery}/>}
+					<div className="app-content-sections">
 
-					<div className="row">
+						<div className="app-content-center">
 
-						<div className="col-lg-8 col-md-8 col-sm-8 col-xs-8 app-content-center">
+							<div className="app-content-center-inner-holder">
 
-							<AudioList contentType={this.props.route.contentType} audioList={audioList} personalAudioList={personalAudioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
+								{hasSearch && <SearchForm searchQuery={searchQuery}/>}
+
+								<AudioList
+									contentType={this.props.route.contentType}
+									audioList={audioList}
+									personalAudioList={personalAudioList}
+									playbackInfo={playbackInfo}
+									downloadProgress={downloadProgress}
+								/>
+
+							</div>
 
 						</div>
 
-						<div className="col-lg-4 col-md-4 col-sm-4 col-xs-4 app-content-sidebar-right">
+						<div className="app-content-sidebar-right">
 
-							{selectedAudioData.size
-								? <AudioItemDescription audioData={selectedAudioData} audioLyrics={state.audioLyrics} />
-								: <AudioItemDescription audioData={selectedAudioData} />
+							{(this.props.route.contentType === 'search')
+								? 	audioList.length
+										? <AudioItemDescription audioData={selectedAudioData} audioLyrics={state.audioLyrics} />
+										: <AudioItemDescription audioData={noResultsAudioData} audioLyrics={state.audioLyrics} />
+
+								: <AudioItemDescription audioData={selectedAudioData} audioLyrics={state.audioLyrics} />
+
 							}
+
+
 
 						</div>
 
