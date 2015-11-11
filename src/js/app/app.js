@@ -8,15 +8,23 @@ import AppStore from '../stores/app-store.js';
 import AppConstants from '../constants/app-constants.js';
 import AppDispatcher from '../dispatchers/app-dispatcher.js';
 import NotificationSystem from 'react-notification-system';
+import ThemeManager from 'material-ui/lib/styles/theme-manager.js';
+import AppTheme from '../theme/app-theme.js';
+
 
 class App extends React.Component {
 
 	constructor (props) {
 		super(props);
+		this.state = {
+			authState: 'loading'
+		}
 	}
 
-	state = {
-		authState: 'loading'
+	getChildContext () {
+		return {
+			muiTheme: ThemeManager.getMuiTheme(AppTheme)
+		}
 	}
 
 	componentWillMount () {
@@ -75,6 +83,10 @@ class App extends React.Component {
 			</div>
 		);
 	}
+};
+
+App.childContextTypes = {
+	muiTheme: React.PropTypes.object
 };
 
 export default App;

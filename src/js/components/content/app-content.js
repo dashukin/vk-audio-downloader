@@ -3,6 +3,7 @@
 import React from 'react';
 import SearchForm from '../content/app-content-search-form';
 import AudioList from '../content/app-content-audio-list.js';
+import AudioItemDescription from '../content/app-content-audio-item-description.js';
 import Header from '../content/app-content-header.js';
 import AppStore from '../../stores/app-store.js';
 import VKProvider from '../../providers/provider-vk.js';
@@ -54,7 +55,7 @@ class ContentView extends React.Component {
 
 		listType = routeType || this.props.route.contentType;
 
-		audioList = AppStore.getAudioList(listType) || [];
+		audioList = AppStore.getAudioList(listType, true) || [];
 		personalAudioList = AppStore.getAudioList('personal') || [];
 
 		storeData = AppStore.storeData || {};
@@ -65,7 +66,9 @@ class ContentView extends React.Component {
 			userInfo: storeData.userInfo,
 			playbackInfo: storeData.playbackInfo,
 			searchQuery: storeData.searchQuery,
-			downloadProgress: storeData.downloadProgress
+			downloadProgress: storeData.downloadProgress,
+			selectedAudioId: storeData.selectedAudioId,
+			audioLyrics: storeData.audioLyrics
 		});
 
 	}
@@ -80,7 +83,8 @@ class ContentView extends React.Component {
 			userInfo,
 			playbackInfo,
 			downloadProgress,
-			searchQuery;
+			searchQuery,
+			selectedAudioData;
 
 		state = this.state;
 
@@ -95,19 +99,38 @@ class ContentView extends React.Component {
 
 		searchQuery = state.searchQuery || '';
 
-		// {React.cloneElement(this.props.children, {})}
+		selectedAudioData = Map(state.selectedAudioId &&  _.find(audioList, {aid: state.selectedAudioId}) || {defaultText: 'Select audio to see it\'s description'});
 
 		return (
-			<div className="app-content">
-				<Header userInfo={userInfo} />
+			<div className="app-content-wrapper">
 
-				<div className="container app-content-container">
+				<Header userInfo={userInfo} history={this.props.history} />
+
+				<div className="app-content-holder">
 
 					{hasSearch && <SearchForm searchQuery={searchQuery}/>}
 
-					<AudioList contentType={this.props.route.contentType} audioList={audioList} personalAudioList={personalAudioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
+					<div className="row">
+
+						<div className="col-lg-8 col-md-8 col-sm-8 col-xs-8 app-content-center">
+
+							<AudioList contentType={this.props.route.contentType} audioList={audioList} personalAudioList={personalAudioList} playbackInfo={playbackInfo} downloadProgress={downloadProgress} />
+
+						</div>
+
+						<div className="col-lg-4 col-md-4 col-sm-4 col-xs-4 app-content-sidebar-right">
+
+							{selectedAudioData.size
+								? <AudioItemDescription audioData={selectedAudioData} audioLyrics={state.audioLyrics} />
+								: <AudioItemDescription audioData={selectedAudioData} />
+							}
+
+						</div>
+
+					</div>
 
 				</div>
+
 			</div>
 		);
 	}

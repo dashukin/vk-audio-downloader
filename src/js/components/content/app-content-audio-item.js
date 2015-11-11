@@ -10,6 +10,7 @@ import AudioPlayer from '../../player/audio-player.js';
 import ChromeProvider from '../../providers/provider-chrome.js';
 import CircleProgressBar from './app-content-progress-bar-circle.js';
 import {Map} from 'immutable';
+import AppUtils from '../../utils/app-utils';
 
 class AudioItem extends React.Component {
 
@@ -41,8 +42,6 @@ class AudioItem extends React.Component {
 			hadActualDownloadProgress;
 
 		updateState = this.state.isAdded !== newState.isAdded;
-
-		//console.info(newProps.isInPlaylist);
 
 		updatePlaybackInfo = props.playbackInfo !== newProps.playbackInfo;
 		updateDownloadProgress = !!newProps.downloadProgress && (props.downloadProgress !== newProps.downloadProgress);
@@ -123,7 +122,7 @@ class AudioItem extends React.Component {
 		couldBeAddedToAlbum = ((props.contentType === 'search') && (!props.isInPlaylist)) && !state.isAdded;
 
 		return (
-			<div className={"audio-item clearfix " + isActiveClassName}>
+			<div className={"audio-item clearfix " + isActiveClassName} onClick={this.setAudioItemSelected}>
 
 				<div className="audio-item-audioplayer">
 
@@ -201,6 +200,10 @@ class AudioItem extends React.Component {
 				</ul>
 			</div>
 		);
+	}
+
+	setAudioItemSelected = (e) => {
+		AppActions.setAudioItemSelected(this.props.data.aid);
 	}
 
 	download = (e) => {
@@ -314,35 +317,9 @@ class AudioItem extends React.Component {
 			: Math.floor(currentTime);
 
 		return {
-			timeProgress: this.convertSecondsToReadableTime((timeProgress || duration) | 0),
+			timeProgress: AppUtils.convertSecondsToReadableTime((timeProgress || duration) | 0),
 			timelineProgress: timelineProgress
 		}
-	}
-
-	convertSecondsToReadableTime (time) {
-
-		var days,
-			hours,
-			minutes,
-			seconds,
-			output;
-
-		time = time > 0 ? parseInt(time, 10) : 0;
-		if (!time || Object.prototype.toString.call(time).slice(8, -1) !== 'Number') return '00m 00s';
-
-		days 	= Math.floor(time / (3600 * 24)) || 0;
-		hours 	= Math.floor((time % (3600 * 24)) / 3600) || 0;
-		minutes = Math.floor((time % (3600 * 24) % 3600) / 60) || 0;
-		seconds = Math.floor(time % (3600 * 24) % 3600 % 60) || 0;
-
-		minutes = minutes + '';
-		minutes = minutes.length === 1 ? '0' + minutes : minutes;
-		seconds = seconds + '';
-		seconds = seconds.length === 1 ? '0' + seconds : seconds;
-
-		output = (days ? days + 'd ' : '') + (hours ? hours + 'h ' : '') + (minutes + 'm ') + (seconds + 's');
-
-		return output;
 	}
 
 	toggleDecrease = () => {

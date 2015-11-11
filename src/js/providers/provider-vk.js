@@ -215,6 +215,14 @@ class VKProvider {
 		});
 	}
 
+	loadLyrics ({lyricsId, success}) {
+		this.request('audio.getLyrics', {
+			lyrics_id: lyricsId
+		}, (r) => {
+			success && success(r);
+		});
+	}
+
 	authorize () {
 
 		var self = this;

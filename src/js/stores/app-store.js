@@ -34,11 +34,13 @@ class AppStore extends EventEmitter {
 					this.updateSearchResult();
 					break;
 				case AppConstants.ADD_TO_ALBUM:
-					//this.moveToAlbum(null, null, payload.audioId);
 					this.addToAlbum(payload.data);
 					break;
 				case AppConstants.REMOVE_FROM_ALBUM:
 					this.removeFromAlbum(payload.data);
+					break;
+				case AppConstants.SET_AUDIO_ITEM_SELECTED:
+					this.setAudioItemSelected(payload.audioId);
 					break;
 				case AppConstants.PLAY_AUDIO_BY_ID:
 					this.playAudioById(payload.audioId);
@@ -60,6 +62,9 @@ class AppStore extends EventEmitter {
 					break;
 				case AppConstants.TRACK_DOWNLOAD_PROGRESS:
 					this.trackDownloadProgress(payload.downloadProgress);
+					break;
+				case AppConstants.LOAD_LYRICS:
+					this.loadLyrics(payload.lyricsId);
 					break;
 			}
 			return true;
@@ -88,7 +93,8 @@ class AppStore extends EventEmitter {
 		shouldSearchBeUpdated: false,
 		currentAudioId: null,
 		currentPlayList: null,
-		shouldRefreshSearch: false
+		selectedAudioId: null,
+		audioLyrics: Map({})
 	}
 
 	emitChange (changeEvent) {
@@ -112,7 +118,6 @@ class AppStore extends EventEmitter {
 	}
 
 	logout () {
-		var self = this;
 		ChromeProvider.clearUsersCredentials({
 			success () {
 				document.location.reload();
@@ -165,13 +170,13 @@ class AppStore extends EventEmitter {
 
 		if (!this.storeData.personalAudios.length || !!refresh) {
 			VKProvider.getAudios((data) => {
+
 				storeData.personalAudios = data.audios; // TODO: create ability to load someone's audios
-				storeData.currentAudioList = data.audios;
-				AudioPlayer.loadAudioList(storeData.currentAudioList);
 
 				this.searchAudios(this.storeData.searchQuery);
 
 				this.emitChange();
+
 			});
 
 			this.getPersonalAudiosCount();
@@ -194,7 +199,7 @@ class AppStore extends EventEmitter {
 		});
 	}
 
-	getAudioList (listType) {
+	getAudioList (listType, setActive = false) {
 
 		var audioList;
 
@@ -207,7 +212,7 @@ class AppStore extends EventEmitter {
 				break;
 		}
 
-		this.changeCurrentPlayList(listType);
+		(setActive === true) && this.changeCurrentPlayList(listType);
 
 		return audioList;
 
@@ -217,13 +222,11 @@ class AppStore extends EventEmitter {
 		this.storeData.searchQuery = query;
 		VKProvider.searchAudios(query, (data) => {
 			this.storeData.searchResults = data.searchResults;
-			AudioPlayer.loadAudioList(data.searchResults);
 			this.emitChange();
 		});
 	}
 
 	updateSearchResult () {
-		console.warn('updateSearchResult');
 		this.storeData.shouldSearchBeUpdated = true;
 	}
 
@@ -237,16 +240,36 @@ class AppStore extends EventEmitter {
 
 	changeCurrentAudioId (audioId, emitChange) {
 		this.storeData.currentAudioId = audioId;
-		(emitChange !== false) &&this.emitChange(AppConstants.CHANGE_EVENT);
+		(emitChange !== false) && this.emitChange(AppConstants.CHANGE_EVENT);
 	}
 
 	getCurrentAudioId () {
 		return this.storeData.currentAudioId;
 	}
 
+	setAudioItemSelected (audioId) {
+		this.storeData.selectedAudioId = audioId;
+		this.emitChange();
+	}
+
+	loadLyrics (lyricsId) {
+
+		let audioLyrics = this.storeData.audioLyrics;
+
+		if (audioLyrics.has(+lyricsId)) {
+			return;
+		}
+		VKProvider.loadLyrics({
+			lyricsId: lyricsId,
+			success: (r) => {
+				let responseData = r.response;
+				this.storeData.audioLyrics = this.storeData.audioLyrics.update(+responseData.lyrics_id, () => responseData.text);
+				this.emitChange();
+			}
+		});
+	}
+
 	playAudioById (audioId) {
-		//this.storeData.playbackInfo.audioId = audioId;
-		//this.storeData.playbackInfo.paused = false;
 
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('audioId', () => audioId);
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('paused', () => false);
@@ -255,7 +278,6 @@ class AppStore extends EventEmitter {
 	}
 
 	pauseAudio () {
-		//this.storeData.playbackInfo.paused = true;
 
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('paused', () => true);
 
@@ -263,7 +285,6 @@ class AppStore extends EventEmitter {
 	}
 
 	stopAudio () {
-		//this.storeData.playbackInfo.audioId = null;
 
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('audioId', () => null);
 
@@ -272,15 +293,12 @@ class AppStore extends EventEmitter {
 
 	updatePlaybackTime (currentTime) {
 
-		//this.storeData.playbackInfo.currentTime = currentTime;
-
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('currentTime', () => currentTime);
 
 		this.emitChange();
 	}
 
 	updatePlaybackBuffered (buffered) {
-		//this.storeData.playbackInfo.buffered = buffered;
 
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('buffered', () => buffered);
 
@@ -309,7 +327,6 @@ class AppStore extends EventEmitter {
 	}
 
 	toggleDecrease () {
-		//this.storeData.playbackInfo.decreaseTime = !this.storeData.playbackInfo.decreaseTime;
 
 		this.storeData.playbackInfo = this.storeData.playbackInfo.update('decreaseTime', () => !this.storeData.playbackInfo.get('decreaseTime'));
 

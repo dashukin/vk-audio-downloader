@@ -82,6 +82,12 @@ let Actions = {
 			audioId: payload
 		});
 	},
+	setAudioItemSelected (payload) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.SET_AUDIO_ITEM_SELECTED,
+			audioId: payload
+		});
+	},
 	playAudioById (payload) {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.PLAY_AUDIO_BY_ID,
@@ -119,6 +125,12 @@ let Actions = {
 		AppDispatcher.dispatch({
 			actionType: AppConstants.TRACK_DOWNLOAD_PROGRESS,
 			downloadProgress: downloadProgress
+		})
+	},
+	loadLyrics (payload) {
+		AppDispatcher.dispatch({
+			actionType: AppConstants.LOAD_LYRICS,
+			lyricsId: payload
 		})
 	}
 };

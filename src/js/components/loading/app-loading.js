@@ -1,17 +1,15 @@
 import React from 'react';
+import {CircularProgress} from 'material-ui';
 
 class LoadingView extends React.Component {
 
 	render () {
 		return (
 			<div className="loading">
-				<div className="spinner">
-					<div className="rect1"></div>
-					<div className="rect2"></div>
-					<div className="rect3"></div>
-					<div className="rect4"></div>
-					<div className="rect5"></div>
-				</div>
+				<CircularProgress
+					mode="indeterminate"
+					size={this.props.size || 0.5}
+				/>
 			</div>
 		);
 	}

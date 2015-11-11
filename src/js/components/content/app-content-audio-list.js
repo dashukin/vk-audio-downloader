@@ -47,7 +47,6 @@ class AudioList extends React.Component {
 			isActiveAudio = audioData.aid === playbackInfo.get('audioId');
 
 			playBackInfoProperties = isActiveAudio ? playbackInfo : null;
-			//playBackInfoProperties = Immutable.fromJS(playBackInfoProperties);
 			isInPlaylist = !!_.find(personalAudioList, {aid: audioData.aid});
 
 			return <AudioItem contentType={this.props.contentType} data={audioData} downloadProgress={props.downloadProgress} key={audioData.aid} playbackInfo={playBackInfoProperties} isInPlaylist={isInPlaylist} />

@@ -2,6 +2,7 @@
 import React from 'react';
 import AppStore from '../../stores/app-store.js';
 import AppActions from '../../actions/app-actions.js';
+import {TextField} from 'material-ui';
 
 class SearchForm extends React.Component {
 
@@ -30,7 +31,15 @@ class SearchForm extends React.Component {
 		return (
 			<div className="row app-content-search-form-row">
 				<div className="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<input ref="searchInput" type="text" className="form-control" placeholder="Type here..." defaultValue={this.props.searchQuery} onChange={this.searchAudio}/>
+					<TextField
+						hintText="type here..."
+						floatingLabelText="search tracks..."
+						defaultValue={this.props.searchQuery}
+						onChange={this.searchAudio}
+						style={{
+							width: '100%'
+						}}
+					/>
 				</div>
 			</div>
 		);

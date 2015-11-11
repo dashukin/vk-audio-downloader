@@ -54,7 +54,7 @@ body {
 }
 
 .spinner > div {
-	background-color: #009688;
+	background-color: #1976d2;
 	height: 100%;
 	width: 6px;
 	display: inline-block;
@@ -99,21 +99,24 @@ body {
 }
 
 /* app-content */
+.app-content-wrapper {
+
+}
+.app-content-holder {
+	padding: 0 15px;
+}
 .app-content-container {
-	/*padding-top: 60px;*/
-	/*height: 100%;*/
-	/*overflow: hidden;*/
+
 }
 
 /* app-content-header */
 .app-content-header-navbar {
-	/*margin-bottom: 0;*/
+
 }
 
 /* search */
 .app-content-search-form-row {
-	/*padding-top: 15px;*/
-	/*padding-bottom: 15px;*/
+
 }
 .search-results {
 	padding-top: 20px;
@@ -128,7 +131,11 @@ body {
 .audio-item {
 	padding: 10px;
 	border-radius: 3px;
+	cursor: pointer;
 	/*border-bottom: 1px solid #ccc;*/
+}
+.audio-item a {
+	color: #1976d2;
 }
 .audio-item.active-item {
 	background: #F0F3F1;
@@ -181,7 +188,7 @@ body {
 	height: 100%;
 	top: 0;
 	left: 0;
-	background: #009688;
+	background: #1976d2;
 	overflow: hidden;
 }
 .progress-bar-overlay {
@@ -232,9 +239,9 @@ body {
 	font-size: 10px;
 	position: relative;
 	text-indent: -9999em;
-	border-top: 2px solid #009688;
-	border-right: 2px solid #009688;
-	border-bottom: 2px solid #009688;
+	border-top: 2px solid #1976d2;
+	border-right: 2px solid #1976d2;
+	border-bottom: 2px solid #1976d2;
 	border-left: 2px solid #ffffff;
 	-webkit-transform: translateZ(0);
 	-ms-transform: translateZ(0);
@@ -320,7 +327,9 @@ body {
 	left: 0;
 	pointer-events: none;
 }
-.progress-bar {}
+.audio-info .progress-bar {
+	background: #1976d2
+}
 .audio-timeline {
 	z-index: 2;
 }
