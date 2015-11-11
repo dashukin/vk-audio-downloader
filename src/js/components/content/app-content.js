@@ -30,10 +30,6 @@ class ContentView extends React.Component {
 		AppStore.addChangeListener(AppConstants.CHANGE_EVENT, this.storeChangesHandler);
 	}
 
-	componentDiDMount () {
-
-	}
-
 	componentWillReceiveProps (nextProps) {
 
 		if (this.props.contentType !== nextProps.route.contentType) {
@@ -100,7 +96,7 @@ class ContentView extends React.Component {
 
 		searchQuery = state.searchQuery || '';
 
-		selectedAudioData = Map(state.selectedAudioId &&  _.find(audioList, {aid: state.selectedAudioId}) || {defaultText: 'Select audio to see it\'s description'});
+		selectedAudioData = Map(state.selectedAudioId &&  _.find(audioList, {aid: state.selectedAudioId}) || {defaultText: 'Select audio to see it\'s description...'});
 
 		noResultsAudioData = Map({defaultText: 'Search for audios to see additional info...'});
 
