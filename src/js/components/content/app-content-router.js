@@ -49,9 +49,7 @@ class AppContentRouter extends React.Component {
 		);
 
 		return (
-			<div ref="routes">
-				<Router history={history}>{routes}</Router>
-			</div>
+			<Router history={history}>{routes}</Router>
 		);
 	}
 };

@@ -78,7 +78,7 @@ class App extends React.Component {
 				break;
 		}
 		return (
-			<div className={appClassName}>
+			<div className={'app-view-holder ' + appClassName}>
 				{view}
 			</div>
 		);

@@ -100,13 +100,48 @@ body {
 
 /* app-content */
 .app-content-wrapper {
-
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+.app-header-holder {
+	flex-basis: 64px;
+	position: relative;
+	z-index: 10;
 }
 .app-content-holder {
+	flex-basis: 100%;
 	padding: 0 15px;
+	height: 100%;
+	overflow: hidden;
 }
-.app-content-container {
-
+.app-content-sections {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+}
+.app-content-center {
+	flex-basis: 65%;
+	height: 100%;
+	overflow-y: scroll;
+	box-sizing: border-box;
+}
+.app-content-center-inner-holder {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.app-content-search-holder {
+	flex-basis: 72px;
+}
+.app-content-audio-list {
+	flex-basis: 100%;
+	overflow: scroll;
+}
+.app-content-sidebar-right {
+	flex-basis: 35%;
+	overflow-y: scroll;
+	box-sizing: border-box;
 }
 
 /* app-content-header */
@@ -115,7 +150,7 @@ body {
 }
 
 /* search */
-.app-content-search-form-row {
+.app-content-search-holder {
 
 }
 .search-results {
@@ -123,7 +158,7 @@ body {
 }
 
 /* audio list */
-.audio-list {
+.app-content-audio-list {
 	padding-top: 15px;
 }
 

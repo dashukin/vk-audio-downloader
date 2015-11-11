@@ -41,7 +41,7 @@ class Header extends React.Component {
 		userName = firstName ? ', ' + firstName/* + (lastName ? ' ' + lastName + '!' : '!')*/ : '!';
 
 		return (
-			<div className="">
+			<div className="app-header-holder">
 				<AppBar
 					title={"Welcome"+userName}
 					showMenuIconButton={true}
