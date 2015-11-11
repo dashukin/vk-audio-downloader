@@ -6,7 +6,10 @@ var gulp = require('gulp'),
 	autoprefixer = require('gulp-autoprefixer'),
 	plumber = require('gulp-plumber'),
 	concatCss = require('gulp-concat-css'),
-	order = require('gulp-order');
+	order = require('gulp-order'),
+	environments = require('gulp-environments'),
+	development = environments.development,
+	production = environments.production;
 
 gulp.task('styles', function () {
 	gulp.src('src/css/**/*.css')
@@ -36,7 +39,6 @@ gulp.task('chromeExtensionApp', function () {
 
 	// copy js
 	gulp.src('build/js/*.js')
-		//.pipe(uglifyJs())
 		.pipe(gulp.dest('chrome-extension/app/build/js/'));
 
 	// copy html
@@ -57,4 +59,10 @@ gulp.task('watchBundles', function () {
 	gulp.watch('index.html', ['chromeExtensionApp']);
 });
 
-gulp.task('default', ['styles', 'watch', 'watchBundles']);
+var tasks = ['styles', 'chromeExtensionApp'];
+
+if (development()) {
+	tasks.push('watch', 'watchBundles');
+}
+
+gulp.task('default', tasks);
