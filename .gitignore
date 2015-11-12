@@ -83,6 +83,8 @@ bower_components
 
 build
 chrome-extension/app/build
+chrome-extension/app/vk-audio-downloader.zip
+src/images/screens
 
 
 .gitignore

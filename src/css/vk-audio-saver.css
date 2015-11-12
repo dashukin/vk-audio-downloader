@@ -172,8 +172,11 @@ body {
 .audio-item a {
 	color: #1976d2;
 }
+.audio-item.selected-item {
+	background: rgba(25, 118, 210, 0.1);
+}
 .audio-item.active-item {
-	background: #F0F3F1;
+	background: rgba(25, 118, 210, 0.2);
 }
 .audio-item-audioplayer {
 	padding-right: 90px;

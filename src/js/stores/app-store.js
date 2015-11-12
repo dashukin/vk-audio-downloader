@@ -247,9 +247,10 @@ class AppStore extends EventEmitter {
 		return this.storeData.currentAudioId;
 	}
 
-	setAudioItemSelected (audioId) {
+	setAudioItemSelected ({audioId, lyricsId}) {
 		this.storeData.selectedAudioId = audioId;
 		this.emitChange();
+		lyricsId && this.loadLyrics(lyricsId);
 	}
 
 	loadLyrics (lyricsId) {

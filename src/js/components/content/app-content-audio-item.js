@@ -95,18 +95,18 @@ class AudioItem extends React.Component {
 		isPaused = isActiveAudio && !!playbackInfo.paused;
 
 		if (isActiveAudio) {
-			isActiveClassName = 'active-item'
+			isActiveClassName = 'active-item';
 			currentTime = playbackInfo.currentTime;
 			buffered = playbackInfo.buffered;
 			seekAudioHandler = this.seekAudioProgress;
 		}
 
-		actualTimeData = this.getActualTime(currentTime, audioData.duration);
+		actualTimeData = this.getActualTime(currentTime, duration);
 
 		timeProgress = actualTimeData.timeProgress;
 		timelineProgress = actualTimeData.timelineProgress;
 
-		bufferedPercents = this.getBufferingProgress(audioData.duration, buffered);
+		bufferedPercents = this.getBufferingProgress(duration, buffered);
 
 
 		isPLayingClassName 	= isActiveAudio && !isPaused ? 'mdi-av-pause' : 'mdi-av-play-arrow';
@@ -171,7 +171,7 @@ class AudioItem extends React.Component {
 										<span className="mdi-file-folder-open"></span>
 									</a>
 
-							: 	<a className="audio-download" target="_blank" onClick={this.download} href={audioData.url}>
+							: 	<a className="audio-download" target="_blank" onClick={this.download} href={audioData.url} title="Download track">
 									<i className="mdi-file-file-download"></i>
 								</a>
 						}
@@ -203,8 +203,14 @@ class AudioItem extends React.Component {
 	}
 
 	setAudioItemSelected = (e) => {
-		AppActions.setAudioItemSelected(this.props.data.aid);
-	}
+
+		!!e && e.preventDefault();
+
+		AppActions.setAudioItemSelected({
+			audioId: this.props.data.aid,
+			lyricsId: +this.props.data.lyrics_id
+		});
+	};
 
 	download = (e) => {
 
@@ -216,11 +222,11 @@ class AudioItem extends React.Component {
 
 		ChromeProvider.downloadFile({filename, url});
 
-	}
+	};
 
 	show = (downloadId) => {
 		ChromeProvider.showDownloadedFile(downloadId);
-	}
+	};
 
 	play = (e) => {
 
@@ -235,7 +241,7 @@ class AudioItem extends React.Component {
 		AudioPlayer.play({
 			audioId: audioId
 		});
-	}
+	};
 
 	pause = (e) => {
 
@@ -245,7 +251,7 @@ class AudioItem extends React.Component {
 
 		AudioPlayer.pause();
 
-	}
+	};
 
 	stop = (e) => {
 
@@ -259,7 +265,7 @@ class AudioItem extends React.Component {
 			audioId: self.props.data.aid
 		});
 
-	}
+	};
 
 	seekAudioProgress = (e) => {
 
@@ -283,7 +289,7 @@ class AudioItem extends React.Component {
 			percents: clickPercent
 		});
 
-	}
+	};
 
 	getBufferingProgress (duration, buffered) {
 
@@ -326,7 +332,7 @@ class AudioItem extends React.Component {
 
 		AppActions.toggleDecrease();
 
-	}
+	};
 
 	addToAlbum = (e) => {
 
@@ -340,7 +346,7 @@ class AudioItem extends React.Component {
 			isAdded: true
 		});
 		AppActions.updateSearchResults();
-	}
+	};
 
 	removeFromAlbum = (e) => {
 
@@ -351,13 +357,7 @@ class AudioItem extends React.Component {
 			ownerId: this.props.data.owner_id
 		});
 
-	}
-
-	playAudio () {
-
-		this.play();
-
-	}
+	};
 
 	prepareFileName (input) {
 
