@@ -9,7 +9,7 @@ import AppActions from '../../actions/app-actions.js';
 class AudioItemDescription extends React.Component {
 
 	componentDidMount () {
-		this.loadLyrics();
+		//this.loadLyrics();
 	}
 
 	shouldComponentUpdate (nextProps) {
@@ -20,7 +20,7 @@ class AudioItemDescription extends React.Component {
 	}
 
 	componentDidUpdate () {
-		this.loadLyrics();
+		//this.loadLyrics();
 	}
 
 	loadLyrics () {
@@ -46,7 +46,7 @@ class AudioItemDescription extends React.Component {
 		}
 
 		return (
-			<Card style={{boxShadow: 'none', marginTop: '15px'}}>
+			<Card style={{boxShadow: 'none', marginTop: '15px', paddingBottom: '60px'}}>
 				{defaultText &&
 					<CardTitle
 						subtitle={defaultText}
@@ -63,7 +63,7 @@ class AudioItemDescription extends React.Component {
 					{duration &&
 						<p>{readableDuration}</p>
 					}
-					<div style={{whiteSpace: 'pre'}}>{lyricsOutput}</div>
+					<div style={{whiteSpace: 'pre-wrap'}}>{lyricsOutput}</div>
 				</CardText>
 			</Card>
 		);

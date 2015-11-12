@@ -35,10 +35,14 @@ class Header extends React.Component {
 			firstName = userInfo.get('firstName'),
 			lastName = userInfo.get('lastName'),
 			personalAudiosCount = userInfo.get('personalAudiosCount'),
-			userName;
+			userName,
+			myAudiosText;
 
 
 		userName = firstName ? ', ' + firstName/* + (lastName ? ' ' + lastName + '!' : '!')*/ : '!';
+
+		myAudiosText = 'My audios ' + (!!personalAudiosCount ? '(' + personalAudiosCount + ')' : '');
+
 
 		return (
 			<div className="app-header-holder">
@@ -58,8 +62,8 @@ class Header extends React.Component {
 					docked={false}
 					isInitiallyOpen={false}
 					menuItems={[
-						{route: '/search', text: 'search'},
-						{route: '/my-audio', text: 'my audios'}
+						{route: '/search', text: 'Search'},
+						{route: '/my-audio', text: myAudiosText}
 
 					]}
 					onChange={this.handleLeftNavItemClick}
