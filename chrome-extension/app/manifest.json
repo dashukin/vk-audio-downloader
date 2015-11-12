@@ -1,6 +1,6 @@
 {
   "name": "VK Audio downloader",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "manifest_version": 2,
   "description": "Simple app for listening and downloading music using vk.com API",
   "icons": {

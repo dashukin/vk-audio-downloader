@@ -1,6 +1,6 @@
 {
   "name": "vk-audio-downloader",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Simple service to download audio files from vk.com",
   "main": "index.js",
   "dependencies": {
